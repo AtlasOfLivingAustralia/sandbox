@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: au.org.ala:biocache-jms:1.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$M2_REPO$/au/org/ala/biocache-jms/1.0-SNAPSHOT/biocache-jms-1.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$M2_REPO$/au/org/ala/biocache-jms/1.0-SNAPSHOT/biocache-jms-1.0-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$M2_REPO$/au/org/ala/biocache-jms/1.0-SNAPSHOT/biocache-jms-1.0-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

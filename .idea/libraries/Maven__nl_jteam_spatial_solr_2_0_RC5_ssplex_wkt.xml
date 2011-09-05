@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: nl.jteam:spatial-solr:2.0-RC5_ssplex_wkt">
+    <CLASSES>
+      <root url="jar://$M2_REPO$/nl/jteam/spatial-solr/2.0-RC5_ssplex_wkt/spatial-solr-2.0-RC5_ssplex_wkt.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$M2_REPO$/nl/jteam/spatial-solr/2.0-RC5_ssplex_wkt/spatial-solr-2.0-RC5_ssplex_wkt-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$M2_REPO$/nl/jteam/spatial-solr/2.0-RC5_ssplex_wkt/spatial-solr-2.0-RC5_ssplex_wkt-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

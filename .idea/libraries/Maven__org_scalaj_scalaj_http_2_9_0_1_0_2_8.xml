@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.scalaj:scalaj-http_2.9.0-1:0.2.8">
+    <CLASSES>
+      <root url="jar://$M2_REPO$/org/scalaj/scalaj-http_2.9.0-1/0.2.8/scalaj-http_2.9.0-1-0.2.8.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$M2_REPO$/org/scalaj/scalaj-http_2.9.0-1/0.2.8/scalaj-http_2.9.0-1-0.2.8-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$M2_REPO$/org/scalaj/scalaj-http_2.9.0-1/0.2.8/scalaj-http_2.9.0-1-0.2.8-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
