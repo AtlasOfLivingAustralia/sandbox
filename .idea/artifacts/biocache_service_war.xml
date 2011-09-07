@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="biocache-service:war">
-    <output-path>$PROJECT_DIR$/../biocache-service/target</output-path>
-    <root id="archive" name="biocache-service.war">
-      <element id="artifact" artifact-name="biocache-service:war exploded" />
-    </root>
-  </artifact>
-</component>
