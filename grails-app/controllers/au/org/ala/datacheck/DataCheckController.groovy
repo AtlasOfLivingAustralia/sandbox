@@ -116,30 +116,11 @@ class DataCheckController {
     String headers = request.getParameter("headers").trim()
     String csvData = request.getParameter("rawData").trim()
     String separator = getSeparatorName(csvData)
-
     String datasetName = request.getParameter("datasetName").trim()
-    def firstLineIsData = Boolean.parseBoolean(request.getParameter("firstLineIsData"))
-    def http = new HttpClient()
-    def post = new PostMethod("http://ala-rufus.it.csiro.au:8080/biocache-service/upload/post")
-    //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
-    NameValuePair[] nameValuePairs = new NameValuePair[4]
-
-    nameValuePairs[0] = new NameValuePair("csvData", csvData)
-    nameValuePairs[1] = new NameValuePair("headers", headers)
-    nameValuePairs[2] = new NameValuePair("datasetName", datasetName)
-    nameValuePairs[3] = new NameValuePair("separator", separator)
-    post.setRequestBody(nameValuePairs)
-
-    http.executeMethod(post)
-
-    println(post.getResponseBodyAsString())
+    String firstLineIsData = request.getParameter("firstLineIsData")
+    def responseString = biocacheService.uploadData(csvData,headers,datasetName,separator,firstLineIsData)
     response.setContentType("application/json")
-
-    //reference the UID caches
-    def get = new GetMethod("http://ala-rufus.it.csiro.au:8080/biocache-service/cache/refresh")
-    http.executeMethod(get)
-
-    render(post.getResponseBodyAsString())
+    render(responseString)
   }
 
 /*

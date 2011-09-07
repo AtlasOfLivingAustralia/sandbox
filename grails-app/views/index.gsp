@@ -70,7 +70,7 @@
               "datasetName": $('#datasetName').val(), "firstLineIsData": $('#firstLineIsData').val() },
             function(data){
               //alert('Value returned from service: '  + data.uid);
-              $('#uploadFeedback').html('<p class="uploaded">Dataset uploaded.&nbsp;&nbsp;<a href="http://ala-rufus.it.csiro.au:8080/hubs-webapp/occurrences/search?q=data_resource_uid:' + data.uid + '" target="_blank">Click here to view your data</a></span>.</p>');
+              $('#uploadFeedback').html('<p class="uploaded">Dataset uploaded.&nbsp;&nbsp;<a href="http://sandbox.ala.org.au/hubs-webapp/occurrences/search?q=data_resource_uid:' + data.uid + '" target="_blank">Click here to view your data</a></span>.</p>');
             }
         );
       }

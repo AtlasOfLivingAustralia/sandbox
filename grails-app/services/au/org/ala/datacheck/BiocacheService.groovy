@@ -3,6 +3,8 @@ package au.org.ala.datacheck
 import org.apache.commons.httpclient.methods.PostMethod
 import org.apache.commons.httpclient.HttpClient
 import grails.converters.JSON
+import org.apache.commons.httpclient.NameValuePair
+import org.apache.commons.httpclient.methods.GetMethod
 
 class BiocacheService {
 
@@ -10,7 +12,7 @@ class BiocacheService {
 
     def serviceMethod() {}
 
-    def biocacheServiceUrl = "http://ala-rufus.it.csiro.au:8080/biocache-service"
+    def biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
 
     def areColumnHeaders(String[] columnHeadersUnparsed){
       def post = new PostMethod(biocacheServiceUrl + "/parser/areDwcTerms")
@@ -75,6 +77,41 @@ class BiocacheService {
       parsedRecord.assertions = qualityAssertions.toArray()
 
       parsedRecord
+    }
+
+   /**
+    *  Upload the data to the biocache, passing back the response
+    * @param csvData
+    * @param headers
+    * @param datasetName
+    * @param separator
+    * @param firstLineIsData
+    * @return
+    */
+    def uploadData(String csvData, String headers, String datasetName, String separator, String firstLineIsData){
+
+      //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
+      NameValuePair[] nameValuePairs = new NameValuePair[5]
+      nameValuePairs[0] = new NameValuePair("csvData", csvData)
+      nameValuePairs[1] = new NameValuePair("headers", headers)
+      nameValuePairs[2] = new NameValuePair("datasetName", datasetName)
+      nameValuePairs[3] = new NameValuePair("separator", separator)
+      nameValuePairs[4] = new NameValuePair("firstLineIsData", firstLineIsData)
+
+      def post = new PostMethod(biocacheServiceUrl + "/upload/post")
+      post.setRequestBody(nameValuePairs)
+
+      def http = new HttpClient()
+      http.executeMethod(post)
+
+      //TODO check the response
+      println(post.getResponseBodyAsString())
+
+      //reference the UID caches
+      def get = new GetMethod(biocacheServiceUrl + "/cache/refresh")
+      http.executeMethod(get)
+
+      return post.getResponseBodyAsString()
     }
 }
 
