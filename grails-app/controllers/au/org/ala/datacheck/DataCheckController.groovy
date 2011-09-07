@@ -5,6 +5,7 @@ import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.PostMethod
 
 import org.apache.commons.httpclient.NameValuePair
+import org.apache.commons.httpclient.methods.GetMethod
 
 class DataCheckController {
 
@@ -18,10 +19,9 @@ class DataCheckController {
 
   def parseColumns = {
 
-    def raw = request.getParameter("rawData")
-
-    //assume its comma separated for now
-    def csvReader = new CSVReader(new StringReader(raw))
+    //is it comma separated or tab separated
+    def raw = request.getParameter("rawData").trim()
+    CSVReader csvReader = getCSVReaderForText(raw)
 
     //determine column headers
     def columnHeadersUnparsed = csvReader.readNext()
@@ -58,9 +58,34 @@ class DataCheckController {
     render(view:'parsedData',  model:[columnHeaders:columnHeaders, dataRows:dataRows, firstLineIsData:firstLineIsData])
   }
 
+  def getCSVReaderForText(String raw) {
+    def separator = getSeparator(raw)
+    def csvReader = new CSVReader(new StringReader(raw), separator.charAt(0))
+    csvReader
+  }
+
+  def getSeparator(String raw) {
+    int tabs = raw.count("\t")
+    int commas = raw.count(",")
+    if(tabs > commas)
+      return '\t'
+    else
+      return ','
+  }
+
+  def getSeparatorName(String raw) {
+    int tabs = raw.count("\t")
+    int commas = raw.count(",")
+    if(tabs > commas)
+      return "TAB"
+    else
+      return "COMMA"
+  }
+
+
   def processData = {
     String[] headers = request.getParameter("headers").split(",")
-    def csvData = request.getParameter("rawData")
+    def csvData = request.getParameter("rawData").trim()
     def firstLineIsData = Boolean.parseBoolean(request.getParameter("firstLineIsData"))
 
     //the data to pass back
@@ -68,7 +93,7 @@ class DataCheckController {
 
     def counter = 0
 
-    def csvReader = new CSVReader(new StringReader(csvData))
+    def csvReader = getCSVReaderForText(csvData)
     def currentLine = csvReader.readNext()
     if(firstLineIsData){
       counter += 1
@@ -88,24 +113,32 @@ class DataCheckController {
 
   def upload = {
     //read the csv
-    String headers = request.getParameter("headers")
-    String csvData = request.getParameter("rawData")
-    String datasetName = request.getParameter("datasetName")
+    String headers = request.getParameter("headers").trim()
+    String csvData = request.getParameter("rawData").trim()
+    String separator = getSeparatorName(csvData)
+
+    String datasetName = request.getParameter("datasetName").trim()
     def firstLineIsData = Boolean.parseBoolean(request.getParameter("firstLineIsData"))
     def http = new HttpClient()
     def post = new PostMethod("http://ala-rufus.it.csiro.au:8080/biocache-service/upload/post")
     //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
-    NameValuePair[] nameValuePairs = new NameValuePair[3]
+    NameValuePair[] nameValuePairs = new NameValuePair[4]
 
     nameValuePairs[0] = new NameValuePair("csvData", csvData)
     nameValuePairs[1] = new NameValuePair("headers", headers)
     nameValuePairs[2] = new NameValuePair("datasetName", datasetName)
+    nameValuePairs[3] = new NameValuePair("separator", separator)
     post.setRequestBody(nameValuePairs)
 
     http.executeMethod(post)
 
     println(post.getResponseBodyAsString())
     response.setContentType("application/json")
+
+    //reference the UID caches
+    def get = new GetMethod("http://ala-rufus.it.csiro.au:8080/biocache-service/cache/refresh")
+    http.executeMethod(get)
+
     render(post.getResponseBodyAsString())
   }
 

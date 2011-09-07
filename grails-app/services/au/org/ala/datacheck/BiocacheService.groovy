@@ -40,11 +40,15 @@ class BiocacheService {
       //construct the map
       def map = new HashMap()
       headers.eachWithIndex {header, idx ->  map.put(header, record[idx])}
-      post.setRequestBody(map.encodeAsJSON())
+      def requestAsJSON = map.encodeAsJSON()
+      println(requestAsJSON)
+      post.setRequestBody(requestAsJSON)
       http.executeMethod(post)
 
       //parse the result as a ParsedRecord
-      def json = JSON.parse(post.getResponseBodyAsString())
+      def responseAsJSON = post.getResponseBodyAsString()
+      println(responseAsJSON)
+      def json = JSON.parse(responseAsJSON)
 
       ParsedRecord parsedRecord = new ParsedRecord()
 

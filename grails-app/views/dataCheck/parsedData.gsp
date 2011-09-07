@@ -2,16 +2,15 @@
 <div>
     <style type="text/css">
       table { border-collapse: collapse; }
-      th { font-size: 12px; border-collapse: collapse; border: 1px; padding:2px; background-color: #000000; color: #ffffff;}
-      td { font-size: 11px; border-collapse: collapse; border: 1px;}
+      th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}
+      td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}
     </style>
 <table>
     <thead>
     <g:each in="${columnHeaders}" var="header">
       <th>
-        <g:if test="${header}">${header}</g:if>
-        <g:else><span class="unrecognised">Unknown</span></g:else>
-       </th>
+        <input class="columnHeaderInput" type="text" value="${header ? header : 'Unknown'}" style="${header ? '' : 'background-color: #E9AB17;'}"/>
+      </th>
     </g:each>
     </thead>
     <tbody>
