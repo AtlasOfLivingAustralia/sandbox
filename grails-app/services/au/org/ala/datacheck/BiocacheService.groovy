@@ -35,6 +35,21 @@ class BiocacheService {
       JSON.parse(post.getResponseBodyAsString())
     }
 
+    def mapColumnHeaders(String[] columnHeadersUnparsed){
+      def post = new PostMethod(biocacheServiceUrl + "/parser/mapTerms")
+      def http = new HttpClient()
+      def json = columnHeadersUnparsed.encodeAsJSON()
+    //  post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
+      post.setRequestBody(json)
+      http.executeMethod(post)
+      def map = JSON.parse(post.getResponseBodyAsString())
+      def orderedMap = new LinkedHashMap<String,String>()
+      columnHeadersUnparsed.each { key ->
+           orderedMap.put(key, map.get(key))
+      }
+      orderedMap
+    }
+
     def processRecord(String[] headers, String[] record){
 
       def post = new PostMethod(biocacheServiceUrl + "/process/adhoc")

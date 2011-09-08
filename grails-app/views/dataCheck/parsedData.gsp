@@ -5,13 +5,23 @@
       th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}
       td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}
     </style>
+  <h1> </h1>
 <table>
     <thead>
-    <g:each in="${columnHeaders}" var="header">
-      <th>
-        <input class="columnHeaderInput" type="text" value="${header ? header : 'Unknown'}" style="${header ? '' : 'background-color: #E9AB17;'}"/>
-      </th>
-    </g:each>
+    <g:if test="${columnHeaderMap}">
+      <g:each in="${columnHeaderMap}" var="hdr">
+        <th>
+          <input class="columnHeaderInput" type="text" value="${hdr.value ? hdr.value : hdr.key}" style="${hdr.value != '' ? '' : 'background-color: #E9AB17;'}"/>
+        </th>
+      </g:each>
+    </g:if>
+    <g:else>
+      <g:each in="${columnHeaders}" var="header">
+        <th>
+          <input class="columnHeaderInput" type="text" value="${header ? header : 'Unknown'}" style="${header ? '' : 'background-color: #E9AB17;'}"/>
+        </th>
+      </g:each>
+    </g:else>
     </thead>
     <tbody>
     <g:each in="${dataRows}" var="row">

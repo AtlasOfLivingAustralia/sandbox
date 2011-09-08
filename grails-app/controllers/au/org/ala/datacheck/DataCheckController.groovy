@@ -28,6 +28,7 @@ class DataCheckController {
     println("Unparsed>> "  + columnHeadersUnparsed)
 
     def columnHeaders = null
+    def columnHeaderMap = null
     def firstLineIsData  = false
     def dataRows = new ArrayList<String[]>()
 
@@ -35,7 +36,7 @@ class DataCheckController {
     if(biocacheService.areColumnHeaders(columnHeadersUnparsed)){
       println("First line of data recognised as darwin core terms")
       firstLineIsData = false
-      columnHeaders = biocacheService.guessColumnHeaders(columnHeadersUnparsed)
+      columnHeaderMap = biocacheService.mapColumnHeaders(columnHeadersUnparsed)
     } else {
       //first line is data
       println("First line of data is assumed to be data")
@@ -54,7 +55,11 @@ class DataCheckController {
       currentLine = csvReader.readNext()
     }
     // pass back HTML table
-    render(view:'parsedData',  model:[columnHeaders:columnHeaders, dataRows:dataRows, firstLineIsData:firstLineIsData])
+    if(firstLineIsData){
+      render(view:'parsedData',  model:[columnHeaders:columnHeaders, dataRows:dataRows, firstLineIsData:firstLineIsData])
+    } else {
+      render(view:'parsedData',  model:[columnHeaderMap:columnHeaderMap, dataRows:dataRows, firstLineIsData:firstLineIsData])
+    }
   }
 
   def getCSVReaderForText(String raw) {

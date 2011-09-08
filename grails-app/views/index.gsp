@@ -108,19 +108,19 @@
   <div id="initialPaste">
     <h2>1. Paste your CSV data here</h2>
     <g:textArea id="copyPasteData" name="copyPasteData" rows="15" cols="120"
-                onkeyup="javascript:window.setTimeout(parseColumns(), 2000, true);"></g:textArea>
+        onkeyup="javascript:window.setTimeout(parseColumns(), 2000, true);"></g:textArea>
     <g:submitButton id="checkData" class="actionButton" name="checkData" value="Check Data"
-                    onclick="javascript:parseColumns();"/>
+        onclick="javascript:parseColumns();"/>
     <p id="processingInfo"></p>
-
   </div>
 
   <div id="recognisedDataDiv">
     <h2>2. Recognised data</h2>
-    <p>Adjust headings that have been incorrectly matched using the text boxes. After adjusting, click the
+    <p>Adjust headings that have been incorrectly matched using the text boxes. Fields marked in yellow havent been matched
+    to a recognised field name.<br/>
+    After adjusting, click the
     <g:submitButton id="processData2" name="processData2" class="actionButton" value="Reprocess sample"
                     onclick="javascript:processedData();"/>
-
     button.</p>
     <div id="recognisedData"></div>
     <g:submitButton id="processData" name="processData" class="actionButton" value="Reprocess sample"
@@ -150,7 +150,7 @@
     </g:each></g:textArea>
   </div>
 
-</div>
+  </div>
 
   </div>
 </div>
