@@ -8,6 +8,7 @@
     .sensitiveField {background-color: red; color:white;}
     .changedValue { color:#006400; }
     .fieldNameTD { text-align: right; padding-right:5px;}
+    #processedSampleTable td { max-width:410px; }
   </style>
     <g:each in="${processedRecords}" var="processedRecord" status="recordStatus">
       <table id="processedSampleTable">

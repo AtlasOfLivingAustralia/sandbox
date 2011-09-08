@@ -18,9 +18,8 @@ class BiocacheService {
       def post = new PostMethod(biocacheServiceUrl + "/parser/areDwcTerms")
       def http = new HttpClient()
       def json = columnHeadersUnparsed.encodeAsJSON()
-
       println("[areColumnHeaders] Sending: " + json)
-
+      post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
       http.executeMethod(post)
       Boolean.parseBoolean(post.getResponseBodyAsString())
@@ -30,6 +29,7 @@ class BiocacheService {
       def post = new PostMethod(biocacheServiceUrl + "/parser/matchTerms")
       def http = new HttpClient()
       def json = columnHeadersUnparsed.encodeAsJSON()
+      post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
       http.executeMethod(post)
       JSON.parse(post.getResponseBodyAsString())
@@ -44,6 +44,7 @@ class BiocacheService {
       headers.eachWithIndex {header, idx ->  map.put(header, record[idx])}
       def requestAsJSON = map.encodeAsJSON()
       println(requestAsJSON)
+      post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(requestAsJSON)
       http.executeMethod(post)
 

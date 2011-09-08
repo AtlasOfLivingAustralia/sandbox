@@ -10,12 +10,11 @@ import org.apache.commons.httpclient.methods.GetMethod
 class DataCheckController {
 
   def biocacheService
+  def noOfRowsToDisplay = 5
 
-  def index = {
+ def index = {
     redirect(uri:"../index")
   }
-
-  def noOfRowsToDisplay = 5
 
   def parseColumns = {
 

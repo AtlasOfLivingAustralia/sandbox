@@ -8,7 +8,7 @@
   <meta name="robots" content="index,follow"/>
   <meta name="app.version" content="${g.meta(name: 'app.version')}"/>
   <meta name="app.build" content="${g.meta(name: 'app.build')}"/>
-  <meta name="description" content="Volunteer Portal - Atlas of Living Australia"/>
+  <meta name="description" content="ALA Data Check | Atlas of Living Australia"/>
 
   <title><g:layoutTitle/></title>
   <link rel="stylesheet" href="${resource(dir: 'css', file: 'temp-style.css')}"/>
@@ -70,13 +70,10 @@
   </script>
   <link rel="EditURI" type="application/rsd+xml" title="RSD" href="${ConfigurationHolder.config.ala.baseURL}/xmlrpc.php?rsd"/>
   <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="${ConfigurationHolder.config.ala.baseURL}/wp-includes/wlwmanifest.xml"/>
-  <link rel='index' title='Atlas Living Australia NG' href='${ConfigurationHolder.config.ala.baseURL}/'/>
+  <link rel='index' title='Atlas Living Australia ' href='${ConfigurationHolder.config.ala.baseURL}/'/>
   <link rel='prev' title='My Profile' href='${ConfigurationHolder.config.ala.baseURL}/my-profile/'/>
   <link rel='next' title='Search' href='${ConfigurationHolder.config.ala.baseURL}/tools-services/search-tools/'/>
-
   <g:javascript library="application"/>
-  <g:javascript library="collectory"/>
-  <g:javascript src="OpenLayers/OpenLayers.js"/>
   <g:layoutHead/>
 </head>
 

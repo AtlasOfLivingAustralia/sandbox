@@ -31,6 +31,8 @@
       function init(){
         $('#recognisedDataDiv').hide();
         $('#processSample').hide();
+        $('#copyPasteData').val("")
+        $('#processingInfo').hide();
       }
 
       function parseColumns(){
@@ -40,7 +42,7 @@
            $('#processedContent').remove();
            $('#uploadFeedback').html('');
         } else {
-          $('#processingInfo').html('<strong>Parsing the pasted input.....</strong>')
+          $('#processingInfo').html('<strong>Parsing the pasted input.....</strong>');
           $('#uploadFeedback').html('');
           $.post("dataCheck/parseColumns", { "rawData": $('#copyPasteData').val() },
              function(data){
@@ -48,7 +50,7 @@
                $('#recognisedDataDiv').show();
                processedData();
                $('#processSample').show();
-               $('#processingInfo').html('');
+               $('#processingInfo').html('<strong>&nbsp;</strong>');
              }, "html"
           );
         }
@@ -107,11 +109,8 @@
     <h2>1. Paste your CSV data here</h2>
     <g:textArea id="copyPasteData" name="copyPasteData" rows="15" cols="120"
                 onkeyup="javascript:window.setTimeout(parseColumns(), 2000, true);"></g:textArea>
-    <!--
     <g:submitButton id="checkData" class="actionButton" name="checkData" value="Check Data"
                     onclick="javascript:parseColumns();"/>
-    -->
-
     <p id="processingInfo"></p>
 
   </div>
