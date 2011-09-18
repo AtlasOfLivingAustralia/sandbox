@@ -12,7 +12,7 @@ class BiocacheService {
 
     def serviceMethod() {}
 
-    def biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
+    def biocacheServiceUrl = "http://localhost:8081/biocache-service"
 
     def areColumnHeaders(String[] columnHeadersUnparsed){
       def post = new PostMethod(biocacheServiceUrl + "/parser/areDwcTerms")
@@ -39,6 +39,7 @@ class BiocacheService {
       def post = new PostMethod(biocacheServiceUrl + "/parser/mapTerms")
       def http = new HttpClient()
       def json = columnHeadersUnparsed.encodeAsJSON()
+      println("###### column headers to map : "  + json)
     //  post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
       http.executeMethod(post)
@@ -55,7 +56,7 @@ class BiocacheService {
       def post = new PostMethod(biocacheServiceUrl + "/process/adhoc")
       def http = new HttpClient()
       //construct the map
-      def map = new HashMap()
+      def map = new LinkedHashMap()
       headers.eachWithIndex {header, idx ->  map.put(header, record[idx])}
       def requestAsJSON = map.encodeAsJSON()
       println(requestAsJSON)
@@ -128,6 +129,13 @@ class BiocacheService {
       http.executeMethod(get)
 
       return post.getResponseBodyAsString()
+    }
+
+    def uploadStatus(String uid){
+      def http = new HttpClient()
+      def get = new GetMethod(biocacheServiceUrl + "/upload/status/"+uid+".json")
+      http.executeMethod(get)
+      return get.getResponseBodyAsString()
     }
 }
 

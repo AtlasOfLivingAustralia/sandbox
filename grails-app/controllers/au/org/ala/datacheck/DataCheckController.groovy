@@ -62,6 +62,49 @@ class DataCheckController {
     }
   }
 
+  def parseColumnsWithFirstLineInfo = {
+
+    //is it comma separated or tab separated
+    def raw = request.getParameter("rawData").trim()
+    def firstLineIsData = Boolean.parseBoolean(request.getParameter("firstLineIsData").trim())
+    CSVReader csvReader = getCSVReaderForText(raw)
+
+    //determine column headers
+    def columnHeadersUnparsed = csvReader.readNext()
+
+    println("Unparsed>> "  + columnHeadersUnparsed)
+
+    def columnHeaders = null
+    def columnHeaderMap = null
+    def dataRows = new ArrayList<String[]>()
+
+    //is the first line a set of column headers ??
+    if(firstLineIsData){
+      println("First line of data is assumed to be data")
+      dataRows.add(columnHeadersUnparsed)
+      columnHeaders = biocacheService.guessColumnHeaders(columnHeadersUnparsed)
+    } else {
+      //first line is data
+      println("First line of data recognised as darwin core terms")
+      columnHeaderMap = biocacheService.mapColumnHeaders(columnHeadersUnparsed)
+    }
+
+    println("Parsed>> "  + columnHeaders)
+    def startAt = firstLineIsData ? 0 : 1
+
+    def currentLine = csvReader.readNext()
+    for(int i=startAt; i<noOfRowsToDisplay && currentLine!=null; i++){
+      dataRows.add(currentLine)
+      currentLine = csvReader.readNext()
+    }
+    // pass back HTML table
+    if(firstLineIsData){
+      render(view:'parsedData',  model:[columnHeaders:columnHeaders, dataRows:dataRows, firstLineIsData:firstLineIsData])
+    } else {
+      render(view:'parsedData',  model:[columnHeaderMap:columnHeaderMap, dataRows:dataRows, firstLineIsData:firstLineIsData])
+    }
+  }
+
   def getCSVReaderForText(String raw) {
     def separator = getSeparator(raw)
     def csvReader = new CSVReader(new StringReader(raw), separator.charAt(0))
@@ -123,6 +166,14 @@ class DataCheckController {
     String datasetName = request.getParameter("datasetName").trim()
     String firstLineIsData = request.getParameter("firstLineIsData")
     def responseString = biocacheService.uploadData(csvData,headers,datasetName,separator,firstLineIsData)
+    response.setContentType("application/json")
+    render(responseString)
+  }
+
+  def uploadStatus = {
+
+    log.debug("Request to retrieve upload status")
+    def responseString = biocacheService.uploadStatus(params.uid)
     response.setContentType("application/json")
     render(responseString)
   }

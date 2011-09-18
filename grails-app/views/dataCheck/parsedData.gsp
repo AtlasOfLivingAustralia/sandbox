@@ -1,5 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<div>
+
+<div id="interpretation">
+  <label for="firstLineIsData">Is the first line data: </label>
+  <select id="firstLineIsData" name="firstLineIsData">
+    <option value="true"  <g:if test="${firstLineIsData}">selected="true"</g:if>>Data</option>
+    <option value="false" <g:if test="${!firstLineIsData}">selected="true"</g:if>>Column headers detected</option>
+  </select>
+</div>
+
+<div id="tabulatedData">
     <style type="text/css">
       table { border-collapse: collapse; }
       th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}
@@ -33,7 +42,6 @@
     </g:each>
     </tbody>
   </table>
-  <input id="firstLineIsData" name="firstLineIsData" type="hidden" value="${firstLineIsData}"/>
   <div id="jsonBlob" style="visibility: hidden; display:none;">
     <g:textArea id="columnHeaders" name="columnHeaders" cols="1000" rows="1000"><g:each in="${columnHeaders}" var="hdr">${hdr},</g:each></g:textArea>
   </div>
