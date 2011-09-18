@@ -1,10 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 
 <div id="interpretation">
-  <label for="firstLineIsData">Is the first line data: </label>
+  <label for="firstLineIsData">The first line is: </label>
   <select id="firstLineIsData" name="firstLineIsData">
     <option value="true"  <g:if test="${firstLineIsData}">selected="true"</g:if>>Data</option>
-    <option value="false" <g:if test="${!firstLineIsData}">selected="true"</g:if>>Column headers detected</option>
+    <option value="false" <g:if test="${!firstLineIsData}">selected="true"</g:if>>Column headers</option>
   </select>
 </div>
 
@@ -15,7 +15,7 @@
       td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}
     </style>
   <h1> </h1>
-<table>
+<table id="initialParse">
     <thead>
     <g:if test="${columnHeaderMap}">
       <g:each in="${columnHeaderMap}" var="hdr">

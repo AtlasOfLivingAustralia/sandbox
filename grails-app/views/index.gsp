@@ -13,7 +13,12 @@
       body { font-family: Arial; }
       .unrecognised { background-color: red; }
       .uploaded {font-size: 14px; font-weight: bold; }
-      #copyPasteData { clear: both; display: block; width:90%; }
+
+      #initialPaste { width:98%;}
+
+      #copyPasteData { clear: both; display: block;  width:100%; }
+
+
       .actionButton { clear: both; margin-top: 10px; }
       #content { width: 100%;  }
       #footer { width: 100%; padding:0px;}
@@ -22,7 +27,11 @@
       .copyright  p { text-align:left; padding-top:0px; margin-top:0px;}
       h2#initialPaste { margin-top:15px;}
       #recognisedDataDiv, #processSample { margin-top:30px;}
-      #tabulatedData { width:90%; overflow: auto; }
+
+      #recognisedData { padding:20px; background-color: #EEE; width:95%;}
+      #interpretation { margin-bottom:15px;}
+      #initialParse td { background-color: #FFFFFF;}
+      #tabulatedData { width:100%; overflow: auto; }
 
       #uploadFeedback { margin-top: 10px; margin-left: 10px; float:left; top: 0px; }
       .uploaded { padding-top: 20px;}
