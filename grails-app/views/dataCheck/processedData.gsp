@@ -13,7 +13,7 @@
     <g:each in="${processedRecords}" var="processedRecord" status="recordStatus">
       <table id="processedSampleTable">
         <thead>
-          <th  class="fieldNameTD">Field name</th><th>Original value</th><th>Processed value</th>
+          <th class="fieldNameTD">Field name</th><th>Original value</th><th>Processed value</th>
         </thead>
         <g:each in="${processedRecord.values}" var="field">
         <tr>

@@ -5,6 +5,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="main" />
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="http://www.ala.org.au/wp-content/themes/ala/scripts/jquery.autocomplete.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="http://www.ala.org.au/wp-content/themes/ala/css/jquery.autocomplete.css" />
+
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <style type="text/css">
       table { border-collapse: collapse; }
@@ -32,19 +35,21 @@
       #initialParse td { background-color: #FFFFFF;}
       #tabulatedData { width:100%; overflow: auto; }
 
-      #uploadFeedback { margin-top: 10px; margin-left: 10px; float:left; top: 0px; }
+
       .uploaded { padding-top: 20px;}
       #processedData { min-width: 650px; clear: both; }
       #uploadProgressBar { margin-top: 25px; }
       .datasetName {font-size: 14px;}
 
+      #uploadFeedback { margin-top: 10px; margin-left: 10px; float:left; top: 0px; }
       #uploadProgressBar .ui-widget-header {
+          display:block;
           border: 1px solid #C9AB67;
           background: #CEC193 url(/images/progress_1x100b.png) 50% 50% repeat-x;
       }
 
       #progress .ui-widget-content { border: 1px solid #C9AB67;}
-      #processSampleUpload { margin-top:10px; border: 1px dotted gray; background-color: #FAECBB; padding: 10px; margin-bottom: 15px; width:650px; clear:both; display:block;}
+      #processSampleUpload { margin-top:10px; border: 1px dotted gray; background-color: #FAECBB; padding: 10px; margin-bottom: 15px; width:95%; ;}
 
     </style>
     <script type="text/javascript">
@@ -87,6 +92,36 @@
                $('#processSample').show();
                $('#processingInfo').html('<strong>&nbsp;</strong>');
                $('#firstLineIsData').change(function(){parseColumnsWithFirstLineInfo();});
+               //set the
+               %{--$("input.columnHeaderInput").autocomplete("${createLink(action:'autocomplete', controller:'dataCheck')}", {--}%
+       %{--           dataType: 'json',--}%
+       %{--           matchSubset: true,--}%
+         %{--           cacheLength: 10,--}%
+         %{--           minChars: 1,--}%
+         %{--           scroll: false,--}%
+         %{--           max: 10,--}%
+         %{--           selectFirst: false--}%
+         %{--       });--}%
+               %{--$("input.columnHeaderInput").autocomplete("${createLink(action:'autocomplete', controller:'dataCheck')}", {--}%
+       %{--           dataType: 'json',--}%
+%{--//                  parse: function(data) {--}%
+%{--//                     var rows = new Array();--}%
+%{--//                     for (var i = 0; i < data.length; i++) {--}%
+%{--//                      rows[i] = {--}%
+%{--//                        data: data,--}%
+%{--//                        value: data,--}%
+%{--//                        result: data--}%
+%{--//                      };--}%
+%{--//                    }--}%
+%{--//                    return rows;--}%
+%{--//                  },--}%
+       %{--           matchSubset: true,--}%
+       %{--           cacheLength: 10,--}%
+       %{--           minChars: 1,--}%
+       %{--           scroll: true,--}%
+       %{--           max: 10,--}%
+       %{--           selectFirst: false--}%
+         %{--       });--}%
              }, "html"
           );
         }
@@ -106,8 +141,11 @@
       }
 
       function processedData(){
-        $.post("dataCheck/processData", { "firstLineIsData": $('#firstLineIsData').val(),
-                  "headers": getColumnHeaders(),  "rawData": $('#copyPasteData').val() },
+        $.post("dataCheck/processData", {
+              "firstLineIsData": $('#firstLineIsData').val(),
+              "headers": getColumnHeaders(),
+              "rawData": $('#copyPasteData').val()
+           },
            function(data){
              $('#processedData').html(data)
            }, "html"
@@ -126,7 +164,7 @@
       function updateStatusPolling(){
         $.get("dataCheck/uploadStatus?uid="+dataResourceUid, function(data){
           if(data.status == "COMPLETE"){
-            $('#uploadFeedback').html('<p class="uploaded">Dataset uploaded.&nbsp;&nbsp;<a href="http://sandbox.ala.org.au/hubs-webapp/occurrences/search?q=data_resource_uid:' + data.uid + '" target="_blank">Click here to view your data</a></span>.</p>');
+            $('#uploadFeedback').html('<p class="uploaded">Dataset uploaded.&nbsp;&nbsp;<a href="dataCheck/redirectToBiocache?uid=' + dataResourceUid + '" target="_blank">Click here to view your data</a></span>.</p>');
             $("#uploadProgressBar").progressbar({ value: 100 });
           } else if(data.status == "FAILED"){
             $('#uploadFeedback').html('<p class="uploaded">Dataset upload <strong>failed</strong>. Please email support@ala.org.au with e details of your dataset.</p>');
@@ -188,7 +226,7 @@
     <g:textArea
             id="copyPasteData"
             name="copyPasteData" rows="15" cols="120"
-            onkeyup="javascript:window.setTimeout('parseColumns()', 1000, true);"></g:textArea>
+            onkeyup="javascript:window.setTimeout('parseColumns()', 500, true);"></g:textArea>
     <g:submitButton id="checkData" class="actionButton" name="checkData" value="Check Data"
         onclick="javascript:parseColumns();"/>
     <p id="processingInfo"></p>
@@ -222,8 +260,14 @@
         <label for="datasetName" class="datasetName"><strong>Your dataset name</strong></label>
         <input id="datasetName" class="datasetName" name="datasetName" type="text" value="My test dataset" style="width:350px; margin-bottom:5px;"/>
         <input id="uploadButton" class="datasetName" type="button" value="Upload" onclick="javascript:uploadToSandbox();"/>
-        <div id="uploadFeedback"></div>
-        <div id="uploadProgressBar"></div>
+
+        <div id="uploadFeedback">
+
+        </div>
+
+        <div id="uploadProgressBar">
+
+        </div>
       </p>
     </div>
   </div>

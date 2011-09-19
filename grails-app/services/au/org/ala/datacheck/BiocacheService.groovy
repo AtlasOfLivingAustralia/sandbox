@@ -12,7 +12,7 @@ class BiocacheService {
 
     def serviceMethod() {}
 
-    def biocacheServiceUrl = "http://localhost:8081/biocache-service"
+    def biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
 
     def areColumnHeaders(String[] columnHeadersUnparsed){
       def post = new PostMethod(biocacheServiceUrl + "/parser/areDwcTerms")
