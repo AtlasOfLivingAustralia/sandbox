@@ -10,6 +10,8 @@ import org.apache.commons.httpclient.methods.GetMethod
 class DataCheckController {
 
   def biocacheService
+  def darwinCoreService
+
   def noOfRowsToDisplay = 5
 
  def index = {
@@ -170,12 +172,27 @@ class DataCheckController {
     render(responseString)
   }
 
-  def uploadStatus = {
+  def redirectToBiocache = {
+    def http = new HttpClient()
+    //reference the UID caches
+    def get = new GetMethod("http://sandbox.ala.org.au/hubs-webapp/occurrences/refreshUidCache")
+    http.executeMethod(get)
+    redirect(url:"http://sandbox.ala.org.au/hubs-webapp/occurrences/search?q=data_resource_uid:"+params.uid)
+  }
 
+
+  def uploadStatus = {
     log.debug("Request to retrieve upload status")
     def responseString = biocacheService.uploadStatus(params.uid)
     response.setContentType("application/json")
     render(responseString)
+  }
+
+  def autocomplete = {
+    def query = params.q
+    //def limit = params.limit !=null ? params.limit.asType(Integer.class) : 10
+    def list = darwinCoreService.autoComplete(query, 10)
+    render(contentType:"application/json") {list}
   }
 
 /*
