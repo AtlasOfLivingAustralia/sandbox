@@ -18,7 +18,6 @@
 
       #copyPasteData { clear: both; display: block;  width:100%; }
 
-
       .actionButton { clear: both; margin-top: 10px; }
       #content { width: 100%;  }
       #footer { width: 100%; padding:0px;}
@@ -44,9 +43,8 @@
           background: #CEC193 url(/images/progress_1x100b.png) 50% 50% repeat-x;
       }
 
-      #progress .ui-widget-content {
-          border: 1px solid #C9AB67;
-      }
+      #progress .ui-widget-content { border: 1px solid #C9AB67;}
+      #processSampleUpload { margin-top:10px; border: 1px dotted gray; background-color: #FAECBB; padding: 10px; margin-bottom: 15px; width:650px; clear:both; display:block;}
 
     </style>
     <script type="text/javascript">
@@ -57,6 +55,8 @@
         $('#copyPasteData').val("");
         $('#processingInfo').hide();
         $('#uploadFeedback').html('');
+        $('#uploadProgressBar').hide();
+        $('#uploadFeedback').hide();
       }
 
       function reset(){
@@ -66,6 +66,9 @@
          $('#uploadFeedback').html('');
          $('#uploadProgressBar').html('');
          $('#uploadProgressBar').progressbar( "destroy" );
+         $('#uploadProgressBar').html('');
+         $('#uploadProgressBar').hide();
+         $('#uploadFeedback').hide();
       }
 
       function parseColumns(){
@@ -115,6 +118,8 @@
 
       function updateStatus(uid){
         dataResourceUid = uid;
+        $('#uploadProgressBar').show();
+        $('#uploadFeedback').show();
         updateStatusPolling();
       }
 
@@ -170,14 +175,14 @@
   <h1>ALA Sandbox <span style="font-family: courier;">(Alpha)</span></h1>
   <p style="width:80%;">
     This is a sandbox environment for data uploads, to allow users to view their data with ALA tools.
-    This is currently an experimental feature of the Atlas. Uploaded data will be periodically cleared from the system.
-    This tool currently only accepts comma separated values (CSV) occurrence data and is currently limited to 1000 records per upload.
+    This is currently an <strong>experimental</strong> feature of the Atlas. Uploaded data will be <strong>periodically cleared</strong> from the system.
+    This tool currently only accepts comma separated values (CSV) occurrence data and is currently <strong>limited to 1000 records</strong> per upload.
   </p>
 
   <div id="initialPaste">
     <h2>1. Paste your CSV data here</h2>
-    <p>Please paste your data into the box below. To do this, click the rectangle below, and type control-V (Windows)
-    or command-V (Macintosh). For a large amount of data, this may take a while to parse.
+    <p>To paste your data, click the rectangle below, and type <strong>control-V (Windows)</strong>
+    or <strong>command-V (Macintosh)</strong>. For a large amount of data, this may take a while to parse.
     </p>
 
     <g:textArea
@@ -193,7 +198,7 @@
     <h2>2. Check our initial interpretation</h2>
 
     <p>Adjust headings that have been incorrectly matched using the text boxes.
-    Fields marked in yellow havent been matched to a recognised field name.<br/>
+    Fields marked in <strong>yellow</strong> havent been matched to a recognised field name (darwin core terms).<br/>
 
     After adjusting, click the
     <g:submitButton id="processData2" name="processData2" class="actionButton" value="Reprocess sample"
@@ -206,17 +211,19 @@
 
   <div id="processSample">
     <h2>3. Process sample & upload to sandbox</h2>
-    <div style="border: 1px dotted gray; background-color: #FAECBB; padding: 10px; margin-bottom: 10px; width:650px; clear:both; display:block;">
-      <p>If you are happy with the initial processing, please give your dataset a name, and upload into the sandbox.</p>
+    <div id="processSampleUpload">
+      <p>
+      The tables below display the first few records and our interpretation. The <strong>Processed value</strong>
+      displays the results of name matching, sensitive data lookup and reverse geocoding where coordinates have been supplied.<br/>
+      If you are happy with the initial processing, please give your dataset a name, and upload into the sandbox.
+      This will process all the records and allow you to visualise your data on a map.
+      </p>
       <p style="padding-bottom:0px;">
         <label for="datasetName" class="datasetName"><strong>Your dataset name</strong></label>
         <input id="datasetName" class="datasetName" name="datasetName" type="text" value="My test dataset" style="width:350px; margin-bottom:5px;"/>
         <input id="uploadButton" class="datasetName" type="button" value="Upload" onclick="javascript:uploadToSandbox();"/>
-
-
         <div id="uploadFeedback"></div>
         <div id="uploadProgressBar"></div>
-
       </p>
     </div>
   </div>
