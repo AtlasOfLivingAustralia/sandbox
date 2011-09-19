@@ -9,6 +9,7 @@
     .changedValue { color:#006400; }
     .fieldNameTD { text-align: right; padding-right:5px;}
     #processedSampleTable td { max-width:410px; }
+    #processedSampleTable th { min-width:300px; }
   </style>
     <g:each in="${processedRecords}" var="processedRecord" status="recordStatus">
       <table id="processedSampleTable">
