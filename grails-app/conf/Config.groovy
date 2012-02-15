@@ -31,7 +31,7 @@ ala.baseURL = "http://www.ala.org.au"
 bie.baseURL = "http://bie.ala.org.au"
 bie.searchPath = "/search"
 headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
-
+biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
 
 /******************************************************************************\
  *  SECURITY
@@ -62,8 +62,6 @@ if (!security.cas.bypass) {
 }
 
 security.cas.appServerName="http://localhost:8080"
-
-ala.baseURL = "http://www.ala.org.au"
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
@@ -110,9 +108,11 @@ grails.exceptionresolver.params.exclude = ['password']
 environments {
     production {
         grails.serverURL = "http://sandbox.ala.org.au/datacheck"
+        biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
     }
     development {
         grails.serverURL = "http://localhost:8081/${appName}"
+        biocacheServiceUrl = "http://localhost:8181/biocache-service"
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"

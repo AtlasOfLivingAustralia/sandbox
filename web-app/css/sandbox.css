@@ -1,6 +1,7 @@
 table { border-collapse: collapse; }
-th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}
+th { font-size: 12px; border-collapse: collapse; border: 1px solid #333A3F; padding:2px; background-color: #333A3F !important; color: #ffffff;}
 td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}
+
 body { font-family: Arial; }
 .unrecognised { background-color: red; }
 .uploaded {font-size: 14px; font-weight: bold; }

@@ -5,6 +5,7 @@ import org.apache.commons.httpclient.HttpClient
 import grails.converters.JSON
 import org.apache.commons.httpclient.NameValuePair
 import org.apache.commons.httpclient.methods.GetMethod
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class BiocacheService {
 
@@ -12,7 +13,7 @@ class BiocacheService {
 
     def serviceMethod() {}
 
-    def biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
+    def biocacheServiceUrl = ConfigurationHolder.config.biocacheServiceUrl
 
     def areColumnHeaders(String[] columnHeadersUnparsed){
       def post = new PostMethod(biocacheServiceUrl + "/parser/areDwcTerms")

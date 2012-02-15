@@ -154,7 +154,7 @@
 
 <div id="content">
   <div id="wrapper" style="width:95%; padding:30px; text-align: left;">
-  <h1>ALA Sandbox <span style="font-family: courier;">(Alpha)</span></h1>
+  <h1>ALA Sandbox</h1>
   <p style="width:80%;">
     This is a sandbox environment for data uploads, to allow users to view their data with ALA tools.
     This is currently an <strong>experimental</strong> feature of the Atlas. Uploaded data will be <strong>periodically cleared</strong> from the system.
