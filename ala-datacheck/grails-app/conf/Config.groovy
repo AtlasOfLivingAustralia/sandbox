@@ -10,7 +10,53 @@
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
 
-grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
+
+/******************************************************************************\
+ *  EXTERNAL SERVERS
+\******************************************************************************/
+if (!bie.baseURL) {
+     bie.baseURL = "http://bie.ala.org.au/"
+}
+if (!biocache.baseURL) {
+     biocache.baseURL = "http://biocache.ala.org.au/"
+}
+if (!spatial.baseURL) {
+     spatial.baseURL = "http://spatial.ala.org.au/"
+}
+if (!ala.baseURL) {
+    ala.baseURL = "http://www.ala.org.au"
+}
+
+/******************************************************************************\
+ *  SECURITY
+\******************************************************************************/
+if (!security.cas.urlPattern) {
+    security.cas.urlPattern = "/datacheck,/ala-datacheck"
+}
+if (!security.cas.urlExclusionPattern) {
+    security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*"
+}
+if (!security.cas.authenticateOnlyIfLoggedInPattern) {
+    security.cas.authenticateOnlyIfLoggedInPattern = "/"
+}
+if (!security.cas.casServerName) {
+    security.cas.casServerName = "https://auth.ala.org.au"
+}
+if (!security.cas.loginUrl) {
+    security.cas.loginUrl = "${security.cas.casServerName}/cas/login"
+}
+if (!security.cas.logoutUrl) {
+    security.cas.logoutUrl = "${security.cas.casServerName}/cas/logout"
+}
+if (!security.cas.contextPath) {
+    //security.cas.contextPath = "/workforce" //"""${appName}"
+}
+if (!security.cas.bypass) {
+    security.cas.bypass = false
+}
+
+
+grails.project.groupId = datacheck // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
 grails.mime.types = [ html: ['text/html','application/xhtml+xml'],

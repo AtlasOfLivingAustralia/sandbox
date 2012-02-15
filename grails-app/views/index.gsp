@@ -3,58 +3,18 @@
   <head>
     <title>Sandbox | Atlas of Living Australia</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="main" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+    <meta name="layout" content="ala2" />
 	<script language="JavaScript" type="text/javascript" src="http://www.ala.org.au/wp-content/themes/ala/scripts/jquery.autocomplete.js"></script>
     <link rel="stylesheet" type="text/css" media="screen" href="http://www.ala.org.au/wp-content/themes/ala/css/jquery.autocomplete.css" />
-
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <uploader:head />
     <style type="text/css">
-      table { border-collapse: collapse; }
-      th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}
-      td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}
-      body { font-family: Arial; }
-      .unrecognised { background-color: red; }
-      .uploaded {font-size: 14px; font-weight: bold; }
-
-      #initialPaste { width:98%;}
-
-      #copyPasteData { clear: both; display: block;  width:100%; }
-
-      .actionButton { clear: both; margin-top: 10px; }
-      #content { width: 100%;  }
-      #footer { width: 100%; padding:0px;}
-      #footer-nav { width:95%;  padding: 25px 15px 0px 30px; }
-      .copyright { width:95%; padding: 0px 15px 15px 30px; }
-      .copyright  p { text-align:left; padding-top:0px; margin-top:0px;}
-      h2#initialPaste { margin-top:15px;}
-      #recognisedDataDiv, #processSample { margin-top:30px;}
-
-      #recognisedData { padding:20px; background-color: #EEE; width:95%;}
-      #interpretation { margin-bottom:15px;}
-      #initialParse td { background-color: #FFFFFF;}
-      #tabulatedData { width:100%; overflow: auto; }
-
-
-      .uploaded { padding-top: 20px;}
-      #processedData { min-width: 650px; clear: both; }
-      #uploadProgressBar { margin-top: 25px; }
-      .datasetName {font-size: 14px;}
-
-      #uploadFeedback { margin-top: 10px; margin-left: 10px; float:left; top: 0px; }
-      #uploadProgressBar .ui-widget-header {
-          display:block;
-          border: 1px solid #C9AB67;
-          background: #CEC193 url(/images/progress_1x100b.png) 50% 50% repeat-x;
-      }
-
-      #progress .ui-widget-content { border: 1px solid #C9AB67;}
-      #processSampleUpload { margin-top:10px; border: 1px dotted gray; background-color: #FAECBB; padding: 10px; margin-bottom: 15px; width:95%; ;}
 
     </style>
     <script type="text/javascript">
 
       function init(){
+        console.log("Initialising sandbox...");
         $('#recognisedDataDiv').hide();
         $('#processSample').hide();
         $('#copyPasteData').val("");
@@ -65,6 +25,7 @@
       }
 
       function reset(){
+          console.log("Reset sandbox...");
          $('#recognisedDataDiv').hide();
          $('#processSample').hide();
          $('#processedContent').remove();
@@ -77,6 +38,7 @@
       }
 
       function parseColumns(){
+        console.log("Parsing columns, and resetting some state");
         if($('#copyPasteData').val().trim() == ""){
            reset();
         } else {
@@ -92,42 +54,13 @@
                $('#processSample').show();
                $('#processingInfo').html('<strong>&nbsp;</strong>');
                $('#firstLineIsData').change(function(){parseColumnsWithFirstLineInfo();});
-               //set the
-               %{--$("input.columnHeaderInput").autocomplete("${createLink(action:'autocomplete', controller:'dataCheck')}", {--}%
-       %{--           dataType: 'json',--}%
-       %{--           matchSubset: true,--}%
-         %{--           cacheLength: 10,--}%
-         %{--           minChars: 1,--}%
-         %{--           scroll: false,--}%
-         %{--           max: 10,--}%
-         %{--           selectFirst: false--}%
-         %{--       });--}%
-               %{--$("input.columnHeaderInput").autocomplete("${createLink(action:'autocomplete', controller:'dataCheck')}", {--}%
-       %{--           dataType: 'json',--}%
-%{--//                  parse: function(data) {--}%
-%{--//                     var rows = new Array();--}%
-%{--//                     for (var i = 0; i < data.length; i++) {--}%
-%{--//                      rows[i] = {--}%
-%{--//                        data: data,--}%
-%{--//                        value: data,--}%
-%{--//                        result: data--}%
-%{--//                      };--}%
-%{--//                    }--}%
-%{--//                    return rows;--}%
-%{--//                  },--}%
-       %{--           matchSubset: true,--}%
-       %{--           cacheLength: 10,--}%
-       %{--           minChars: 1,--}%
-       %{--           scroll: true,--}%
-       %{--           max: 10,--}%
-       %{--           selectFirst: false--}%
-         %{--       });--}%
              }, "html"
           );
         }
       }
 
       function parseColumnsWithFirstLineInfo(){
+          console.log("Parsing first line to do interpretation...");
           $.post("dataCheck/parseColumnsWithFirstLineInfo", { "rawData": $('#copyPasteData').val(), "firstLineIsData": $('#firstLineIsData').val() },
              function(data){
                $('#recognisedData').html(data)
@@ -141,6 +74,7 @@
       }
 
       function processedData(){
+        console.log("Process first few lines....");
         $.post("dataCheck/processData", {
               "firstLineIsData": $('#firstLineIsData').val(),
               "headers": getColumnHeaders(),
@@ -155,6 +89,7 @@
       var dataResourceUid = "";
 
       function updateStatus(uid){
+        console.log('Uploading status for...' + uid);
         dataResourceUid = uid;
         $('#uploadProgressBar').show();
         $('#uploadFeedback').show();
@@ -162,23 +97,26 @@
       }
 
       function updateStatusPolling(){
+
         $.get("dataCheck/uploadStatus?uid="+dataResourceUid, function(data){
+          console.log("Retrieving status...." + data.status + ", percentage: " + data.percentage);
           if(data.status == "COMPLETE"){
-            $('#uploadFeedback').html('<p class="uploaded">Dataset uploaded.&nbsp;&nbsp;<a href="dataCheck/redirectToBiocache?uid=' + dataResourceUid + '" target="_blank">Click here to view your data</a></span>.</p>');
             $("#uploadProgressBar").progressbar({ value: 100 });
+            $('.ui-progressbar-value').html('<span>Dataset uploaded.&nbsp;&nbsp;<a href="dataCheck/redirectToBiocache?uid=' + dataResourceUid + '" target="_blank">Click here to view your data</a>.</span>');
+            $("#uploadFeedback").html('');
           } else if(data.status == "FAILED"){
-            $('#uploadFeedback').html('<p class="uploaded">Dataset upload <strong>failed</strong>. Please email support@ala.org.au with e details of your dataset.</p>');
+            $('.ui-progressbar-value').html('<span>Dataset upload <strong>failed</strong>. Please email support@ala.org.au with e details of your dataset.</span>');
           } else {
             $("#uploadProgressBar").progressbar({ value: data.percentage });
-            $("#uploadFeedback").html('<p class="uploaded">'+data.status+', Completed: '+data.completed+', Percentage completed: '+data.percentage+'</p>');
-            setTimeout("updateStatusPolling()", 2000);
+            $("#uploadFeedback").html('<span>STATUS: '+data.status+', Completed: '+data.completed+', Percentage completed: '+data.percentage+'</span>');
+            setTimeout("updateStatusPolling()", 1000);
           }
         });
-      }
+      }                                                                                 
 
       function uploadToSandbox(){
-
-        //$('#uploadFeedback').html('<p class="uploaded">Starting upload of dataset....</p>');
+        console.log('Uploading to sandbox...');
+        $('#uploadFeedback').html('<p class="uploaded">Starting upload of dataset....</p>');
         $.post("dataCheck/upload",
             { "rawData": $('#copyPasteData').val(), "headers": getColumnHeaders(),
               "datasetName": $('#datasetName').val(), "firstLineIsData": $('#firstLineIsData').val() },
@@ -190,6 +128,7 @@
       }
 
       function getColumnHeaders(){
+        console.log("Retrieve column headers...");
         var columnHeaderInputs = $('input.columnHeaderInput');
         var columnHeadersCSV = "";
         var i=0;
@@ -202,14 +141,19 @@
         });
         return columnHeadersCSV;
       }
+
+      //setup the page
+      $(document).ready(function() {
+          javascript:init();
+      });
     </script>
 
   </head>
 
-<body onload="javascript:init();">
+<body>
 
 <div id="content">
-  <div id="wrapper" style="width:95%; padding:30px;">
+  <div id="wrapper" style="width:95%; padding:30px; text-align: left;">
   <h1>ALA Sandbox <span style="font-family: courier;">(Alpha)</span></h1>
   <p style="width:80%;">
     This is a sandbox environment for data uploads, to allow users to view their data with ALA tools.
@@ -224,19 +168,22 @@
     </p>
 
     <g:textArea
-            id="copyPasteData"
-            name="copyPasteData" rows="15" cols="120"
-            onkeyup="javascript:window.setTimeout('parseColumns()', 500, true);"></g:textArea>
+        id="copyPasteData"
+        name="copyPasteData" rows="15" cols="120"
+        onkeyup="javascript:window.setTimeout('parseColumns()', 500, true);"></g:textArea>
     <g:submitButton id="checkData" class="actionButton" name="checkData" value="Check Data"
         onclick="javascript:parseColumns();"/>
     <p id="processingInfo"></p>
+
+   <!-- <uploader:uploader id="yourUploaderId" /> -->
+
   </div>
 
   <div id="recognisedDataDiv">
     <h2>2. Check our initial interpretation</h2>
 
     <p>Adjust headings that have been incorrectly matched using the text boxes.
-    Fields marked in <strong>yellow</strong> havent been matched to a recognised field name (darwin core terms).<br/>
+    Fields marked in <strong>yellow</strong> havent been matched to a recognised field name (<a href="http://rs.tdwg.org/dwc/terms/" target="_blank">darwin core terms</a>).<br/>
 
     After adjusting, click the
     <g:submitButton id="processData2" name="processData2" class="actionButton" value="Reprocess sample"
@@ -260,13 +207,9 @@
         <label for="datasetName" class="datasetName"><strong>Your dataset name</strong></label>
         <input id="datasetName" class="datasetName" name="datasetName" type="text" value="My test dataset" style="width:350px; margin-bottom:5px;"/>
         <input id="uploadButton" class="datasetName" type="button" value="Upload" onclick="javascript:uploadToSandbox();"/>
-
-        <div id="uploadFeedback">
-
+        <div id="uploadFeedback" style="clear:right;">
         </div>
-
         <div id="uploadProgressBar">
-
         </div>
       </p>
     </div>

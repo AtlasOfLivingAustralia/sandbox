@@ -1,0 +1,45 @@
+table { border-collapse: collapse; }
+th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}
+td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}
+body { font-family: Arial; }
+.unrecognised { background-color: red; }
+.uploaded {font-size: 14px; font-weight: bold; }
+
+#initialPaste { width:98%;}
+
+#copyPasteData { clear: both; display: block;  width:100%; }
+
+.actionButton { clear: both; margin-top: 10px; }
+#content { width: 100%;  }
+#footer { width: 100%; padding:0px;}
+#footer-nav { width:95%;  padding: 25px 15px 0px 30px; }
+.copyright { width:95%; padding: 0px 15px 15px 30px; }
+.copyright  p { text-align:left; padding-top:0px; margin-top:0px;}
+h2#initialPaste { margin-top:15px;}
+#recognisedDataDiv, #processSample { margin-top:30px;}
+
+#recognisedData { padding:20px; background-color: #EEE; width:95%;}
+#interpretation { margin-bottom:15px;}
+#initialParse td { background-color: #FFFFFF;}
+#tabulatedData { width:100%; overflow: auto; }
+
+
+/*.uploaded { } */
+#processedData { min-width: 650px; clear: both; }
+#uploadFeedback { margin-top: 25px; font-weight: bold;}
+.datasetName {font-size: 14px;}
+
+/* #uploadFeedback { margin-top: 10px; margin-left: 10px; float:left; top: 0px; } */
+#uploadProgressBar .ui-widget-header {
+    display:block;
+    border: 1px solid #C9AB67;
+    background: #CEC193 url(../images/progress_1x100b.png) 50% 50% repeat-x;
+}
+
+#progress .ui-widget-content { border: 1px solid #C9AB67;}
+#processSampleUpload { margin-top:10px; border: 1px dotted gray; background-color: #FAECBB; padding: 10px; margin-bottom: 15px; width:95%; ;}
+
+#nav-site { width:100% ;}
+nav { width:100% !important; }
+
+.ui-progressbar-value span { padding-left:20px; }

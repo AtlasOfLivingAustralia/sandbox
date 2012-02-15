@@ -10,6 +10,59 @@
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
 
+/******************************************************************************\
+ *  EXTERNAL SERVERS
+\******************************************************************************/
+
+if (!bie.baseURL) {
+     bie.baseURL = "http://bie.ala.org.au/"
+}
+if (!biocache.baseURL) {
+     biocache.baseURL = "http://biocache.ala.org.au/"
+}
+if (!spatial.baseURL) {
+     spatial.baseURL = "http://spatial.ala.org.au/"
+}
+if (!ala.baseURL) {
+    ala.baseURL = "http://www.ala.org.au"
+}
+
+ala.baseURL = "http://www.ala.org.au"
+bie.baseURL = "http://bie.ala.org.au"
+bie.searchPath = "/search"
+headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
+
+
+/******************************************************************************\
+ *  SECURITY
+\******************************************************************************/
+if (!security.cas.urlPattern) {
+    security.cas.urlPattern = "/ala-datacheck,/ala-datacheck/,/datacheck,/datacheck/"
+}
+if (!security.cas.urlExclusionPattern) {
+    security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*"
+}
+if (!security.cas.authenticateOnlyIfLoggedInPattern) {
+    security.cas.authenticateOnlyIfLoggedInPattern = ""
+}
+if (!security.cas.casServerName) {
+    security.cas.casServerName = "https://auth.ala.org.au"
+}
+if (!security.cas.loginUrl) {
+    security.cas.loginUrl = "${security.cas.casServerName}/cas/login"
+}
+if (!security.cas.logoutUrl) {
+    security.cas.logoutUrl = "${security.cas.casServerName}/cas/logout"
+}
+if (!security.cas.contextPath) {
+    security.cas.contextPath = "/ala-datacheck" //"""${appName}"
+}
+if (!security.cas.bypass) {
+    security.cas.bypass = false
+}
+
+security.cas.appServerName="http://localhost:8080"
+
 ala.baseURL = "http://www.ala.org.au"
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
@@ -56,7 +109,7 @@ grails.exceptionresolver.params.exclude = ['password']
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
-        grails.serverURL = "http://www.changeme.com"
+        grails.serverURL = "http://sandbox.ala.org.au/datacheck"
     }
     development {
         grails.serverURL = "http://localhost:8081/${appName}"
@@ -72,9 +125,11 @@ log4j = {
     // Example of changing the log pattern for the default console
     // appender:
     //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
+    appenders {
+        console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
+    }
+
+    debug  'au.org.ala'
 
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
            'org.codehaus.groovy.grails.web.pages', //  GSP
