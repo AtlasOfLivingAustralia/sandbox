@@ -43,4 +43,6 @@ h2#initialPaste { margin-top:15px;}
 #nav-site { width:100% ;}
 nav { width:100% !important; }
 
+/** temporary fix - this hides the my profile link - should be removed once we migrate properly */
+nav ol { display:none; }
 .ui-progressbar-value span { padding-left:20px; }
