@@ -112,7 +112,8 @@ environments {
     }
     development {
         grails.serverURL = "http://localhost:8081/${appName}"
-        biocacheServiceUrl = "http://localhost:8181/biocache-service"
+        //biocacheServiceUrl = "http://localhost:8181/biocache-service"
+        biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
