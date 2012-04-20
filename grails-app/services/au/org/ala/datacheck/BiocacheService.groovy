@@ -33,7 +33,9 @@ class BiocacheService {
     //  post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
       http.executeMethod(post)
-      JSON.parse(post.getResponseBodyAsString())
+      def parseResponse = post.getResponseBodyAsString()  
+      println("Match terms response: " + parseResponse)
+      JSON.parse(parseResponse)
     }
 
     def mapColumnHeaders(String[] columnHeadersUnparsed){

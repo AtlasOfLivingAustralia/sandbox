@@ -12,16 +12,25 @@ class DataCheckController {
   def biocacheService
   def darwinCoreService
 
+  static allowedMethods = [processData: "POST"]
+
   def noOfRowsToDisplay = 5
 
- def index = {
+  def index = {
     redirect(uri:"../index")
   }
 
   def parseColumns = {
 
+    println("Content type>>" + request.getContentType())
+    request.getHeaderNames().each { x -> println(x + ": " + request.getHeader(x))}
+
     //is it comma separated or tab separated
-    def raw = request.getParameter("rawData").trim()
+    def raw = request.getReader().readLines().join("").trim()
+
+    //def raw = request.getParameter("rawData").trim()
+    println("Unparsed RAW>> "  + raw)
+
     CSVReader csvReader = getCSVReaderForText(raw)
 
     //determine column headers
@@ -47,7 +56,7 @@ class DataCheckController {
       columnHeaders = biocacheService.guessColumnHeaders(columnHeadersUnparsed)
     }
 
-    println("Parsed>> "  + columnHeaders)
+    println("Parsed>> "  + columnHeaders + ", size: " + columnHeaders)
 
     def startAt = firstLineIsData ? 0 : 1
 
@@ -131,17 +140,20 @@ class DataCheckController {
       return "COMMA"
   }
 
-
   def processData = {
-    String[] headers = request.getParameter("headers").split(",")
-    def csvData = request.getParameter("rawData").trim()
-    def firstLineIsData = Boolean.parseBoolean(request.getParameter("firstLineIsData"))
+
+    def headers = null
+    if(params.headers){
+        headers = params.headers.split(",")
+    }
+
+    def csvData = params.rawData.trim()
+    def firstLineIsData = Boolean.parseBoolean(params.firstLineIsData)
 
     //the data to pass back
     List<ParsedRecord> processedRecords = new ArrayList<ParsedRecord>()
 
     def counter = 0
-
     def csvReader = getCSVReaderForText(csvData)
     def currentLine = csvReader.readNext()
     if(firstLineIsData){
@@ -180,7 +192,6 @@ class DataCheckController {
     redirect(url:"http://sandbox.ala.org.au/hubs-webapp/occurrences/search?q=data_resource_uid:"+params.uid)
   }
 
-
   def uploadStatus = {
     log.debug("Request to retrieve upload status")
     def responseString = biocacheService.uploadStatus(params.uid)
@@ -194,51 +205,5 @@ class DataCheckController {
     def list = darwinCoreService.autoComplete(query, 10)
     render(contentType:"application/json") {list}
   }
-
-/*
-  def processFull = {
-
-    println("Attempting to download")
-    String[] headers = request.getParameter("headers").split(",")
-    //println("retrieved headers: " + headers)
-    //retrieve the JSON string
-    def csvData = request.getParameter("data")
-
-    //send all the CSV to the process
-    println("processing...")
-
-    def fileId = System.currentTimeMillis()
-    def fout = new FileOutputStream(new File("/tmp/qa-"+fileId+".csv"))
-
-    AdHocParser.processToStream(headers, csvData, fout)
-
-    fout.close()
-
-    println("finished processing...file id: "+ fileId)
-
-    render(view:'processedDownload',  model:[fileId:fileId])
-  }
-
-  def downloadFile = {
-    String fileId = request.getParameter("fileId")
-    response.setContentType("application/csv")
-    response.setHeader("Cache-Control", "must-revalidate");
-    response.setHeader("Pragma", "must-revalidate");
-    response.setHeader("Content-Disposition", "attachment;filename=" + fileId +".csv");
-
-    def fIn = new FileInputStream(new File("/tmp/qa-"+fileId+".csv"))
-
-    def buff = new byte[1024]
-
-    def output = response.getOutputStream()
-
-    def bytesRead = 0
-
-    while( (bytesRead = fIn.read(buff) )!= -1){
-        output.write(buff, 0, bytesRead)
-    }
-    output.close()
-  }
-*/
 
 }

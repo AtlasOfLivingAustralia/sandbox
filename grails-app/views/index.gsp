@@ -3,10 +3,7 @@
   <head>
     <title>Sandbox | Atlas of Living Australia</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="ala2" />
-	<script language="JavaScript" type="text/javascript" src="http://www.ala.org.au/wp-content/themes/ala/scripts/jquery.autocomplete.js"></script>
-    <link rel="stylesheet" type="text/css" media="screen" href="http://www.ala.org.au/wp-content/themes/ala/css/jquery.autocomplete.css" />
-    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <meta name="layout" content="ala3" />
     <uploader:head />
     <style type="text/css">
 
@@ -14,7 +11,7 @@
     <script type="text/javascript">
 
       function init(){
-        console.log("Initialising sandbox...");
+        //console.log("Initialising sandbox...");
         $('#recognisedDataDiv').hide();
         $('#processSample').hide();
         $('#copyPasteData').val("");
@@ -22,10 +19,15 @@
         $('#uploadFeedback').html('');
         $('#uploadProgressBar').hide();
         $('#uploadFeedback').hide();
+        if(typeof String.prototype.trim !== 'function') {
+          String.prototype.trim = function() {
+              return this.replace(/^\s+|\s+$/g, '');
+          }
+        }
       }
 
       function reset(){
-          console.log("Reset sandbox...");
+         // console.log("Reset sandbox...");
          $('#recognisedDataDiv').hide();
          $('#processSample').hide();
          $('#processedContent').remove();
@@ -38,7 +40,7 @@
       }
 
       function parseColumns(){
-        console.log("Parsing columns, and resetting some state");
+       // console.log("Parsing columns, and resetting some state");
         if($('#copyPasteData').val().trim() == ""){
            reset();
         } else {
@@ -46,21 +48,29 @@
           $('#uploadFeedback').html('');
           $('#uploadProgressBar').html('');
           $('#uploadProgressBar').progressbar( "destroy" );
-          $.post("dataCheck/parseColumns", { "rawData": $('#copyPasteData').val() },
-             function(data){
+          $.ajaxSetup({
+                scriptCharset: "utf-8",
+                contentType: "text/html; charset=utf-8"
+          });
+          $.ajax({
+             type: "POST",
+             url: "dataCheck/parseColumns",
+             data: $('#copyPasteData').val(),
+             success: function(data){
+               //console.log(data);
                $('#recognisedData').html(data)
                $('#recognisedDataDiv').show();
                processedData();
                $('#processSample').show();
                $('#processingInfo').html('<strong>&nbsp;</strong>');
-               $('#firstLineIsData').change(function(){parseColumnsWithFirstLineInfo();});
-             }, "html"
-          );
+               $('#firstLineIsData').change(function(){ parseColumnsWithFirstLineInfo(); });
+             }
+         });
         }
       }
 
       function parseColumnsWithFirstLineInfo(){
-          console.log("Parsing first line to do interpretation...");
+          //console.log("Parsing first line to do interpretation...");
           $.post("dataCheck/parseColumnsWithFirstLineInfo", { "rawData": $('#copyPasteData').val(), "firstLineIsData": $('#firstLineIsData').val() },
              function(data){
                $('#recognisedData').html(data)
@@ -74,32 +84,55 @@
       }
 
       function processedData(){
-        console.log("Process first few lines....");
-        $.post("dataCheck/processData", {
-              "firstLineIsData": $('#firstLineIsData').val(),
-              "headers": getColumnHeaders(),
-              "rawData": $('#copyPasteData').val()
-           },
-           function(data){
-             $('#processedData').html(data)
-           }, "html"
-        );
+//        console.log("Process first few lines...." + getColumnHeaders());
+          $.ajaxSetup({
+              scriptCharset: "utf-8",
+              contentType: "application/x-www-form-urlencoded"
+          });
+          $.ajax({
+              type: "POST",
+              url: "dataCheck/processData",
+              contentType: "application/x-www-form-urlencoded",
+              data: {
+                  headers: getColumnHeaders(),
+                  firstLineIsData: $('#firstLineIsData').val(),
+                  rawData: $('#copyPasteData').val()
+              },
+              success: function(data){
+                  //console.log(data);
+                  $('#processedData').html(data);
+              }
+          });
       }
 
       var dataResourceUid = "";
 
       function updateStatus(uid){
-        console.log('Uploading status for...' + uid);
+      //  console.log('Uploading status for...' + uid);
         dataResourceUid = uid;
         $('#uploadProgressBar').show();
         $('#uploadFeedback').show();
         updateStatusPolling();
       }
 
+      function randomString(length) {
+          var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
+
+          if (! length) {
+              length = Math.floor(Math.random() * chars.length);
+          }
+
+          var str = '';
+          for (var i = 0; i < length; i++) {
+              str += chars[Math.floor(Math.random() * chars.length)];
+          }
+          return str;
+      }
+
       function updateStatusPolling(){
 
-        $.get("dataCheck/uploadStatus?uid="+dataResourceUid, function(data){
-          console.log("Retrieving status...." + data.status + ", percentage: " + data.percentage);
+        $.get("dataCheck/uploadStatus?uid="+dataResourceUid+"&random=" + randomString(10), function(data){
+          //console.log("Retrieving status...." + data.status + ", percentage: " + data.percentage);
           if(data.status == "COMPLETE"){
             $("#uploadProgressBar").progressbar({ value: 100 });
             $('.ui-progressbar-value').html('<span>Dataset uploaded.&nbsp;&nbsp;<a href="dataCheck/redirectToBiocache?uid=' + dataResourceUid + '" target="_blank">Click here to view your data</a>.</span>');
@@ -115,11 +148,14 @@
       }                                                                                 
 
       function uploadToSandbox(){
-        console.log('Uploading to sandbox...');
+        //console.log('Uploading to sandbox...');
         $('#uploadFeedback').html('<p class="uploaded">Starting upload of dataset....</p>');
         $.post("dataCheck/upload",
-            { "rawData": $('#copyPasteData').val(), "headers": getColumnHeaders(),
-              "datasetName": $('#datasetName').val(), "firstLineIsData": $('#firstLineIsData').val() },
+            { "rawData": $('#copyPasteData').val(),
+              "headers": getColumnHeaders(),
+              "datasetName": $('#datasetName').val(),
+              "firstLineIsData": $('#firstLineIsData').val()
+            },
             function(data){
               //alert('Value returned from service: '  + data.uid);
               updateStatus(data.uid);
@@ -128,10 +164,10 @@
       }
 
       function getColumnHeaders(){
-        console.log("Retrieve column headers...");
+       // console.log("Retrieve column headers...");
         var columnHeaderInputs = $('input.columnHeaderInput');
         var columnHeadersCSV = "";
-        var i=0;
+        var i = 0;
         $.each(columnHeaderInputs, function(index, input){
           if(index>0){
            columnHeadersCSV = columnHeadersCSV + ",";
@@ -139,19 +175,15 @@
           columnHeadersCSV = columnHeadersCSV + input.value;
           i++;
         });
+       // console.log('Returning headers : ' + columnHeadersCSV);
         return columnHeadersCSV;
       }
 
       //setup the page
-      $(document).ready(function() {
-          javascript:init();
-      });
+      $(document).ready(function(){ init(); });
     </script>
-
   </head>
-
-<body>
-
+<body class="fluid">
 <div id="content">
   <div id="wrapper" style="width:95%; padding:30px; text-align: left;">
   <h1>ALA Sandbox</h1>
