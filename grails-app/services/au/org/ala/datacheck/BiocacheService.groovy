@@ -6,6 +6,7 @@ import grails.converters.JSON
 import org.apache.commons.httpclient.NameValuePair
 import org.apache.commons.httpclient.methods.GetMethod
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import groovy.json.JsonOutput
 
 class BiocacheService {
 
@@ -18,7 +19,8 @@ class BiocacheService {
     def areColumnHeaders(String[] columnHeadersUnparsed){
       def post = new PostMethod(biocacheServiceUrl + "/parser/areDwcTerms")
       def http = new HttpClient()
-      def json = columnHeadersUnparsed.encodeAsJSON()
+      JsonOutput jsonOutput = new JsonOutput()
+      def json = jsonOutput.toJson(columnHeadersUnparsed)
       println("[areColumnHeaders] Sending: " + json)
    //   post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
@@ -29,7 +31,8 @@ class BiocacheService {
     def guessColumnHeaders(String[] columnHeadersUnparsed){
       def post = new PostMethod(biocacheServiceUrl + "/parser/matchTerms")
       def http = new HttpClient()
-      def json = columnHeadersUnparsed.encodeAsJSON()
+      JsonOutput jsonOutput = new JsonOutput()
+      def json = jsonOutput.toJson(columnHeadersUnparsed)
     //  post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
       http.executeMethod(post)

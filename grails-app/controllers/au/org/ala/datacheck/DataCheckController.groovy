@@ -26,7 +26,7 @@ class DataCheckController {
     request.getHeaderNames().each { x -> println(x + ": " + request.getHeader(x))}
 
     //is it comma separated or tab separated
-    def raw = request.getReader().readLines().join("").trim()
+    def raw = request.getReader().readLines().join("\n").trim()
 
     //def raw = request.getParameter("rawData").trim()
     println("Unparsed RAW>> "  + raw)
