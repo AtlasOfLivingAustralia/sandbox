@@ -25,9 +25,14 @@
       </g:each>
     </g:if>
     <g:else>
+
+     <g:set var="unknownCounter" value="0" />
       <g:each in="${columnHeaders}" var="header">
         <th>
-          <input class="columnHeaderInput" type="text" value="${header ? header : 'Unknown'}" style="${header ? '' : 'background-color: #E9AB17;'}"/>
+           <g:if test="${!header}">
+            <g:set var="unknownCounter" value="${unknownCounter.toInteger() + 1}" />
+           </g:if>
+          <input class="columnHeaderInput" type="text" value="${header ? header : 'Unknown ' + unknownCounter}" style="${header ? '' : 'background-color: #E9AB17;'}"/>
         </th>
       </g:each>
     </g:else>
