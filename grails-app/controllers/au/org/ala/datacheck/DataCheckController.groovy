@@ -22,21 +22,21 @@ class DataCheckController {
 
   def parseColumns = {
 
-    println("Content type>>" + request.getContentType())
-    request.getHeaderNames().each { x -> println(x + ": " + request.getHeader(x))}
+    log.debug("Content type>>" + request.getContentType())
+    request.getHeaderNames().each { x -> log.debug(x + ": " + request.getHeader(x))}
 
     //is it comma separated or tab separated
     def raw = request.getReader().readLines().join("\n").trim()
 
     //def raw = request.getParameter("rawData").trim()
-    println("Unparsed RAW>> "  + raw)
+    log.debug("Unparsed RAW>> "  + raw)
 
     CSVReader csvReader = getCSVReaderForText(raw)
 
     //determine column headers
     def columnHeadersUnparsed = csvReader.readNext()
 
-    println("Unparsed>> "  + columnHeadersUnparsed)
+    log.debug("Unparsed>> "  + columnHeadersUnparsed)
 
     def columnHeaders = null
     def columnHeaderMap = null
@@ -45,18 +45,18 @@ class DataCheckController {
 
     //is the first line a set of column headers ??
     if(biocacheService.areColumnHeaders(columnHeadersUnparsed)){
-      println("First line of data recognised as darwin core terms")
+      log.debug("First line of data recognised as darwin core terms")
       firstLineIsData = false
       columnHeaderMap = biocacheService.mapColumnHeaders(columnHeadersUnparsed)
     } else {
       //first line is data
-      println("First line of data is assumed to be data")
+      log.debug("First line of data is assumed to be data")
       firstLineIsData = true
       dataRows.add(columnHeadersUnparsed)
       columnHeaders = biocacheService.guessColumnHeaders(columnHeadersUnparsed)
     }
 
-    println("Parsed>> "  + columnHeaders + ", size: " + columnHeaders)
+    log.debug("Parsed>> "  + columnHeaders + ", size: " + columnHeaders)
 
     def startAt = firstLineIsData ? 0 : 1
 
@@ -83,7 +83,7 @@ class DataCheckController {
     //determine column headers
     def columnHeadersUnparsed = csvReader.readNext()
 
-    println("Unparsed>> "  + columnHeadersUnparsed)
+    log.debug("Unparsed>> "  + columnHeadersUnparsed)
 
     def columnHeaders = null
     def columnHeaderMap = null
@@ -91,16 +91,16 @@ class DataCheckController {
 
     //is the first line a set of column headers ??
     if(firstLineIsData){
-      println("First line of data is assumed to be data")
+      log.debug("First line of data is assumed to be data")
       dataRows.add(columnHeadersUnparsed)
       columnHeaders = biocacheService.guessColumnHeaders(columnHeadersUnparsed)
     } else {
       //first line is data
-      println("First line of data recognised as darwin core terms")
+      log.debug("First line of data recognised as darwin core terms")
       columnHeaderMap = biocacheService.mapColumnHeaders(columnHeadersUnparsed)
     }
 
-    println("Parsed>> "  + columnHeaders)
+    log.debug("Parsed>> "  + columnHeaders)
     def startAt = firstLineIsData ? 0 : 1
 
     def currentLine = csvReader.readNext()
@@ -178,8 +178,9 @@ class DataCheckController {
     String csvData = request.getParameter("rawData").trim()
     String separator = getSeparatorName(csvData)
     String datasetName = request.getParameter("datasetName").trim()
+    String customIndexedFields = request.getParameter("customIndexedFields").trim()
     String firstLineIsData = request.getParameter("firstLineIsData")
-    def responseString = biocacheService.uploadData(csvData,headers,datasetName,separator,firstLineIsData)
+    def responseString = biocacheService.uploadData(csvData,headers,datasetName,separator,firstLineIsData, customIndexedFields)
     response.setContentType("application/json")
     render(responseString)
   }
@@ -187,9 +188,9 @@ class DataCheckController {
   def redirectToBiocache = {
     def http = new HttpClient()
     //reference the UID caches
-    def get = new GetMethod("http://sandbox.ala.org.au/hubs-webapp/occurrences/refreshUidCache")
+    def get = new GetMethod(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
     http.executeMethod(get)
-    redirect(url:"http://sandbox.ala.org.au/hubs-webapp/occurrences/search?q=data_resource_uid:"+params.uid)
+    redirect(url:grailsApplication.config.sandboxHubsWebapp + "/occurrences/search?q=data_resource_uid:" + params.uid)
   }
 
   def uploadStatus = {
@@ -205,5 +206,4 @@ class DataCheckController {
     def list = darwinCoreService.autoComplete(query, 10)
     render(contentType:"application/json") {list}
   }
-
 }

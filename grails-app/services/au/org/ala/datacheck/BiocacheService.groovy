@@ -21,7 +21,7 @@ class BiocacheService {
       def http = new HttpClient()
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)
-      println("[areColumnHeaders] Sending: " + json)
+      log.debug("[areColumnHeaders] Sending: " + json)
    //   post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
       http.executeMethod(post)
@@ -37,7 +37,7 @@ class BiocacheService {
       post.setRequestBody(json)
       http.executeMethod(post)
       def parseResponse = post.getResponseBodyAsString()  
-      println("Match terms response: " + parseResponse)
+      log.debug("Match terms response: " + parseResponse)
       JSON.parse(parseResponse)
     }
 
@@ -46,7 +46,7 @@ class BiocacheService {
       def http = new HttpClient()
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)      
-      println("###### column headers to map : "  + json)
+      log.debug("###### column headers to map : "  + json)
     //  post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
       http.executeMethod(post)
@@ -67,14 +67,14 @@ class BiocacheService {
       headers.eachWithIndex {header, idx ->  map.put(header, record[idx])}
       JsonOutput jsonOutput = new JsonOutput()
       def requestAsJSON = jsonOutput.toJson(map)      
-      println(requestAsJSON)
+      log.debug(requestAsJSON)
      // post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(requestAsJSON)
       http.executeMethod(post)
 
       //parse the result as a ParsedRecord
       def responseAsJSON = post.getResponseBodyAsString()
-      println(responseAsJSON)
+      log.debug(responseAsJSON)
       def json = JSON.parse(responseAsJSON)
 
       ParsedRecord parsedRecord = new ParsedRecord()
@@ -83,11 +83,13 @@ class BiocacheService {
       List<QualityAssertion> qualityAssertions = new ArrayList<QualityAssertion>()
 
       json?.values?.each { obj ->
-        ProcessedValue processedValue = new ProcessedValue()
-        processedValue.name = obj.name
-        processedValue.raw = obj.raw
-        processedValue.processed = obj.processed
-        processedValues.add(processedValue)
+        if(!obj.name.endsWith("ID") && obj.name != "left" && obj.name != "right"){
+            ProcessedValue processedValue = new ProcessedValue()
+            processedValue.name = obj.name
+            processedValue.raw = obj.raw
+            processedValue.processed = obj.processed
+            processedValues.add(processedValue)
+        }
       }
 
       json?.assertions?.each { obj ->
@@ -105,23 +107,24 @@ class BiocacheService {
     }
 
    /**
-    *  Upload the data to the biocache, passing back the response
+    * Upload the data to the biocache, passing back the response
     * @param csvData
     * @param headers
     * @param datasetName
     * @param separator
     * @param firstLineIsData
-    * @return
+    * @return response as string
     */
-    def uploadData(String csvData, String headers, String datasetName, String separator, String firstLineIsData){
+    def uploadData(String csvData, String headers, String datasetName, String separator, String firstLineIsData, String customIndexedFields){
 
       //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
-      NameValuePair[] nameValuePairs = new NameValuePair[5]
+      NameValuePair[] nameValuePairs = new NameValuePair[6]
       nameValuePairs[0] = new NameValuePair("csvData", csvData)
       nameValuePairs[1] = new NameValuePair("headers", headers)
       nameValuePairs[2] = new NameValuePair("datasetName", datasetName)
       nameValuePairs[3] = new NameValuePair("separator", separator)
       nameValuePairs[4] = new NameValuePair("firstLineIsData", firstLineIsData)
+      nameValuePairs[5] = new NameValuePair("customIndexedFields", customIndexedFields)
 
       def post = new PostMethod(biocacheServiceUrl + "/upload/post")
       post.setRequestBody(nameValuePairs)
@@ -130,7 +133,7 @@ class BiocacheService {
       http.executeMethod(post)
 
       //TODO check the response
-      println(post.getResponseBodyAsString())
+      log.debug(post.getResponseBodyAsString())
 
       //reference the UID caches
       def get = new GetMethod(biocacheServiceUrl + "/cache/refresh")

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
   <head>
     <title>Sandbox | Atlas of Living Australia</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -10,8 +10,14 @@
     </style>
     <script type="text/javascript">
 
+      if (!window.console) console = {log: function() {}};
+
+      var SANDBOX = {
+          currentPaste: ""
+      }
+
       function init(){
-        //console.log("Initialising sandbox...");
+        console.log("Initialising sandbox...");
         $('#recognisedDataDiv').hide();
         $('#processSample').hide();
         $('#copyPasteData').val("");
@@ -28,55 +34,78 @@
 
       function reset(){
          // console.log("Reset sandbox...");
-         $('#recognisedDataDiv').hide();
-         $('#processSample').hide();
          $('#processedContent').remove();
          $('#uploadFeedback').html('');
          $('#uploadProgressBar').html('');
          $('#uploadProgressBar').progressbar( "destroy" );
          $('#uploadProgressBar').html('');
-         $('#uploadProgressBar').hide();
+          /*
+          $('#recognisedDataDiv').hide();
+          $('#processSample').hide();
+          $('#uploadProgressBar').hide();
          $('#uploadFeedback').hide();
+         */
+          $('#recognisedDataDiv').hide();
+          $('#processSample').slideUp("slow");
+          $('#uploadProgressBar').hide();
+          $('#uploadFeedback').hide();
+      }
+
+      function pasteAreaHasChanged(){
+        if($('#copyPasteData').val().trim() == "" && SANDBOX.currentPaste == ""){
+            return false;
+        }
+        if($('#copyPasteData').val().trim() !=  SANDBOX.currentPaste){
+            SANDBOX.currentPaste = $('#copyPasteData').val().trim();
+            return true;
+        } else {
+            return false;
+        }
       }
 
       function parseColumns(){
        // console.log("Parsing columns, and resetting some state");
         if($('#copyPasteData').val().trim() == ""){
            reset();
-        } else {
+        } else if(pasteAreaHasChanged()){
+
+          $('#checkDataButton').html("Checking....");
+
           $('#processingInfo').html('<strong>Parsing the pasted input.....</strong>');
+          $('#processedContent').html('');
           $('#uploadFeedback').html('');
           $('#uploadProgressBar').html('');
           $('#uploadProgressBar').progressbar( "destroy" );
           $.ajaxSetup({
-                scriptCharset: "utf-8",
-                contentType: "text/html; charset=utf-8"
+            scriptCharset: "utf-8",
+            contentType: "text/html; charset=utf-8"
           });
           $.ajax({
              type: "POST",
              url: "dataCheck/parseColumns",
              data: $('#copyPasteData').val(),
              success: function(data){
-               //console.log(data);
+               console.log(data);
                $('#recognisedData').html(data)
-               $('#recognisedDataDiv').show();
+               $('#recognisedDataDiv').slideDown("slow");
                processedData();
-               $('#processSample').show();
+               $('#processSample').slideDown("slow");
                $('#processingInfo').html('<strong>&nbsp;</strong>');
                $('#firstLineIsData').change(function(){ parseColumnsWithFirstLineInfo(); });
+               $('#checkDataButton').html("Check data");
              }
          });
         }
       }
 
       function parseColumnsWithFirstLineInfo(){
-          //console.log("Parsing first line to do interpretation...");
+          console("Parsing first line to do interpretation...");
           $.post("dataCheck/parseColumnsWithFirstLineInfo", { "rawData": $('#copyPasteData').val(), "firstLineIsData": $('#firstLineIsData').val() },
              function(data){
                $('#recognisedData').html(data)
-               $('#recognisedDataDiv').show();
+               $('#recognisedDataDiv').slideDown("slow");
                processedData();
-               $('#processSample').show();
+               $('#processSample').slideDown("slow");
                $('#processingInfo').html('<strong>&nbsp;</strong>');
                $('#firstLineIsData').change(function(){parseColumnsWithFirstLineInfo();});
              }, "html"
@@ -85,6 +114,11 @@
 
       function processedData(){
 //        console.log("Process first few lines...." + getColumnHeaders());
+          $('#processedData').slideUp("slow");
+         // $('#processedData').html("");
+         // $('#processedData').html("<strong>Parsing the first three records...</strong>");
+         // $('#processedData').slideDown("slow");
+
           $.ajaxSetup({
               scriptCharset: "utf-8",
               contentType: "application/x-www-form-urlencoded"
@@ -99,8 +133,9 @@
                   rawData: $('#copyPasteData').val()
               },
               success: function(data){
-                  //console.log(data);
+                //  $('#processedData').slideUp("slow");
                   $('#processedData').html(data);
+                  $('#processedData').slideDown("slow");
               }
           });
       }
@@ -132,7 +167,7 @@
       function updateStatusPolling(){
 
         $.get("dataCheck/uploadStatus?uid="+dataResourceUid+"&random=" + randomString(10), function(data){
-          //console.log("Retrieving status...." + data.status + ", percentage: " + data.percentage);
+          console.log("Retrieving status...." + data.status + ", percentage: " + data.percentage);
           if(data.status == "COMPLETE"){
             $("#uploadProgressBar").progressbar({ value: 100 });
             $('.ui-progressbar-value').html('<span>Dataset uploaded.&nbsp;&nbsp;<a href="dataCheck/redirectToBiocache?uid=' + dataResourceUid + '" target="_blank">Click here to view your data</a>.</span>');
@@ -148,13 +183,14 @@
       }                                                                                 
 
       function uploadToSandbox(){
-        //console.log('Uploading to sandbox...');
+        console.log('Uploading to sandbox...');
         $('#uploadFeedback').html('<p class="uploaded">Starting upload of dataset....</p>');
         $.post("dataCheck/upload",
             { "rawData": $('#copyPasteData').val(),
               "headers": getColumnHeaders(),
               "datasetName": $('#datasetName').val(),
-              "firstLineIsData": $('#firstLineIsData').val()
+              "firstLineIsData": $('#firstLineIsData').val(),
+              "customIndexedFields": $('#customIndexedFields').val()
             },
             function(data){
               //alert('Value returned from service: '  + data.uid);
@@ -164,7 +200,7 @@
       }
 
       function getColumnHeaders(){
-       // console.log("Retrieve column headers...");
+        console.log("Retrieve column headers...");
         var columnHeaderInputs = $('input.columnHeaderInput');
         var columnHeadersCSV = "";
         var i = 0;
@@ -175,91 +211,114 @@
           columnHeadersCSV = columnHeadersCSV + input.value;
           i++;
         });
-       // console.log('Returning headers : ' + columnHeadersCSV);
+        console.log('Returning headers : ' + columnHeadersCSV);
         return columnHeadersCSV;
       }
 
       //setup the page
-      $(document).ready(function(){ init(); });
+      $(document).ready(function(){
+
+          $('#copyPasteData').keyup( function(){
+              window.setTimeout('parseColumns()', 1500, true);
+          });
+
+          $('#copyPasteData').keydown( function(){
+            //  reset();
+          });
+
+          init();
+
+          //enable tabs in textareas
+          $("textarea").keydown(function(e) {
+              if(e.keyCode === 9) { // tab was pressed
+                  // get caret position/selection
+                  var start = this.selectionStart;
+                  end = this.selectionEnd;
+                  var $this = $(this);
+                  // set textarea value to: text before caret + tab + text after caret
+                  $this.val($this.val().substring(0, start)
+                          + "\t"
+                          + $this.val().substring(end));
+                  // put caret at right position again
+                  this.selectionStart = this.selectionEnd = start + 1;
+                  // prevent the focus lose
+                  return false;
+              }
+          });
+      });
     </script>
   </head>
 <body class="fluid">
 <div id="content">
   <div id="wrapper" style="width:95%; padding:30px; text-align: left;">
-  <h1>ALA Sandbox</h1>
-  <p style="width:80%;">
-    This is a sandbox environment for data uploads, to allow users to view their data with ALA tools.
-    This is currently an <strong>experimental</strong> feature of the Atlas. Uploaded data will be <strong>periodically cleared</strong> from the system.
-    This tool currently only accepts comma separated values (CSV) occurrence data and is currently <strong>limited to 1000 records</strong> per upload.
-  </p>
-
-  <div id="initialPaste">
-    <h2>1. Paste your CSV data here</h2>
-    <p>To paste your data, click the rectangle below, and type <strong>control-V (Windows)</strong>
-    or <strong>command-V (Macintosh)</strong>. For a large amount of data, this may take a while to parse.
-    </p>
-
-    <g:textArea
-        id="copyPasteData"
-        name="copyPasteData" rows="15" cols="120"
-        onkeyup="javascript:window.setTimeout('parseColumns()', 500, true);"></g:textArea>
-    <g:submitButton id="checkData" class="actionButton" name="checkData" value="Check Data"
-        onclick="javascript:parseColumns();"/>
-    <p id="processingInfo"></p>
-
-   <!-- <uploader:uploader id="yourUploaderId" /> -->
-
-  </div>
-
-  <div id="recognisedDataDiv">
-    <h2>2. Check our initial interpretation</h2>
-
-    <p>Adjust headings that have been incorrectly matched using the text boxes.
-    Fields marked in <strong>yellow</strong> havent been matched to a recognised field name (<a href="http://rs.tdwg.org/dwc/terms/" target="_blank">darwin core terms</a>).<br/>
-
-    After adjusting, click the
-    <g:submitButton id="processData2" name="processData2" class="actionButton" value="Reprocess sample"
-                    onclick="javascript:processedData();"/>
-    button.</p>
-    <div id="recognisedData"></div>
-    <g:submitButton id="processData" name="processData" class="actionButton" value="Reprocess sample"
-                    onclick="javascript:processedData();"/>
-  </div>
-
-  <div id="processSample">
-    <h2>3. Process sample & upload to sandbox</h2>
-    <div id="processSampleUpload">
-      <p>
-      The tables below display the first few records and our interpretation. The <strong>Processed value</strong>
-      displays the results of name matching, sensitive data lookup and reverse geocoding where coordinates have been supplied.<br/>
-      If you are happy with the initial processing, please give your dataset a name, and upload into the sandbox.
-      This will process all the records and allow you to visualise your data on a map.
+      <h1>ALA Sandbox</h1>
+      <p style="width:80%;">
+        This is a sandbox environment for data uploads, to allow users to view their data with ALA tools.
+        This is currently an <strong>experimental</strong> feature of the Atlas. Uploaded data will be <strong>periodically cleared</strong> from the system.
+        This tool currently only accepts comma separated values (CSV) occurrence data and is currently <strong>limited to 1000 records</strong> per upload.
+        <br/>
       </p>
-      <p style="padding-bottom:0px;">
-        <label for="datasetName" class="datasetName"><strong>Your dataset name</strong></label>
-        <input id="datasetName" class="datasetName" name="datasetName" type="text" value="My test dataset" style="width:350px; margin-bottom:5px;"/>
-        <input id="uploadButton" class="datasetName" type="button" value="Upload" onclick="javascript:uploadToSandbox();"/>
-        <div id="uploadFeedback" style="clear:right;">
+
+      <div id="initialPaste">
+        <h2>1. Paste your CSV data here</h2>
+        <p>To paste your data, click the rectangle below, and type <strong>control-V (Windows)</strong>
+            or <strong>command-V (Macintosh)</strong>. For a large amount of data, this may take a while to parse.
+        </p>
+        <g:textArea
+            id="copyPasteData"
+            name="copyPasteData" rows="15" cols="120"></g:textArea>
+        <a href="javascript:parseColumns();" id="checkDataButton" class="button">Check Data</a>
+        <p id="processingInfo"></p>
+      </div><!-- initialPaste -->
+
+      <div id="recognisedDataDiv">
+        <h2>2. Check our initial interpretation</h2>
+
+        <p>Adjust headings that have been incorrectly matched using the text boxes.
+        Fields marked in <strong>yellow</strong> havent been matched to a recognised field name (<a href="http://rs.tdwg.org/dwc/terms/" target="_blank">darwin core terms</a>).<br/>
+
+        After adjusting, click
+        <a href="javascript:processedData();" id="processData2" name="processData2" class="button">Reprocess sample</a></p>
+        <div id="recognisedData"></div>
+        <a href="javascript:processedData();" id="processData" name="processData" class="button">Reprocess sample</a>
+      </div><!-- recognisedDataDiv -->
+
+      <div id="processSample">
+        <h2>3. Process sample & upload to sandbox</h2>
+        <div id="processSampleUpload">
+          <p style="display:none;">
+              <label for="customIndexedFields">Custom index fields</label>
+              <input type="text" name="customIndexedFields" id="customIndexedFields" value=""/>
+          </p>
+          <p>
+          The tables below display the first few records and our interpretation. The <strong>Processed value</strong>
+          displays the results of name matching, sensitive data lookup and reverse geocoding where coordinates have been supplied.<br/>
+          If you are happy with the initial processing, please give your dataset a name, and upload into the sandbox.
+          This will process all the records and allow you to visualise your data on a map.
+          </p>
+          <p style="padding-bottom:0px;">
+            <label for="datasetName" class="datasetName"><strong>Your dataset name</strong></label>
+            <input id="datasetName" class="datasetName" name="datasetName" type="text" value="My test dataset" style="width:350px; margin-bottom:5px;"/>
+            <a id="uploadButton" class="button" href="javascript:uploadToSandbox();">Upload your data</a>
+            <div id="uploadFeedback" style="clear:right;">
+            </div>
+            <div id="uploadProgressBar">
+            </div>
+          </p>
         </div>
-        <div id="uploadProgressBar">
-        </div>
-      </p>
-    </div>
-  </div>
+      </div><!-- processedSample -->
 
-  <div id="processedData"></div>
+      <div id="processedData"></div>
+          <div id="jsonBlob" style="visibility: hidden; display:none;">
+            <g:textArea id="columnHeaders" name="columnHeaders" cols="1000" rows="1000"><g:each in="${columnHeaders}"
+               var="hdr">${hdr},</g:each></g:textArea>
+            <g:textArea id="cachedData" name="cachedData" cols="1000" rows="1000"><g:each in="${dataRows}" var="row"><g:each
+                    in="${row}" var="value">${value},</g:each>
+            </g:each></g:textArea>
+          </div>
+      </div><!-- processedData -->
 
-  <div id="jsonBlob" style="visibility: hidden; display:none;">
-    <g:textArea id="columnHeaders" name="columnHeaders" cols="1000" rows="1000"><g:each in="${columnHeaders}"
-       var="hdr">${hdr},</g:each></g:textArea>
-    <g:textArea id="cachedData" name="cachedData" cols="1000" rows="1000"><g:each in="${dataRows}" var="row"><g:each
-            in="${row}" var="value">${value},</g:each>
-    </g:each></g:textArea>
-  </div>
-
-  </div>
-
-  </div>
-</div>
+  </div><!-- wrapper -->
+</div><!-- content -->
 </body>
 </html>
