@@ -99,7 +99,7 @@
       }
 
       function parseColumnsWithFirstLineInfo(){
-          console("Parsing first line to do interpretation...");
+          console.log("Parsing first line to do interpretation...");
           $.post("dataCheck/parseColumnsWithFirstLineInfo", { "rawData": $('#copyPasteData').val(), "firstLineIsData": $('#firstLineIsData').val() },
              function(data){
                $('#recognisedData').html(data)
