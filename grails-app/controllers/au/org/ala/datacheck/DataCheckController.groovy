@@ -179,6 +179,8 @@ class DataCheckController {
     String separator = getSeparatorName(csvData)
     String datasetName = request.getParameter("datasetName").trim()
     String customIndexedFields = request.getParameter("customIndexedFields").trim()
+    customIndexedFields = customIndexedFields.replaceAll(" ", "_")
+
     String firstLineIsData = request.getParameter("firstLineIsData")
     def responseString = biocacheService.uploadData(csvData,headers,datasetName,separator,firstLineIsData, customIndexedFields)
     response.setContentType("application/json")
@@ -192,6 +194,23 @@ class DataCheckController {
     http.executeMethod(get)
     redirect(url:grailsApplication.config.sandboxHubsWebapp + "/occurrences/search?q=data_resource_uid:" + params.uid)
   }
+
+  def redirectToSpatialPortal = {
+    def http = new HttpClient()
+    //reference the UID caches
+    def get = new GetMethod(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
+    http.executeMethod(get)
+    redirect(url:grailsApplication.config.spatialPortalUrl + "?q=data_resource_uid:" + params.uid + grailsApplication.config.spatialPortalUrlOptions)
+  }
+
+  def redirectToDownload = {
+    def http = new HttpClient()
+    //reference the UID caches
+    def get = new GetMethod(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
+    http.executeMethod(get)
+    redirect(url:grailsApplication.config.biocacheServiceUrl + "/occurrences/index/download?q=data_resource_uid:" + params.uid + grailsApplication.config.biocacheServiceDownloadParams)
+  }
+
 
   def uploadStatus = {
     log.debug("Request to retrieve upload status")

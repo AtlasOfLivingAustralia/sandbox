@@ -170,7 +170,13 @@
           console.log("Retrieving status...." + data.status + ", percentage: " + data.percentage);
           if(data.status == "COMPLETE"){
             $("#uploadProgressBar").progressbar({ value: 100 });
-            $('.ui-progressbar-value').html('<span>Dataset uploaded.&nbsp;&nbsp;<a href="dataCheck/redirectToBiocache?uid=' + dataResourceUid + '" target="_blank">Click here to view your data</a>.</span>');
+
+            $('#spatialPortalLink').attr('href', 'dataCheck/redirectToSpatialPortal?uid=' + dataResourceUid);
+            $('#hubLink').attr('href', 'dataCheck/redirectToBiocache?uid=' + dataResourceUid);
+            $('#downloadLink').attr('href', 'dataCheck/redirectToDownload?uid=' + dataResourceUid);
+            $('.ui-progressbar-value').html('<span>Dataset uploaded.</span>');
+            $('#optionsAfterDownload').css({'display':'block'});
+
             $("#uploadFeedback").html('');
           } else if(data.status == "FAILED"){
             $('.ui-progressbar-value').html('<span>Dataset upload <strong>failed</strong>. Please email support@ala.org.au with e details of your dataset.</span>');
@@ -251,11 +257,11 @@
 <body class="fluid">
 <div id="content">
   <div id="wrapper" style="width:95%; padding:30px; text-align: left;">
-      <h1>ALA Sandbox</h1>
+      <h1>Sandbox</h1>
       <p style="width:80%;">
         This is a sandbox environment for data uploads, to allow users to view their data with ALA tools.
-        This is currently an <strong>experimental</strong> feature of the Atlas. Uploaded data will be <strong>periodically cleared</strong> from the system.
-        This tool currently only accepts comma separated values (CSV) occurrence data and is currently <strong>limited to 1000 records</strong> per upload.
+        This is currently an <strong>experimental</strong> feature of the Atlas.<br/> Uploaded data will be <strong>periodically cleared</strong> from the system.
+        This tool accepts comma separated values (CSV) and tab separated data.
         <br/>
       </p>
 
@@ -304,6 +310,18 @@
             </div>
             <div id="uploadProgressBar">
             </div>
+            <div id="optionsAfterDownload" style="display:none; margin-bottom: 0px; padding-bottom: 0px;">
+
+                <h2 style="margin-top:25px; ">Options for working with your data</h2>
+
+                <section class="meta">
+                  <dl>
+                    <dd><a href="#spatialPortalLink" id="spatialPortalLink" class="button" title="Mapping &amp; Analysis in the Spatial portal">Mapping & Analysis with your data</a></dd>
+                    <dd><a href="#hubLink" id="hubLink" class="button" title="Tables &amp; charts for your data">Tables & charts of your data</a></dd>
+                    <dd><a href="#downloadLink" id="downloadLink" class="button" title="Life Science Identifier (pop-up)">Download the processed version of your data</a></dd>
+                  </dl>
+                </section>
+            </div>
           </p>
         </div>
       </div><!-- processedSample -->
@@ -317,7 +335,6 @@
             </g:each></g:textArea>
           </div>
       </div><!-- processedData -->
-
   </div><!-- wrapper -->
 </div><!-- content -->
 </body>

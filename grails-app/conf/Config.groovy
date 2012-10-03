@@ -29,9 +29,14 @@ if (!ala.baseURL) {
 
 ala.baseURL = "http://www.ala.org.au"
 bie.baseURL = "http://bie.ala.org.au"
+spatialPortalUrl = "http://spatial.ala.org.au"
+spatialPortalUrlOptions = "&dynamic=true&ws=http%3A%2F%2Fsandbox.ala.org.au%2Fhubs-webapp&bs=http%3A%2F%2Fsandbox.ala.org.au%2Fbiocache-service"
+biocacheServiceDownloadParams = "&extras=el882,el889,el887,el865,el894,cl21,cl22,cl927,cl23,cl617,cl620"
 bie.searchPath = "/search"
 headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
-biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
+biocacheServiceUrl = "http://localhost:8081"
+
+// biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
 
 /******************************************************************************\
  *  SECURITY
@@ -109,40 +114,85 @@ environments {
     production {
         grails.serverURL = "http://sandbox.ala.org.au/datacheck"
         biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
+        sandboxHubsWebapp = "http://sandbox.ala.org.au/hubs-webapp"
     }
     development {
-        grails.serverURL = "http://localhost:8081/${appName}"
-        //biocacheServiceUrl = "http://localhost:8181/biocache-service"
+        grails.serverURL = "http://localhost:8080/${appName}"
+//        biocacheServiceUrl = "http://localhost:8081/biocache-service"
+  //      sandboxHubsWebapp = "http://localhost:8082/hubs-webapp"
         biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
+        sandboxHubsWebapp = "http://sandbox.ala.org.au/hubs-webapp"
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
     }
-
 }
 
+// log4j configuration
+// log4j configuration
 // log4j configuration
 log4j = {
     // Example of changing the log pattern for the default console
     // appender:
     //
     appenders {
-        console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
+
+        console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
+
+        environments {
+            production {
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/sandbox.log", threshold: org.apache.log4j.Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+                'null' name: "stacktrace"
+            }
+            development {
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/sandbox.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
+                'null' name: "stacktrace"
+            }
+            test {
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/sandbox.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
+                'null' name: "stacktrace"
+            }
+        }
     }
 
-    debug  'au.org.ala'
+    root {
+        // change the root logger to my tomcatLog file
+        error 'tomcatLog'
+        warn 'tomcatLog'
+        info 'tomcatLog'
+        debug 'tomcatLog', 'stdout'
+        additivity = true
+    }
 
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
-           'org.codehaus.groovy.grails.web.pages', //  GSP
-           'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-           'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-           'org.codehaus.groovy.grails.web.mapping', // URL mapping
-           'org.codehaus.groovy.grails.commons', // core / classloading
-           'org.codehaus.groovy.grails.plugins', // plugins
-           'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
-           'org.springframework',
-           'org.hibernate',
-           'net.sf.ehcache.hibernate'
+            'org.codehaus.groovy.grails.web.pages', //  GSP
+            'org.codehaus.groovy.grails.web.sitemesh', //  layouts
+            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+            'org.codehaus.groovy.grails.web.mapping', // URL mapping
+            'org.codehaus.groovy.grails.commons', // core / classloading
+            'org.codehaus.groovy.grails.plugins', // plugins
+            'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
+            'org.springframework',
+            'org.hibernate',
+            'net.sf.ehcache.hibernate',
+            'org.codehaus.groovy.grails.plugins.orm.auditable',
+            'org.mortbay.log',
+            'org.springframework.webflow',
+            'grails.app',
+            'org.apache',
+            'org',
+            'com',
+            'au',
+            'grails.app',
+            'net',
+            'org.apache.http.wire',
+            'http',
+            'grails.util.GrailsUtil'
 
-    warn   'org.mortbay.log'
+    debug  'grails.app.domain.ala.postie',
+            'grails.app.controller.ala.postie',
+            'grails.app.service.ala.postie',
+            'grails.app.tagLib.ala.postie'
 }
