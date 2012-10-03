@@ -174,11 +174,11 @@ class DataCheckController {
 
   def upload = {
     //read the csv
-    String headers = request.getParameter("headers").trim()
+    String headers = request.getParameter("headers").trim();
     String csvData = request.getParameter("rawData").trim()
     String separator = getSeparatorName(csvData)
     String datasetName = request.getParameter("datasetName").trim()
-    String customIndexedFields = request.getParameter("customIndexedFields").trim()
+    String customIndexedFields = request.getParameter("customIndexedFields").trim();
     String firstLineIsData = request.getParameter("firstLineIsData")
     def responseString = biocacheService.uploadData(csvData,headers,datasetName,separator,firstLineIsData, customIndexedFields)
     response.setContentType("application/json")
