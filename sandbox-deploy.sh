@@ -18,9 +18,7 @@ sudo unzip hubs-webapp.war -d hubs-webapp
 sudo cp /data/biocache-conf/hubs-webapp/hubs.properties hubs-webapp/WEB-INF/classes/
 sudo cp /data/biocache-conf/hubs-webapp/web.xml hubs-webapp/WEB-INF/web.xml 
 sudo chown -R tomcat hubs-webapp
-# sudo wget http://maven.ala.org.au/repository/au/org/ala/ala-datacheck/1.0-SNAPSHOT/ala-datacheck-0.1.war
 
-sudo cp /tmp/datacheck.war datacheck.war
-
+sudo wget http://maven.ala.org.au/repository/au/org/ala/datacheck/datacheck.war
 
 sudo /etc/init.d/tomcat6 start
