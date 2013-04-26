@@ -1,5 +1,33 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 
+<script type="text/javascript">
+    //var dwcURL = 'http://localhost:8080/ala-datacheck/dataCheck/autocomplete.json'
+    jQuery("input.columnHeaderInput").autocomplete('dataCheck/autocomplete.json', {
+        extraParams: {limit: 100},
+        dataType: 'json',
+        matchSubset: false,
+        cacheLength: 10,
+        minChars: 3,
+        scroll: false,
+        max: 10,
+        selectFirst: false,
+        parse: function(data){
+            var rows = new Array();
+            for(var i=0; i<data.length; i++){
+                rows[i] = {
+                    data: data[i],
+                    value: data[i],
+                    result:data[i]
+                }
+            }
+            return rows;
+        },
+        formatItem: function(row, i, n){
+            return row;
+        }
+    });
+</script>
+
 <div id="interpretation">
   <label for="firstLineIsData">The first line is: </label>
   <select id="firstLineIsData" name="firstLineIsData">
@@ -20,7 +48,7 @@
     <g:if test="${columnHeaderMap}">
       <g:each in="${columnHeaderMap}" var="hdr">
         <th>
-          <input class="columnHeaderInput" type="text" value="${hdr.value ? hdr.value : hdr.key}" style="${hdr.value != '' ? '' : 'background-color: #E9AB17;'}"/>
+          <input class="columnHeaderInput" type="text" autocomplete="off" name="q" value="${hdr.value ? hdr.value : hdr.key}" style="${hdr.value != '' ? '' : 'background-color: #E9AB17;'}"/>
         </th>
       </g:each>
     </g:if>
@@ -32,7 +60,7 @@
            <g:if test="${!header}">
             <g:set var="unknownCounter" value="${unknownCounter.toInteger() + 1}" />
            </g:if>
-          <input class="columnHeaderInput" type="text" value="${header ? header : 'Unknown ' + unknownCounter}" style="${header ? '' : 'background-color: #E9AB17;'}"/>
+          <input class="columnHeaderInput" type="text" autocomplete="off" name="q"  value="${header ? header : 'Unknown ' + unknownCounter}" style="${header ? '' : 'background-color: #E9AB17;'}"/>
         </th>
       </g:each>
     </g:else>
