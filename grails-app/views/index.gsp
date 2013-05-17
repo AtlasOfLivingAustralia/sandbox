@@ -5,9 +5,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="ala3" />
     <uploader:head />
-    <style type="text/css">
-
-    </style>
     <script type="text/javascript">
 
       if (!window.console) console = {log: function() {}};
@@ -39,16 +36,10 @@
          $('#uploadProgressBar').html('');
          $('#uploadProgressBar').progressbar( "destroy" );
          $('#uploadProgressBar').html('');
-          /*
-          $('#recognisedDataDiv').hide();
-          $('#processSample').hide();
-          $('#uploadProgressBar').hide();
+         $('#recognisedDataDiv').hide();
+         $('#processSample').slideUp("slow");
+         $('#uploadProgressBar').hide();
          $('#uploadFeedback').hide();
-         */
-          $('#recognisedDataDiv').hide();
-          $('#processSample').slideUp("slow");
-          $('#uploadProgressBar').hide();
-          $('#uploadFeedback').hide();
       }
 
       function pasteAreaHasChanged(){
@@ -113,11 +104,7 @@
       }
 
       function processedData(){
-//        console.log("Process first few lines...." + getColumnHeaders());
           $('#processedData').slideUp("slow");
-         // $('#processedData').html("");
-         // $('#processedData').html("<strong>Parsing the first three records...</strong>");
-         // $('#processedData').slideDown("slow");
 
           $.ajaxSetup({
               scriptCharset: "utf-8",
@@ -143,8 +130,8 @@
       var dataResourceUid = "";
 
       function updateStatus(uid){
-      //  console.log('Uploading status for...' + uid);
         dataResourceUid = uid;
+        $('.ui-progressbar-value').html('');
         $('#uploadProgressBar').show();
         $('#uploadFeedback').show();
         updateStatusPolling();
@@ -170,7 +157,6 @@
           console.log("Retrieving status...." + data.status + ", percentage: " + data.percentage);
           if(data.status == "COMPLETE"){
             $("#uploadProgressBar").progressbar({ value: 100 });
-
             $('#spatialPortalLink').attr('href', 'dataCheck/redirectToSpatialPortal?uid=' + dataResourceUid);
             $('#hubLink').attr('href', 'dataCheck/redirectToBiocache?uid=' + dataResourceUid);
             $('#downloadLink').attr('href', 'dataCheck/redirectToDownload?uid=' + dataResourceUid);
@@ -182,7 +168,7 @@
             $('.ui-progressbar-value').html('<span>Dataset upload <strong>failed</strong>. Please email support@ala.org.au with e details of your dataset.</span>');
           } else {
             $("#uploadProgressBar").progressbar({ value: data.percentage });
-            $("#uploadFeedback").html('<span>STATUS: '+data.status+', Completed: '+data.completed+', Percentage completed: '+data.percentage+'</span>');
+            $("#uploadFeedback").html('<span>Percentage completed: '+data.percentage+'%. </span><span>STATUS: '+data.status+', '+data.description+"</span>");
             setTimeout("updateStatusPolling()", 1000);
           }
         });
@@ -260,7 +246,8 @@
       <h1>Sandbox</h1>
       <p style="width:80%;">
         This is a sandbox environment for data uploads, to allow users to view their data with ALA tools.
-        This is currently an <strong>experimental</strong> feature of the Atlas.<br/> Uploaded data will be <strong>periodically cleared</strong> from the system.
+        This is currently an <strong>experimental</strong> feature of the Atlas.<br/>
+        Uploaded data will be <strong>periodically cleared</strong> from the system.
         This tool accepts comma separated values (CSV) and tab separated data.
         <br/>
       </p>
@@ -281,7 +268,8 @@
         <h2>2. Check our initial interpretation</h2>
 
         <p>Adjust headings that have been incorrectly matched using the text boxes.
-        Fields marked in <strong>yellow</strong> havent been matched to a recognised field name (<a href="http://rs.tdwg.org/dwc/terms/" target="_blank">darwin core terms</a>).<br/>
+        Fields marked in <strong>yellow</strong> havent been matched to a recognised field name
+        (<a href="http://rs.tdwg.org/dwc/terms/" target="_blank">darwin core terms</a>).<br/>
 
         After adjusting, click
         <a href="javascript:processedData();" id="processData2" name="processData2" class="button">Reprocess sample</a></p>
