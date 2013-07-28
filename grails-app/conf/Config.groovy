@@ -127,6 +127,7 @@ environments {
         grails.serverURL = "http://localhost:8080/${appName}"
     }
     nectar {
+        grails.serverURL = "http://115.146.86.78:8080/${appName}"
         biocacheServiceUrl = "http://115.146.86.78:8080/biocache-service"
         sandboxHubsWebapp = "http://115.146.86.78:8080/hubs-webapp"
     }
