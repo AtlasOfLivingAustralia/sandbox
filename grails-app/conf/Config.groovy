@@ -34,7 +34,7 @@ spatialPortalUrlOptions = "&dynamic=true&ws=http%3A%2F%2Fsandbox.ala.org.au%2Fhu
 biocacheServiceDownloadParams = "&extras=el882,el889,el887,el865,el894,cl21,cl22,cl927,cl23,cl617,cl620"
 bie.searchPath = "/search"
 headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
-biocacheServiceUrl = "http://localhost:8081"
+biocacheServiceUrl = "http://localhost:8080/biocache-service"
 
 // biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
 
@@ -120,11 +120,15 @@ environments {
         grails.serverURL = "http://localhost:8080/${appName}"
 //        biocacheServiceUrl = "http://localhost:8081/biocache-service"
   //      sandboxHubsWebapp = "http://localhost:8082/hubs-webapp"
-        biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
+        biocacheServiceUrl = "http://localhost:8080/biocache-service"
         sandboxHubsWebapp = "http://sandbox.ala.org.au/hubs-webapp"
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
+    }
+    nectar {
+        biocacheServiceUrl = "http://115.146.86.78:8080/biocache-service"
+        sandboxHubsWebapp = "http://115.146.86.78:8080/hubs-webapp"
     }
 }
 
@@ -137,7 +141,7 @@ log4j = {
     //
     appenders {
 
-        console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
+        console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
 
         environments {
             production {
@@ -146,8 +150,8 @@ log4j = {
                 'null' name: "stacktrace"
             }
             development {
-                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/sandbox.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/sandbox.log", threshold: org.apache.log4j.Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
                 'null' name: "stacktrace"
             }
             test {
