@@ -145,6 +145,11 @@ log4j = {
         console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
 
         environments {
+            nectar {
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/sandbox.log", threshold: org.apache.log4j.Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+                'null' name: "stacktrace"
+            }
             production {
                 console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
                 rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/sandbox.log", threshold: org.apache.log4j.Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
