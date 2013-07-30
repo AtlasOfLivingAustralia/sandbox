@@ -26,6 +26,7 @@ grails.project.dependency.resolution = {
     }
     plugins {
         runtime ":ala-web-theme:0.1.10"
+        build ":tomcat:$grailsVersion"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
