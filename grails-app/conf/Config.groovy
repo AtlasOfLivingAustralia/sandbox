@@ -1,19 +1,16 @@
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
-
-// grails.config.locations = [ "classpath:${appName}-config.properties",
-//                             "classpath:${appName}-config.groovy",
-//                             "file:${userHome}/.grails/${appName}-config.properties",
-//                             "file:${userHome}/.grails/${appName}-config.groovy"]
-
-// if(System.properties["${appName}.config.location"]) {
-//    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
-// }
+grails.config.locations = ["file:/data/${appName}/config/${appName}-config.properties"]
 
 /******************************************************************************\
  *  EXTERNAL SERVERS
 \******************************************************************************/
-
+if(!grails.serverURL){
+    grails.serverURL = "http://sandbox.ala.org.au/datacheck"
+}
+if(!sandboxHubsWebapp){
+    sandboxHubsWebapp = "http://sandbox.ala.org.au/hubs-webapp"
+}
 if (!bie.baseURL) {
      bie.baseURL = "http://bie.ala.org.au/"
 }
@@ -26,23 +23,29 @@ if (!spatial.baseURL) {
 if (!ala.baseURL) {
     ala.baseURL = "http://www.ala.org.au"
 }
-
-ala.baseURL = "http://www.ala.org.au"
-bie.baseURL = "http://bie.ala.org.au"
-spatialPortalUrl = "http://spatial.ala.org.au"
-spatialPortalUrlOptions = "&dynamic=true&ws=http%3A%2F%2Fsandbox.ala.org.au%2Fhubs-webapp&bs=http%3A%2F%2Fsandbox.ala.org.au%2Fbiocache-service"
-biocacheServiceDownloadParams = "&extras=el882,el889,el887,el865,el894,cl21,cl22,cl927,cl23,cl617,cl620"
-bie.searchPath = "/search"
-headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
-biocacheServiceUrl = "http://localhost:8080/biocache-service"
-
-// biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
-
+if (!spatialPortalUrl) {
+    spatialPortalUrl = "http://spatial.ala.org.au"
+}
+if(!spatialPortalUrlOptions){
+    spatialPortalUrlOptions = "&dynamic=true&ws=http%3A%2F%2Fsandbox.ala.org.au%2Fhubs-webapp&bs=http%3A%2F%2Fsandbox.ala.org.au%2Fbiocache-service"
+}
+if(!biocacheServiceDownloadParams){
+    biocacheServiceDownloadParams = "&extras=el882,el889,el887,el865,el894,cl21,cl22,cl927,cl23,cl617,cl620"
+}
+if(!biocacheServiceUrl){
+    biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
+}
+if(!bie.searchPath){
+    bie.searchPath = "/search"
+}
+if(!headerAndFooter.baseURL){
+    headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
+}
 /******************************************************************************\
  *  SECURITY
 \******************************************************************************/
 if (!security.cas.urlPattern) {
-    security.cas.urlPattern = "/ala-datacheck,/ala-datacheck/,/datacheck,/datacheck/"
+    security.cas.urlPattern = "/datacheck,/datacheck/"
 }
 if (!security.cas.urlExclusionPattern) {
     security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*"
@@ -60,13 +63,14 @@ if (!security.cas.logoutUrl) {
     security.cas.logoutUrl = "${security.cas.casServerName}/cas/logout"
 }
 if (!security.cas.contextPath) {
-    security.cas.contextPath = "/ala-datacheck" //"""${appName}"
+    security.cas.contextPath = "/datacheck" //"""${appName}"
 }
 if (!security.cas.bypass) {
     security.cas.bypass = false
 }
-
-security.cas.appServerName="http://localhost:8080"
+if (!security.cas.appServerName ) {
+    security.cas.appServerName = "http://localhost:8080"
+}
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
@@ -113,37 +117,21 @@ grails.exceptionresolver.params.exclude = ['password']
 environments {
     production {
         grails.serverURL = "http://sandbox.ala.org.au/datacheck"
-        biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
-        sandboxHubsWebapp = "http://sandbox.ala.org.au/hubs-webapp"
     }
     development {
         grails.serverURL = "http://localhost:8080/${appName}"
-//        biocacheServiceUrl = "http://localhost:8081/biocache-service"
-  //      sandboxHubsWebapp = "http://localhost:8082/hubs-webapp"
-        biocacheServiceUrl = "http://localhost:8080/biocache-service"
-        sandboxHubsWebapp = "http://sandbox.ala.org.au/hubs-webapp"
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
     }
-    nectar {
-        grails.serverURL = "http://115.146.86.78:8080/${appName}"
-        biocacheServiceUrl = "http://115.146.86.78:8080/biocache-service"
-        sandboxHubsWebapp = "http://115.146.86.78:8080/hubs-webapp"
-    }
 }
 
-// log4j configuration
-// log4j configuration
 // log4j configuration
 log4j = {
     // Example of changing the log pattern for the default console
     // appender:
-    //
     appenders {
-
         console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
-
         environments {
             nectar {
                 console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
@@ -156,7 +144,7 @@ log4j = {
                 'null' name: "stacktrace"
             }
             development {
-                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
                 rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/sandbox.log", threshold: org.apache.log4j.Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
                 'null' name: "stacktrace"
             }

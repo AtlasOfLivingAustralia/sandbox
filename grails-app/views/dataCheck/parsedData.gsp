@@ -36,19 +36,26 @@
   </select>
 </div>
 
-<div id="tabulatedData">
+<div id="tabulatedData"  style="overflow: auto;">
     <style type="text/css">
-      table { border-collapse: collapse; }
-      th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}
-      td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}
+        #initialParse th input {margin-bottom:0px;}
+      %{--table { border-collapse: collapse; }--}%
+      %{--th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}--}%
+      %{--td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}--}%
     </style>
   <h1> </h1>
-<table id="initialParse">
+<table id="initialParse" class="table table-bordered" >
     <thead>
+
     <g:if test="${columnHeaderMap}">
       <g:each in="${columnHeaderMap}" var="hdr">
         <th>
-          <input class="columnHeaderInput" type="text" autocomplete="off" name="q" value="${hdr.value ? hdr.value : hdr.key}" style="${hdr.value != '' ? '' : 'background-color: #E9AB17;'}"/>
+          <input class="columnHeaderInput"
+                 type="text"
+                 autocomplete="off" name="q"
+                 value="${hdr.value ? hdr.value : hdr.key}"
+                 style="${hdr.value != '' ? '' : 'background-color: #fcf8e3;'}"
+          />
         </th>
       </g:each>
     </g:if>
@@ -60,7 +67,9 @@
            <g:if test="${!header}">
             <g:set var="unknownCounter" value="${unknownCounter.toInteger() + 1}" />
            </g:if>
-          <input class="columnHeaderInput" type="text" autocomplete="off" name="q"  value="${header ? header : 'Unknown ' + unknownCounter}" style="${header ? '' : 'background-color: #E9AB17;'}"/>
+          <input class="columnHeaderInput" type="text" autocomplete="off" name="q"
+                 value="${header ? header : 'Unknown ' + unknownCounter}"
+                 style="${header ? '' : 'background-color: #fcf8e3;'}"/>
         </th>
       </g:each>
     </g:else>

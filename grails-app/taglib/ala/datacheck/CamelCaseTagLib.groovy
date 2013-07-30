@@ -16,8 +16,14 @@ class CamelCaseTagLib {
   }
 
   private def formatCamelCase(String original){
-    def value =  original.replaceAll("([A-Z])") { " " + it[0] }
-    value =  value.replaceFirst("([a-z])") { it[0].toUpperCase() }
-    value
+    def value = original.replaceAll("([A-Z])") { " " + it[0] }
+    def parts = value.trim().split(" ")
+    def buff = ""
+    parts.eachWithIndex{ String entry, int idx ->
+        if(idx>0)
+            buff += " "
+        buff += entry.capitalize()
+    }
+    buff
   }
 }

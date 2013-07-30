@@ -1,18 +1,18 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <div id="processedContent">
   <style>
-    .fieldName { border: 1px solid black; border-collapse: collapse; background-color: gray; color:white; }
+    .fieldName {     }
     .recordHeader { border: 1px solid black; border-collapse: collapse; background-color: black; color:white; font-weight: bold;}
     .assertionHeader {background-color: black; color:white; text-align: left; ; padding-left:10px;}
-    .assertionName {background-color: red; color:white; text-align: right; ; padding-right:5px;}
-    .sensitiveField {background-color: red; color:white;}
+    .assertionName {background-color: #f2dede;  text-align: right; ; padding-right:5px;}
+    .sensitiveField {background-color: #f2dede; }
     .changedValue { color:#006400; }
     .fieldNameTD { text-align: right; padding-right:5px;}
     #processedSampleTable td { max-width:410px; }
     #processedSampleTable th { min-width:300px; }
   </style>
     <g:each in="${processedRecords}" var="processedRecord" status="recordStatus">
-      <table id="processedSampleTable">
+      <table id="processedSampleTable" class="table table-bordered" >
         <thead>
           <th class="fieldNameTD">Field name</th><th>Original value</th><th>Processed value</th>
         </thead>
@@ -31,8 +31,10 @@
           </tr>
         </g:if>
         <g:each in="${processedRecord.assertions}" var="assertion">
-        <tr>
-          <td class="assertionName"><g:message code="${assertion.name}" default="${assertion.name}"/></td>
+        <tr class="danger">
+          <td class="assertionName">
+              <g:message code="${assertion.name}" default="${assertion.name}"/>
+          </td>
           <td colspan="2">${assertion.comment}</td>
         </tr>
         </g:each>
