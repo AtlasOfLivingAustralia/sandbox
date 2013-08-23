@@ -3,4 +3,5 @@ class QualityAssertion {
   String code
   String comment
   String name
+  String qaStatus
 }

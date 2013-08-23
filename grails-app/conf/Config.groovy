@@ -1,7 +1,31 @@
-// locations to search for config files that get merged into the main config
-// config files can either be Java properties files or ConfigSlurper scripts
-grails.config.locations = ["file:/data/${appName}/config/${appName}-config.properties"]
+/******************************************************************************\
+ *  CONFIG MANAGEMENT
+ \******************************************************************************/
+def appName = 'datacheck'
+def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
+def default_config = "/data/${appName}/config/${appName}-config.properties"
+if(!grails.config.locations || !(grails.config.locations instanceof List)) {
+    grails.config.locations = []
+}
 
+// add ala skin conf (needed for version >= 0.1.10)
+if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
+    println "[${appName}] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
+    grails.config.locations.add "file:" + System.getenv(ENV_NAME)
+} else if(System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
+    println "[${appName}] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
+    grails.config.locations.add "file:" + System.getProperty(ENV_NAME)
+} else if(new File(default_config).exists()) {
+    println "[${appName}] Including default configuration file: " + default_config;
+    grails.config.locations.add "file:" + default_config
+} else {
+    println "[${appName}] No external configuration file defined."
+}
+
+println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
+appContext = 'datacheck'
+appName = 'datacheck'
+grails.project.groupId = "au.org.ala"
 /******************************************************************************\
  *  EXTERNAL SERVERS
 \******************************************************************************/
@@ -41,11 +65,15 @@ if(!bie.searchPath){
 if(!headerAndFooter.baseURL){
     headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
 }
+if(!uploadFilePath){
+    uploadFilePath = "/data/datacheck/uploads/"
+}
+
 /******************************************************************************\
  *  SECURITY
 \******************************************************************************/
 if (!security.cas.urlPattern) {
-    security.cas.urlPattern = "/datacheck,/datacheck/"
+    security.cas.urlPattern = ""
 }
 if (!security.cas.urlExclusionPattern) {
     security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*"
@@ -55,6 +83,9 @@ if (!security.cas.authenticateOnlyIfLoggedInPattern) {
 }
 if (!security.cas.casServerName) {
     security.cas.casServerName = "https://auth.ala.org.au"
+}
+if (!security.cas.casServerUrlPrefix) {
+    security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
 }
 if (!security.cas.loginUrl) {
     security.cas.loginUrl = "${security.cas.casServerName}/cas/login"
@@ -69,7 +100,7 @@ if (!security.cas.bypass) {
     security.cas.bypass = false
 }
 if (!security.cas.appServerName ) {
-    security.cas.appServerName = "http://localhost:8080"
+    security.cas.appServerName = "http://localhost:8090"
 }
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
@@ -116,13 +147,14 @@ grails.exceptionresolver.params.exclude = ['password']
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
+
         grails.serverURL = "http://sandbox.ala.org.au/datacheck"
     }
     development {
-        grails.serverURL = "http://localhost:8080/${appName}"
+        grails.serverURL = "http://localhost:8090/${appName}"
     }
     test {
-        grails.serverURL = "http://localhost:8080/${appName}"
+        grails.serverURL = "http://localhost:8090/${appName}"
     }
 }
 
@@ -187,10 +219,17 @@ log4j = {
             'net',
             'org.apache.http.wire',
             'http',
-            'grails.util.GrailsUtil'
+            'httpclient',
+            'grails.spring.BeanBuilder',
+            'grails.util.GrailsUtil',
+            'org.apache.commons.http',
+            'org.apache.commons.httpclient',
+            'org.apache.commons.logging',
+            'org.apache.commons.logging.simplelog.log.httpclient.wire'
 
-    debug  'grails.app.domain.ala.postie',
-            'grails.app.controller.ala.postie',
-            'grails.app.service.ala.postie',
-            'grails.app.tagLib.ala.postie'
+    debug   'au.org.ala.datacheck',
+            'grails.app.domain.au.org.ala.datacheck',
+            'grails.app.controller.au.org.ala.datacheck',
+            'grails.app.service.au.org.ala.datacheck',
+            'grails.app.tagLib.au.org.ala.datacheck'
 }

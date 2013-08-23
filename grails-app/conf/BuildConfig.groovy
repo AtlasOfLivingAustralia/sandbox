@@ -29,8 +29,11 @@ grails.project.dependency.resolution = {
         build ":tomcat:$grailsVersion"
     }
     dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
+        runtime 'org.jsoup:jsoup:1.7.2'
+//        runtime 'net.sf.jsignature.io-tools:wazformat:1.2.12'
 
+        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.13'
+        //build "org.apache.tika:tika-parsers:"
     }
 }

@@ -1,8 +1,31 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 
+<style type="text/css">
+.scrollCell {
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    max-height: 50px;
+    line-height: 20px;
+}
+
+.scrollCell div {
+    position: relative;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    max-height: 80px;
+    padding: 8px;
+}
+
+</style>
 <script type="text/javascript">
-    //var dwcURL = 'http://localhost:8080/ala-datacheck/dataCheck/autocomplete.json'
-    jQuery("input.columnHeaderInput").autocomplete('dataCheck/autocomplete.json', {
+    jQuery("input.columnHeaderInput").autocomplete('${createLink(controller:'dataCheck', action:'autocomplete')}.json', {
         extraParams: {limit: 100},
         dataType: 'json',
         matchSubset: false,
@@ -39,9 +62,6 @@
 <div id="tabulatedData"  style="overflow: auto;">
     <style type="text/css">
         #initialParse th input {margin-bottom:0px;}
-      %{--table { border-collapse: collapse; }--}%
-      %{--th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}--}%
-      %{--td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}--}%
     </style>
   <h1> </h1>
 <table id="initialParse" class="table table-bordered" >
@@ -60,7 +80,6 @@
       </g:each>
     </g:if>
     <g:else>
-
      <g:set var="unknownCounter" value="0" />
       <g:each in="${columnHeaders}" var="header">
         <th>
@@ -78,7 +97,7 @@
     <g:each in="${dataRows}" var="row">
       <tr>
       <g:each in="${row}" var="value">
-        <td>${value}</td>
+        <td class="scrollCell"><div>${value}</div></td>
       </g:each>
       </tr>
     </g:each>

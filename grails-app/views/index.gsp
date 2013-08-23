@@ -10,14 +10,14 @@
       if (!window.console) console = {log: function() {}};
 
       var SANDBOX = {
-          currentPaste: ""
+          currentPaste: "",
+          dataResourceUid: ""
       }
 
       function init(){
         console.log("Initialising sandbox...");
         $('#recognisedDataDiv').hide();
         $('#processSample').hide();
-        $('#copyPasteData').val("");
         $('#processingInfo').hide();
         $('#uploadFeedback').html('');
         $('#progressBar').hide();
@@ -55,6 +55,7 @@
            reset();
         } else if(pasteAreaHasChanged()){
 
+          $('#checkDataButton').addClass("disabled");
           $('#checkDataButton').html("Checking....");
 
           $('#processingInfo').html('<strong>Parsing the pasted input.....</strong>');
@@ -71,6 +72,7 @@
              url: "dataCheck/parseColumns",
              data: $('#copyPasteData').val(),
              success: function(data){
+               $('#checkDataButton').removeClass("disabled");
                console.log(data);
                $('#recognisedData').html(data)
                $('#recognisedDataDiv').slideDown("slow");
@@ -79,6 +81,10 @@
                $('#processingInfo').html('<strong>&nbsp;</strong>');
                $('#firstLineIsData').change(function(){ parseColumnsWithFirstLineInfo(); });
                $('#checkDataButton').html("Check data");
+             },
+             error: function(){
+                 $('#checkDataButton').removeClass("disabled");
+                 $('#checkDataButton').html("Check data");
              }
          });
         }
@@ -100,7 +106,8 @@
 
       function processedData(){
           $('#processedData').slideUp("slow");
-
+          $('.processDataBtn').addClass("disabled");
+          $('.processDataBtn').text('Reprocessing.......');
           $.ajaxSetup({
               scriptCharset: "utf-8",
               contentType: "application/x-www-form-urlencoded"
@@ -117,14 +124,18 @@
               success: function(data){
                   $('#processedData').html(data);
                   $('#processedData').slideDown("slow");
+                  $('.processDataBtn').text('Reprocess data');
+                  $('.processDataBtn').removeClass("disabled");
+              },
+              error:function(){
+                  $('.processDataBtn').text('Reprocess data');
+                  $('.processDataBtn').removeClass("disabled");
               }
           });
       }
 
-      var dataResourceUid = "";
-
       function updateStatus(uid){
-        dataResourceUid = uid;
+        SANDBOX.dataResourceUid = uid;
         $('#progressBar').show();
 
         $('.progress .bar').progressbar({
@@ -154,15 +165,15 @@
 
       function updateStatusPolling(){
 
-        $.get("dataCheck/uploadStatus?uid="+dataResourceUid+"&random=" + randomString(10), function(data){
+        $.get("dataCheck/uploadStatus?uid="+SANDBOX.dataResourceUid+"&random=" + randomString(10), function(data){
           console.log("Retrieving status...." + data.status + ", percentage: " + data.percentage);
           if(data.status == "COMPLETE"){
              $('.progress .bar').attr('data-percentage', '100');
              $('#uploadFeedback').html('Upload complete.');
              $('.progress .bar').progressbar();
-            $('#spatialPortalLink').attr('href', 'dataCheck/redirectToSpatialPortal?uid=' + dataResourceUid);
-            $('#hubLink').attr('href', 'dataCheck/redirectToBiocache?uid=' + dataResourceUid);
-            $('#downloadLink').attr('href', 'dataCheck/redirectToDownload?uid=' + dataResourceUid);
+            $('#spatialPortalLink').attr('href', 'dataCheck/redirectToSpatialPortal?uid=' + SANDBOX.dataResourceUid);
+            $('#hubLink').attr('href', 'dataCheck/redirectToBiocache?uid=' + SANDBOX.dataResourceUid);
+            $('#downloadLink').attr('href', 'dataCheck/redirectToDownload?uid=' + SANDBOX.dataResourceUid);
             $('#optionsAfterDownload').css({'display':'block'});
             $("#uploadFeedback").html('');
           } else if(data.status == "FAILED"){
@@ -174,10 +185,11 @@
             setTimeout("updateStatusPolling()", 1000);
           }
         });
-      }                                                                                 
+      }
 
       function uploadToSandbox(){
         console.log('Uploading to sandbox...');
+        $('#uploadButton').removeClass("disabled");
         $('#uploadFeedback').html('<p class="uploaded">Starting upload of dataset....</p>');
         $.post("dataCheck/upload",
             { "rawData": $('#copyPasteData').val(),
@@ -252,6 +264,8 @@
         Uploaded data will be <strong>periodically cleared</strong> from the system.
         This tool accepts comma separated values (CSV) and tab separated data.
         <br/>
+        To upload file instead, <g:link controller="upload" action="index">click here</g:link>.
+        <br/>
       </p>
       <div id="initialPaste">
         <h2>1. Paste your CSV data here</h2>
@@ -277,10 +291,10 @@
         (<a href="http://rs.tdwg.org/dwc/terms/" target="_blank">darwin core terms</a>).<br/>
 
         After adjusting, click
-        <a href="javascript:processedData();" id="processData2" name="processData2" class="btn">Reprocess sample</a></p>
+        <a href="javascript:processedData();" id="processData2" name="processData2" class="btn processDataBtn">Reprocess sample</a></p>
         <div class="well" >
             <div id="recognisedData"></div>
-            <a href="javascript:processedData();" id="processData" name="processData" class="btn">Reprocess sample</a>
+            <a href="javascript:processedData();" id="processData" name="processData" class="btn processDataBtn">Reprocess sample</a>
         </div>
       </div><!-- recognisedDataDiv -->
 
@@ -292,12 +306,13 @@
               <label for="customIndexedFields">Custom index fields</label>
               <input type="text" name="customIndexedFields" id="customIndexedFields" value=""/>
           </p>
-          <p>
+          <div class="bs-callout bs-callout-info">
           The tables below display the first few records and our interpretation. The <strong>Processed value</strong>
           displays the results of name matching, sensitive data lookup and reverse geocoding where coordinates have been supplied.<br/>
           If you are happy with the initial processing, please give your dataset a name, and upload into the sandbox.
           This will process all the records and allow you to visualise your data on a map.
-          </p>
+          </div>
+
           <div class="well">
             <label for="datasetName" class="datasetName"><strong>Your dataset name</strong></label>
             <input id="datasetName" class="datasetName" name="datasetName" type="text" value="My test dataset" style="width:350px; margin-bottom:5px;"/>

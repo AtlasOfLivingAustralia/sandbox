@@ -6,6 +6,7 @@ import grails.converters.JSON
 import org.apache.commons.httpclient.NameValuePair
 import org.apache.commons.httpclient.methods.GetMethod
 import groovy.json.JsonOutput
+import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
 
 class BiocacheService {
 
@@ -96,6 +97,7 @@ class BiocacheService {
         qa.code = obj.code
         qa.comment = obj.comment
         qa.name = obj.name
+        qa.qaStatus = obj.qaStatus
         qualityAssertions.add(qa)
       }
 
@@ -139,13 +141,52 @@ class BiocacheService {
       def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/cache/refresh")
       http.executeMethod(get)
 
-      return post.getResponseBodyAsString()
+      post.getResponseBodyAsString()
+    }
+
+   /**
+    * Upload the data to the biocache, passing back the response
+    * @param csvData
+    * @param headers
+    * @param datasetName
+    * @param separator
+    * @param firstLineIsData
+    * @return response as string
+    */
+    def uploadFile(String fileId, String headers, String datasetName, String separator,
+                   String firstLineIsData, String customIndexedFields){
+
+      //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
+      def urlPath = new ApplicationTagLib().createLink([controller: 'upload', action:'serveFile', params:[fileId:fileId]])
+      def csvUrl = grailsApplication.config.security.cas.appServerName + urlPath
+      NameValuePair[] nameValuePairs = new NameValuePair[6]
+      nameValuePairs[0] = new NameValuePair("csvZippedUrl", csvUrl)
+      nameValuePairs[1] = new NameValuePair("headers", headers)
+      nameValuePairs[2] = new NameValuePair("datasetName", datasetName)
+      nameValuePairs[3] = new NameValuePair("separator", separator)
+      nameValuePairs[4] = new NameValuePair("firstLineIsData", firstLineIsData)
+      nameValuePairs[5] = new NameValuePair("customIndexedFields", customIndexedFields)
+
+      def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/post")
+      post.setRequestBody(nameValuePairs)
+
+      def http = new HttpClient()
+      http.executeMethod(post)
+
+      //TODO check the response
+      log.debug(post.getResponseBodyAsString())
+
+      //reference the UID caches
+      def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/cache/refresh")
+      http.executeMethod(get)
+
+      post.getResponseBodyAsString()
     }
 
     def uploadStatus(String uid){
       def http = new HttpClient()
       def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/upload/status/"+uid+".json")
       http.executeMethod(get)
-      return get.getResponseBodyAsString()
+      get.getResponseBodyAsString()
     }
 }
