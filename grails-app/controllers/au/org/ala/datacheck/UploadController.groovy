@@ -1,6 +1,7 @@
 package au.org.ala.datacheck
 
 import au.com.bytecode.opencsv.CSVReader
+import groovy.json.JsonSlurper
 import org.apache.commons.io.FileUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -14,40 +15,15 @@ class UploadController {
 
     def rowsToPreview = 5
 
-    def uploadToSandboxTest() {
-
-        //read the csv
-        def headers = "Mound,Latitude,Longitude,Presence,Genus,Height N,Height S,Height E,Height W,Average Height,Width NS,Width EW,Average Width,Aspect,Altitude,Slope,Depth of soil,Mound shape,Ant presence";
-        def fileId = "termites"
-        def datasetName = "Test dataset"
-        def firstLineIsData = "false"
-
-        def responseString = biocacheService.uploadFile(
-                fileId,
-                headers,
-                datasetName,
-                "COMMA",
-                firstLineIsData, "")
-        response.setContentType("application/json")
-        render(responseString)
-    }
-
     def uploadToSandbox() {
-        println "Starting the upload of: " + request.getParameter("fileId")
-        println "Starting the headers of: " + request.getParameter("headers")
-
-        //read the csv
-        def headers = request.getParameter("headers").trim();
-        def fileId = request.getParameter("fileId")
-        def datasetName = request.getParameter("datasetName").trim()
-        def firstLineIsData = request.getParameter("firstLineIsData")
-
+        def js = new JsonSlurper()
+        def json = js.parse(request.reader)
         def responseString = biocacheService.uploadFile(
-                fileId,
-                headers,
-                datasetName,
+                json.fileId,
+                json.headers.trim(),
+                json.datasetName.trim(),
                 "COMMA",
-                firstLineIsData, "")
+                json.datasetName.firstLineIsData, "")
         response.setContentType("application/json")
         render(responseString)
     }
@@ -101,7 +77,7 @@ class UploadController {
 
         if (contentType.startsWith("text")) {
             //extract and re-write into common CSV format
-            println "Is a CSV...."
+            log.debug("Is a CSV....")
             FileUtils.copyFile(newFile, extractedFile)
         } else {
             //extract the data
@@ -143,7 +119,7 @@ class UploadController {
 
         //is it comma separated or tab separated
         def raw = readTopOfFile(params.id)
-        println "FirstLineIsData: " + params.firstLineIsData
+        log.debug("FirstLineIsData: " + params.firstLineIsData)
 
         def firstLineIsData = Boolean.parseBoolean(request.getParameter("firstLineIsData").trim())
 
@@ -223,7 +199,7 @@ class UploadController {
 
     def parseColumns = {
 
-        println('Parsing columns for ID: ' + params.id)
+        log.debug('Parsing columns for ID: ' + params.id)
 
         log.debug("Content type >> " + request.getContentType())
 
@@ -310,6 +286,5 @@ class UploadController {
     }
 
     def index() {
-
     }
 }

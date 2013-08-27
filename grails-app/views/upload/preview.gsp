@@ -127,19 +127,17 @@
       function uploadToSandbox(){
         console.log('Uploading to sandbox...');
 
-       //alert('Starting upload - file ID: ' + SANDBOX.fileId + ", headers:" + getColumnHeaders());
-
         $('#uploadButton').removeClass("disabled");
         $('#uploadFeedback').html('<p class="uploaded">Starting upload of dataset....</p>');
         $.ajax({
             type:"POST",
             url: "${createLink(controller:'upload', action:'uploadToSandbox')}",
-            data: {
+            data: JSON.stringify({
               "fileId" : SANDBOX.fileId,
               "headers": getColumnHeaders(),
               "datasetName": $('#datasetName').val(),
               "firstLineIsData": $('#firstLineIsData').val()
-            },
+            }),
             success: function(data){
                 updateStatus(data.uid);
             },
