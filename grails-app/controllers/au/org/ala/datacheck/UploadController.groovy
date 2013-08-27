@@ -17,13 +17,15 @@ class UploadController {
 
     def uploadToSandbox() {
         def js = new JsonSlurper()
-        def json = js.parse(request.reader)
+        def jsonPayload = request.reader.text
+        def json = js.parseText(jsonPayload)
         def responseString = biocacheService.uploadFile(
                 json.fileId,
                 json.headers.trim(),
                 json.datasetName.trim(),
                 "COMMA",
-                json.datasetName.firstLineIsData, "")
+                json.firstLineIsData.trim(),
+                "")
         response.setContentType("application/json")
         render(responseString)
     }

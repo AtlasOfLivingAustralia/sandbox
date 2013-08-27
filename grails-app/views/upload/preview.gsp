@@ -144,7 +144,8 @@
             error: function(){
                 alert("There was a problem starting the upload. Please email support@ala.org.au");
             },
-            dataType: 'json'
+            dataType: 'json',
+            contentType: "application/json",
         });
       }
 
