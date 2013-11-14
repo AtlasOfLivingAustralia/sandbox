@@ -16,8 +16,8 @@ grails.project.dependency.resolution = {
 
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
-        //mavenLocal()
-        //mavenCentral()
+        mavenLocal()
+        mavenCentral()
         //mavenRepo "http://snapshots.repository.codehaus.org"
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
@@ -27,6 +27,10 @@ grails.project.dependency.resolution = {
     plugins {
         runtime ":ala-web-theme:0.1.10"
         build ":tomcat:$grailsVersion"
+        runtime ":csv:0.3"
+        runtime ":standalone:1.0"
+        runtime ":svn:1.0.0.M1"
+        runtime ":tika-parser:1.3.0.1"
     }
     dependencies {
         runtime 'org.jsoup:jsoup:1.7.2'
@@ -34,6 +38,6 @@ grails.project.dependency.resolution = {
 
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.13'
-        //build "org.apache.tika:tika-parsers:"
+        build "org.apache.tika:tika-parsers:1.4"
     }
 }
