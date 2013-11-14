@@ -100,7 +100,7 @@ if (!security.cas.bypass) {
     security.cas.bypass = false
 }
 if (!security.cas.appServerName ) {
-    security.cas.appServerName = "http://localhost:8090"
+    security.cas.appServerName = "http://localhost:8080"
 }
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
@@ -151,10 +151,10 @@ environments {
         grails.serverURL = "http://sandbox.ala.org.au/datacheck"
     }
     development {
-        grails.serverURL = "http://localhost:8090/${appName}"
+        grails.serverURL = "http://localhost:8080/${appName}"
     }
     test {
-        grails.serverURL = "http://localhost:8090/${appName}"
+        grails.serverURL = "http://localhost:8080/${appName}"
     }
 }
 
