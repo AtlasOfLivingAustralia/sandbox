@@ -18,24 +18,24 @@ grails.project.dependency.resolution = {
         // from public Maven repositories
         mavenLocal()
         mavenCentral()
-        //mavenRepo "http://snapshots.repository.codehaus.org"
-        //mavenRepo "http://repository.codehaus.org"
-        //mavenRepo "http://download.java.net/maven/2/"
-        //mavenRepo "http://repository.jboss.com/maven2/"
+        mavenRepo "http://snapshots.repository.codehaus.org"
+        mavenRepo "http://repository.codehaus.org"
+        mavenRepo "http://download.java.net/maven/2/"
+        mavenRepo "http://repository.jboss.com/maven2/"
         mavenRepo "http://maven.ala.org.au/repository/"
     }
     plugins {
+      //  build ":hibernate:$grailsVersion"
+        build ":tomcat:$grailsVersion"        
         runtime ":ala-web-theme:0.1.10"
-        build ":tomcat:$grailsVersion"
         runtime ":csv:0.3"
-        runtime ":standalone:1.0"
-        runtime ":svn:1.0.0.M1"
+       // runtime ":standalone:1.0"
+        //runtime ":svn:1.0.0.M1"
         runtime ":tika-parser:1.3.0.1"
     }
     dependencies {
         runtime 'org.jsoup:jsoup:1.7.2'
-//        runtime 'net.sf.jsignature.io-tools:wazformat:1.2.12'
-
+        // runtime 'net.sf.jsignature.io-tools:wazformat:1.2.12'
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.13'
         build "org.apache.tika:tika-parsers:1.4"
