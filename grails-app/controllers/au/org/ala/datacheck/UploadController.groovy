@@ -1,5 +1,6 @@
 package au.org.ala.datacheck
 
+import org.supercsv.io.CsvMapReader;
 import au.com.bytecode.opencsv.CSVReader
 import groovy.json.JsonSlurper
 import org.apache.commons.io.FileUtils
