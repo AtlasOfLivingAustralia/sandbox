@@ -1,18 +1,13 @@
 package au.org.ala.datacheck
 
-import au.com.bytecode.opencsv.CSVReader
 import org.apache.commons.httpclient.HttpClient
-import org.supercsv.io.CsvListReader;
-import org.apache.commons.httpclient.methods.PostMethod
-
-import org.apache.commons.httpclient.NameValuePair
 import org.apache.commons.httpclient.methods.GetMethod
-import org.supercsv.prefs.CsvPreference
 
 class DataCheckController {
 
   def biocacheService
   def darwinCoreService
+  def csvService
 
   static allowedMethods = [processData: "POST"]
 
@@ -33,11 +28,10 @@ class DataCheckController {
     //def raw = request.getParameter("rawData").trim()
     log.debug("Unparsed RAW>> "  + raw)
 
-    CsvListReader csvReader = getCSVReaderForText(raw)
+    csvService.setCSVReaderForText(raw)
 
     //determine column headers
-    def columnHeadersUnparsed = csvReader.read()
-    columnHeadersUnparsed = columnHeadersUnparsed.toArray(new String[columnHeadersUnparsed.size()])
+    def columnHeadersUnparsed = csvService.read()
 
     log.debug("Unparsed>> "  + columnHeadersUnparsed)
 
@@ -63,13 +57,11 @@ class DataCheckController {
 
     def startAt = firstLineIsData ? 0 : 1
 
-    def currentLine = csvReader.read()
-    if (currentLine!= null) currentLine =currentLine.toArray(new String[currentLine.size()])
+    def currentLine = csvService.read()
 
     for(int i=startAt; i<noOfRowsToDisplay && currentLine!=null; i++){
       dataRows.add(currentLine)
-      currentLine = csvReader.read()
-      if (currentLine!= null) currentLine =currentLine.toArray(new String[currentLine.size()])
+      currentLine = csvService.read()
     }
     // pass back HTML table
     if(firstLineIsData){
@@ -84,11 +76,10 @@ class DataCheckController {
     //is it comma separated or tab separated
     def raw = request.getParameter("rawData").trim()
     def firstLineIsData = Boolean.parseBoolean(request.getParameter("firstLineIsData").trim())
-    CSVReader csvReader = getCSVReaderForText(raw)
+    csvService.setCSVReaderForText(raw)
 
     //determine column headers
-    def columnHeadersUnparsed = csvReader.read()
-    columnHeadersUnparsed = columnHeadersUnparsed.toArray(new String[columnHeadersUnparsed.size()])
+    def columnHeadersUnparsed = csvService.read()
 
     log.debug("Unparsed>> "  + columnHeadersUnparsed)
 
@@ -110,12 +101,10 @@ class DataCheckController {
     log.debug("Parsed>> "  + columnHeaders)
     def startAt = firstLineIsData ? 0 : 1
 
-    def currentLine = csvReader.read()
-      if (currentLine!= null)  currentLine =currentLine.toArray(new String[currentLine.size()])
+    def currentLine = csvService.read()
     for(int i=startAt; i<noOfRowsToDisplay && currentLine!=null; i++){
       dataRows.add(currentLine)
-      currentLine = csvReader.read()
-      if (currentLine!= null)  currentLine =currentLine.toArray(new String[currentLine.size()])
+      currentLine = csvService.read()
     }
     // pass back HTML table
     if(firstLineIsData){
@@ -125,30 +114,9 @@ class DataCheckController {
     }
   }
 
-  def getCSVReaderForText(String raw) {
-    def preference = getPreference(raw)
-//    def csvReader = new CSVReader(new StringReader(raw), separator.charAt(0))
-    def csvReader = new CsvListReader(new StringReader(raw), preference)
-    csvReader
-  }
 
-  def getPreference(String raw){
-      int tabs = raw.count("\t")
-      int commas = raw.count(",")
-      if(tabs > commas)
-          return CsvPreference.TAB_PREFERENCE
-      else
-          return CsvPreference.STANDARD_PREFERENCE
-  }
 
-  def getSeparator(String raw) {
-    int tabs = raw.count("\t")
-    int commas = raw.count(",")
-    if(tabs > commas)
-      return '\t'
-    else
-      return ','
-  }
+
 
   def getSeparatorName(String raw) {
     int tabs = raw.count("\t")
@@ -173,21 +141,18 @@ class DataCheckController {
     List<ParsedRecord> processedRecords = new ArrayList<ParsedRecord>()
 
     def counter = 0
-    def csvReader = getCSVReaderForText(csvData)
-    def currentLine = csvReader.read()
-    if (currentLine!= null)  currentLine =currentLine.toArray(new String[currentLine.size()])
+    csvService.setCSVReaderForText(csvData)
+    def currentLine = csvService.read()
     if(firstLineIsData){
       counter += 1
       processedRecords.add(biocacheService.processRecord(headers, currentLine))
     }
 
-    currentLine = csvReader.read()
-    if (currentLine!= null)  currentLine =currentLine.toArray(new String[currentLine.size()])
+    currentLine = csvService.read()
     while(currentLine != null && counter <noOfRowsToDisplay){
       counter += 1
       processedRecords.add(biocacheService.processRecord(headers, currentLine))
-      currentLine = csvReader.read()
-      if (currentLine!= null)   currentLine =currentLine.toArray(new String[currentLine.size()])
+      currentLine = csvService.read()
     }
 
     render(view:'processedData',  model:[processedRecords:processedRecords])
