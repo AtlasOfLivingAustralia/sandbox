@@ -1,5 +1,6 @@
 package au.org.ala.datacheck
 
+import au.com.bytecode.opencsv.CSVReader
 import groovy.json.JsonSlurper
 import org.apache.commons.io.FileUtils
 import org.jsoup.Jsoup
@@ -11,7 +12,6 @@ class UploadController {
     def tikaService
     def fileService
     def biocacheService
-    def csvService
 
     def rowsToPreview = 5
 
@@ -83,7 +83,7 @@ class UploadController {
             FileUtils.copyFile(newFile, extractedFile)
         } else {
             //extract the data
-            csvService.setCSVWriter(new FileWriter(extractedFile))
+            def csvWriter = new au.com.bytecode.opencsv.CSVWriter(new FileWriter(extractedFile))
             String extractedString = tikaService.parseFile(newFile)
             //HTML version of the file
             Document doc = Jsoup.parse(extractedString);
@@ -101,9 +101,9 @@ class UploadController {
                             }
                         }
                     }
-                    csvService.write(fields)
+                    csvWriter.writeNext(fields)
                 }
-                csvService.closeOutStream()
+                csvWriter.close()
             }
         }
 
@@ -189,9 +189,9 @@ class UploadController {
 
         //is it comma separated or tab separated
         def raw = []
-        csvService.setCSVReaderForFile(new FileReader(extractedFile))
+        CSVReader rdr = new CSVReader(new FileReader(extractedFile), (char)',', (char)'"')
         (0..rowsToPreview).each {
-            def nextLine = csvService.read()
+            def nextLine = rdr.readNext()
             if(nextLine){
                 raw << nextLine
             }
@@ -269,19 +269,19 @@ class UploadController {
         List<ParsedRecord> processedRecords = new ArrayList<ParsedRecord>()
 
         def counter = 0
-        csvService.setCSVReaderForText(csvData)
-        def currentLine = csvService.read()
+        def csvReader = fileService.getCSVReaderForText(csvData)
+        def currentLine = csvReader.readNext()
         if (firstLineIsData) {
             counter += 1
             processedRecords.add(biocacheService.processRecord(headers, currentLine))
         }
 
-        currentLine = csvService.read()
+        currentLine = csvReader.readNext()
 
         while (currentLine != null && counter < rowsToPreview) {
             counter += 1
             processedRecords.add(biocacheService.processRecord(headers, currentLine))
-            currentLine = csvService.read()
+            currentLine = csvReader.readNext()
         }
 
         render(view: '../dataCheck/processedData', model: [processedRecords: processedRecords])
