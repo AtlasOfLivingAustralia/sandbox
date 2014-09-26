@@ -1,10 +1,6 @@
 package au.org.ala.datacheck
-
 import au.com.bytecode.opencsv.CSVReader
 import org.apache.commons.httpclient.HttpClient
-import org.apache.commons.httpclient.methods.PostMethod
-
-import org.apache.commons.httpclient.NameValuePair
 import org.apache.commons.httpclient.methods.GetMethod
 
 class DataCheckController {
@@ -206,7 +202,8 @@ class DataCheckController {
     //reference the UID caches
     def get = new GetMethod(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
     http.executeMethod(get)
-    redirect(url:grailsApplication.config.biocacheServiceUrl + "/occurrences/index/download?q=data_resource_uid:" + params.uid + grailsApplication.config.biocacheServiceDownloadParams)
+    //redirect(url:grailsApplication.config.biocacheServiceUrl + "/occurrences/index/download?q=data_resource_uid:" + params.uid + grailsApplication.config.biocacheServiceDownloadParams)
+    redirect(url:grailsApplication.config.biocacheServiceUrl + "/occurrences/index/download?reasonTypeId=" + grailsApplication.config.downloadReasonId + "&q=data_resource_uid:" + params.uid + "&" + grailsApplication.config.biocacheServiceDownloadParams)
   }
 
 
