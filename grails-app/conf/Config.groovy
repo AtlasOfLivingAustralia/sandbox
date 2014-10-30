@@ -1,9 +1,9 @@
 /******************************************************************************\
  *  CONFIG MANAGEMENT
  \******************************************************************************/
-def appName = 'datacheck'
+def appName = 'sandbox'
 def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
-def default_config = "/data/${appName}/config/${appName}-config.properties"
+default_config = "/data/${appName}/config/${appName}-config.properties"
 if(!grails.config.locations || !(grails.config.locations instanceof List)) {
     grails.config.locations = []
 }
@@ -23,8 +23,6 @@ if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
 }
 
 println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
-appContext = 'datacheck'
-appName = 'datacheck'
 grails.project.groupId = "au.org.ala"
 /******************************************************************************\
  *  EXTERNAL SERVERS
@@ -158,7 +156,7 @@ environments {
     }
 }
 
-logging.dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
+def logging_dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
 
 // log4j configuration
 log4j = {
@@ -168,7 +166,7 @@ log4j = {
         console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
         environments {
             production {
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: logging.dir + "/sandbox.log", threshold: org.apache.log4j.Level.INFO, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: logging_dir + "/sandbox.log", threshold: org.apache.log4j.Level.INFO, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
                 'null' name: "stacktrace"
             }
             development {
@@ -228,3 +226,27 @@ log4j = {
             'grails.app.service.au.org.ala.datacheck',
             'grails.app.tagLib.au.org.ala.datacheck'
 }
+
+// Uncomment and edit the following lines to start using Grails encoding & escaping improvements
+
+/* remove this line 
+// GSP settings
+grails {
+    views {
+        gsp {
+            encoding = 'UTF-8'
+            htmlcodec = 'xml' // use xml escaping instead of HTML4 escaping
+            codecs {
+                expression = 'html' // escapes values inside null
+                scriptlet = 'none' // escapes output from scriptlets in GSPs
+                taglib = 'none' // escapes output from taglibs
+                staticparts = 'none' // escapes output from static template parts
+            }
+        }
+        // escapes all not-encoded output at final stage of outputting
+        filteringCodecForContentType {
+            //'text/html' = 'html'
+        }
+    }
+}
+remove this line */
