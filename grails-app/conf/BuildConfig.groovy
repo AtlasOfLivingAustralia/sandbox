@@ -26,6 +26,7 @@ grails.project.dependency.resolution = {
         mavenRepo "http://maven.ala.org.au/repository/"
     }
     plugins {
+        build ":release:3.0.1"
         build ":tomcat:7.0.54"
         runtime ":ala-web-theme:0.8.1"
         runtime ":csv:0.3.1"
