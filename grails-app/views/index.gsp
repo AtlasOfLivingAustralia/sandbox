@@ -264,7 +264,7 @@
         Uploaded data will be <strong>periodically cleared</strong> from the system.
         This tool accepts comma separated values (CSV) and tab separated data.
         <br/>
-        To upload file instead, <g:link controller="upload" action="index">click here</g:link>.
+        To <b>upload file</b> instead, <g:link controller="upload" action="index">click here</g:link>.
         <br/>
       </p>
       <div id="initialPaste">

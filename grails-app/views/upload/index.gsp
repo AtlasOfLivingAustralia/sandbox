@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="container">
-      <h1>Sandbox file upload <span style="font-family: 'Courier New'">(Early Alpha)</span></h1>
+      <h1>Sandbox file upload</h1>
       <div class="row-fluid" class="span12">
         <p>
             This is a sandbox environment for data uploads, to allow users to view their data with ALA tools.

@@ -37,7 +37,7 @@ class FileService {
         try {
             def basename = file.getName().substring(0, file.getName().lastIndexOf("."))
             def todir = file.getParentFile()
-            println("Extracting " + file + " to " + todir)
+            log.info("Extracting " + file + " to " + todir)
             def jar = new JarFile(file)
             def enu = jar.entries()
             if(enu.hasMoreElements()){
