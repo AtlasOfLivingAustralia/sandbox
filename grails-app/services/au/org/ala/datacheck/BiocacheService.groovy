@@ -22,7 +22,7 @@ class BiocacheService {
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)
       log.debug("[areColumnHeaders] Sending: " + json)
-   //   post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
+      //   post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
       http.executeMethod(post)
       Boolean.parseBoolean(post.getResponseBodyAsString())
@@ -33,7 +33,7 @@ class BiocacheService {
       def http = new HttpClient()
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)
-    //  post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
+      //   post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
       http.executeMethod(post)
       def parseResponse = post.getResponseBodyAsString()  
@@ -47,7 +47,7 @@ class BiocacheService {
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)      
       log.debug("###### column headers to map : "  + json)
-    //  post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
+      //  post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(json)
       http.executeMethod(post)
       def map = JSON.parse(post.getResponseBodyAsString())
@@ -64,11 +64,15 @@ class BiocacheService {
       def http = new HttpClient()
       //construct the map
       def map = new LinkedHashMap()
-      headers.eachWithIndex {header, idx ->  map.put(header, record[idx])}
+      headers.eachWithIndex { header, idx ->
+          if(idx < record.length) {
+              map.put(header, record[idx])
+          }
+      }
       JsonOutput jsonOutput = new JsonOutput()
       def requestAsJSON = jsonOutput.toJson(map)      
       log.debug(requestAsJSON)
-     // post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
+      // post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
       post.setRequestBody(requestAsJSON)
       http.executeMethod(post)
 
@@ -107,15 +111,15 @@ class BiocacheService {
       parsedRecord
     }
 
-   /**
-    * Upload the data to the biocache, passing back the response
-    * @param csvData
-    * @param headers
-    * @param datasetName
-    * @param separator
-    * @param firstLineIsData
-    * @return response as string
-    */
+    /**
+     * Upload the data to the biocache, passing back the response
+     * @param csvData
+     * @param headers
+     * @param datasetName
+     * @param separator
+     * @param firstLineIsData
+     * @return response as string
+     */
     def uploadData(String csvData, String headers, String datasetName, String separator,
                    String firstLineIsData, String customIndexedFields){
 
@@ -144,15 +148,15 @@ class BiocacheService {
       post.getResponseBodyAsString()
     }
 
-   /**
-    * Upload the data to the biocache, passing back the response
-    * @param csvData
-    * @param headers
-    * @param datasetName
-    * @param separator
-    * @param firstLineIsData
-    * @return response as string
-    */
+    /**
+     * Upload the data to the biocache, passing back the response
+     * @param csvData
+     * @param headers
+     * @param datasetName
+     * @param separator
+     * @param firstLineIsData
+     * @return response as string
+     */
     def uploadFile(String fileId, String headers, String datasetName, String separator,
                    String firstLineIsData, String customIndexedFields){
 

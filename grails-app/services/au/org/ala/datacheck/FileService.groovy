@@ -35,7 +35,6 @@ class FileService {
 
     def extractZip(File file){
         try {
-            def basename = file.getName().substring(0, file.getName().lastIndexOf("."))
             def todir = file.getParentFile()
             log.info("Extracting " + file + " to " + todir)
             def jar = new JarFile(file)
@@ -113,18 +112,6 @@ class FileService {
         csvReader
     }
 
-    def isCSVFile(file){
-        //attempt to read a line....
-        try {
-            def rdr = new BufferedReader(new FileReader(file))
-            def firstLine = rdr.readLine()
-            def separator = getSeparator(firstLine)
-            [success:true, separator:separator]
-        } catch(Exception e){
-            [success:false]
-        }
-    }
-
     def getSeparator(String raw) {
         int tabs = raw.count("\t")
         int commas = raw.count(",")
@@ -134,14 +121,5 @@ class FileService {
             return ','
         else
             null
-    }
-
-    def getSeparatorName(String raw) {
-        int tabs = raw.count("\t")
-        int commas = raw.count(",")
-        if(tabs > commas)
-            return "TAB"
-        else
-            return "COMMA"
     }
 }
