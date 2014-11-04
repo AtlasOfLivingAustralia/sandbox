@@ -13,7 +13,7 @@
           dataResourceUid: "",
           currentPaste:""
       }
-              
+
       //setup the page
       $(document).ready(function(){
 
