@@ -108,7 +108,7 @@ function updateStatusPolling(){
             $('.progress .bar').attr('data-percentage', '100');
             $('#uploadFeedback').html('Upload complete.');
             $('.progress .bar').progressbar();
-            $('#spatialPortalLink').attr('href', SANDBOXUPLOAD.spatialPortalLink);
+            $('#spatialPortalLink').attr('href', SANDBOXUPLOAD.spatialPortalLink + SANDBOX.dataResourceUid);
             $('#hubLink').attr('href', SANDBOXUPLOAD.hubLink + SANDBOX.dataResourceUid);
             $('#downloadLink').attr('href', SANDBOXUPLOAD.downloadLink + SANDBOX.dataResourceUid);
             $('#optionsAfterDownload').css({'display':'block'});
