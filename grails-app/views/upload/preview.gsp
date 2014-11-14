@@ -11,9 +11,9 @@
 
       var SANDBOXUPLOAD = {
         fileId:  "${params.id}",
-        uploadStatusUrl: "${createLink(controller:'dataCheck', action:'uploadStatus')}",
-        spatialPortalLink: "${createLink(controller:'dataCheck', action:'redirectToSpatialPortal')}",
-        hubLink: "${createLink(controller:'dataCheck', action:'redirectToBiocache')}",
+        uploadStatusUrl: "${createLink(controller:'dataCheck', action:'uploadStatus')}?uid=",
+        spatialPortalLink: "${createLink(controller:'dataCheck', action:'redirectToSpatialPortal')}?uid=",
+        hubLink: "${createLink(controller:'dataCheck', action:'redirectToBiocache')}?uid=",
         downloadLink: "${createLink(controller:'dataCheck', action:'redirectToDownload')}?uid=",
         uploadLink: "${createLink(controller:'upload', action:'uploadToSandbox')}",
         parseColumnsWithFirstLineInfoUrl: "${createLink(controller:'upload', action:'parseColumnsWithFirstLineInfo')}?id=${params.id}&firstLineIsData=",
