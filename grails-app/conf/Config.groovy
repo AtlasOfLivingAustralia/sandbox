@@ -60,9 +60,6 @@ if(!biocacheServiceUrl){
 if(!bie.searchPath){
     bie.searchPath = "/search"
 }
-if(!headerAndFooter.baseURL){
-    headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
-}
 if(!uploadFilePath){
     uploadFilePath = "/data/datacheck/uploads/"
 }
