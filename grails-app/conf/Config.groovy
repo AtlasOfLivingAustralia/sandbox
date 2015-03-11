@@ -77,7 +77,7 @@ if (!security.cas.urlExclusionPattern) {
     security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*"
 }
 if (!security.cas.authenticateOnlyIfLoggedInPattern) {
-    security.cas.authenticateOnlyIfLoggedInPattern = ""
+    security.cas.authenticateOnlyIfLoggedInPattern = ".*"
 }
 if (!security.cas.casServerName) {
     security.cas.casServerName = "https://auth.ala.org.au"

@@ -14,6 +14,8 @@ class BiocacheService {
 
     def grailsApplication
 
+    def authService
+
     def serviceMethod() {}
 
     def areColumnHeaders(String[] columnHeadersUnparsed){
@@ -124,13 +126,14 @@ class BiocacheService {
                    String firstLineIsData, String customIndexedFields){
 
       //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
-      NameValuePair[] nameValuePairs = new NameValuePair[6]
+      NameValuePair[] nameValuePairs = new NameValuePair[7]
       nameValuePairs[0] = new NameValuePair("csvData", csvData)
       nameValuePairs[1] = new NameValuePair("headers", headers)
       nameValuePairs[2] = new NameValuePair("datasetName", datasetName)
       nameValuePairs[3] = new NameValuePair("separator", separator)
       nameValuePairs[4] = new NameValuePair("firstLineIsData", firstLineIsData)
       nameValuePairs[5] = new NameValuePair("customIndexedFields", customIndexedFields)
+      nameValuePairs[6] = new NameValuePair("alaId", authService.getUserId())
 
       def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/post")
       post.setRequestBody(nameValuePairs)
@@ -163,13 +166,14 @@ class BiocacheService {
       //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
       def urlPath = new ApplicationTagLib().createLink([controller: 'upload', action:'serveFile', params:[fileId:fileId]])
       def csvUrl = grailsApplication.config.security.cas.appServerName + urlPath
-      NameValuePair[] nameValuePairs = new NameValuePair[6]
+      NameValuePair[] nameValuePairs = new NameValuePair[7]
       nameValuePairs[0] = new NameValuePair("csvZippedUrl", csvUrl)
       nameValuePairs[1] = new NameValuePair("headers", headers)
       nameValuePairs[2] = new NameValuePair("datasetName", datasetName)
       nameValuePairs[3] = new NameValuePair("separator", separator)
       nameValuePairs[4] = new NameValuePair("firstLineIsData", firstLineIsData)
       nameValuePairs[5] = new NameValuePair("customIndexedFields", customIndexedFields)
+      nameValuePairs[6] = new NameValuePair("alaId", authService.getUserId())
 
       def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/post")
       post.setRequestBody(nameValuePairs)
