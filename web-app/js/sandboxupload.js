@@ -129,15 +129,21 @@ function uploadToSandbox(){
 
     $('#uploadButton').removeClass("disabled");
     $('#uploadFeedback').html('<p class="uploaded">Starting upload of dataset....</p>');
+
+    var uploadInfo = {
+        "fileId" : SANDBOXUPLOAD.fileId,
+        "headers": getColumnHeaders(),
+        "datasetName": $('#datasetName').val(),
+        "firstLineIsData": $('#firstLineIsData').val(),
+        "dataResourceUid": $('#dataResourceUid').val()
+    };
+
+    console.log(uploadInfo);
+
     $.ajax({
         type:"POST",
         url: SANDBOXUPLOAD.uploadLink,
-        data: JSON.stringify({
-            "fileId" : SANDBOXUPLOAD.fileId,
-            "headers": getColumnHeaders(),
-            "datasetName": $('#datasetName').val(),
-            "firstLineIsData": $('#firstLineIsData').val()
-        }),
+        data: JSON.stringify(uploadInfo),
         success: function(data){
             if(data && data.hasOwnProperty('uid')){
                 updateStatus(data.uid);

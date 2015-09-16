@@ -12,8 +12,14 @@ class UploadController {
     def tikaService
     def fileService
     def biocacheService
+    def collectoryService
 
     def rowsToPreview = 5
+
+    def reload(){
+        def dataResource = collectoryService.getTempResourceMetadata(params.dataResourceUid)
+        render(view:"index", model:[reload:true, dataResource: dataResource ])
+    }
 
     def uploadToSandbox() {
         def js = new JsonSlurper()
@@ -22,10 +28,11 @@ class UploadController {
         def responseString = biocacheService.uploadFile(
                 json.fileId,
                 json.headers.trim(),
-                json.datasetName.trim(),
+                json.datasetName?:"".trim(),
                 "COMMA",
                 json.firstLineIsData.trim(),
-                "")
+                "",
+                json.dataResourceUid)
         response.setContentType("application/json")
         render(responseString)
     }
@@ -37,6 +44,11 @@ class UploadController {
             flash.message = 'file cannot be empty'
             render(view: 'uploadForm')
             return
+        }
+
+        def dataResourceUid = params.dataResourceUid
+        if(dataResourceUid) {
+            log.info "Loading data resource ${dataResourceUid}"
         }
 
         def fileId = System.currentTimeMillis()
@@ -110,7 +122,12 @@ class UploadController {
         //create a zipped version for uploading.....
         fileService.zipFile(extractedFile)
 
-        redirect([controller: 'upload', action: 'preview', id: fileId, params: [fn:newFile.getName()]])
+        //redirect to upload
+        if(dataResourceUid){
+            redirect([controller: 'upload', action: 'preview', id: fileId, params: [fn:newFile.getName(), dataResourceUid:dataResourceUid, datasetName: params.datasetName]])
+        } else {
+            redirect([controller: 'upload', action: 'preview', id: fileId, params: [fn:newFile.getName()]])
+        }
     }
 
     def preview() {
@@ -163,7 +180,7 @@ class UploadController {
 
         response.setHeader("Cache-Control", "must-revalidate");
         response.setHeader("Pragma", "must-revalidate");
-        response.setHeader("Content-Disposition", "attachment;filename=" + params.fileId +".csv.zip");
+        response.setHeader("Content-Disposition", "attachment;filename=${params.fileId}.csv.zip");
         response.setContentType("application/zip");
 
         def output = response.outputStream
@@ -287,6 +304,5 @@ class UploadController {
         render(view: '../dataCheck/processedData', model: [processedRecords: processedRecords])
     }
 
-    def index() {
-    }
+    def index() {}
 }

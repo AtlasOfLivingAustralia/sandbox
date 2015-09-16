@@ -27,76 +27,29 @@ grails.project.groupId = "au.org.ala"
 /******************************************************************************\
  *  EXTERNAL SERVERS
 \******************************************************************************/
-if(!grails.serverURL){
-    grails.serverURL = "http://sandbox.ala.org.au/datacheck"
-}
-if(!sandboxHubsWebapp){
-    sandboxHubsWebapp = "http://sandbox.ala.org.au/hubs-webapp"
-}
-if (!bie.baseURL) {
-     bie.baseURL = "http://bie.ala.org.au/"
-}
-if (!biocache.baseURL) {
-     biocache.baseURL = "http://biocache.ala.org.au/"
-}
-if (!spatial.baseURL) {
-     spatial.baseURL = "http://spatial.ala.org.au/"
-}
-if (!ala.baseURL) {
-    ala.baseURL = "http://www.ala.org.au"
-}
-if (!spatialPortalUrl) {
-    spatialPortalUrl = "http://spatial.ala.org.au"
-}
-if(!spatialPortalUrlOptions){
-    spatialPortalUrlOptions = "&dynamic=true&ws=http%3A%2F%2Fsandbox.ala.org.au%2Fhubs-webapp&bs=http%3A%2F%2Fsandbox.ala.org.au%2Fbiocache-service"
-}
-if(!biocacheServiceDownloadParams){
-    biocacheServiceDownloadParams = "&extras=el882,el889,el887,el865,el894,cl21,cl22,cl927,cl23,cl617,cl620"
-}
-if(!biocacheServiceUrl){
-    biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
-}
-if(!bie.searchPath){
-    bie.searchPath = "/search"
-}
-if(!uploadFilePath){
-    uploadFilePath = "/data/datacheck/uploads/"
-}
 
-/******************************************************************************\
- *  SECURITY
-\******************************************************************************/
-if (!security.cas.urlPattern) {
-    security.cas.urlPattern = ""
-}
-if (!security.cas.urlExclusionPattern) {
-    security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*"
-}
-if (!security.cas.authenticateOnlyIfLoggedInPattern) {
-    security.cas.authenticateOnlyIfLoggedInPattern = ".*"
-}
-if (!security.cas.casServerName) {
-    security.cas.casServerName = "https://auth.ala.org.au"
-}
-if (!security.cas.casServerUrlPrefix) {
-    security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
-}
-if (!security.cas.loginUrl) {
-    security.cas.loginUrl = "${security.cas.casServerName}/cas/login"
-}
-if (!security.cas.logoutUrl) {
-    security.cas.logoutUrl = "${security.cas.casServerName}/cas/logout"
-}
-if (!security.cas.contextPath) {
-    security.cas.contextPath = "/datacheck" //"""${appName}"
-}
-if (!security.cas.bypass) {
-    security.cas.bypass = false
-}
-if (!security.cas.appServerName ) {
-    security.cas.appServerName = "http://localhost:8080"
-}
+ala.baseURL = "http://www.ala.org.au"
+
+sandboxHubsWebapp = "http://sandbox.ala.org.au/ala-hub"
+
+bie.baseURL = "http://bie.ala.org.au/"
+biocache.baseURL = "http://biocache.ala.org.au/"
+biocacheServiceDownloadParams = "&extras=el882,el889,el887,el865,el894,cl21,cl22,cl927,cl23,cl617,cl620"
+biocacheServiceUrl = "http://sandbox.ala.org.au/biocache-service"
+
+spatial.baseURL = "http://spatial.ala.org.au/"
+spatialPortalUrl = "http://spatial.ala.org.au"
+spatialPortalUrlOptions = "&dynamic=true&ws=http%3A%2F%2Fsandbox.ala.org.au%2Fhubs-webapp&bs=http%3A%2F%2Fsandbox.ala.org.au%2Fbiocache-service"
+
+
+bie.searchPath = "/search"
+uploadFilePath = "/data/datacheck/uploads/"
+
+
+skin.orgNameLong = "Atlas of Living Australia"
+skin.appName = "Sandbox"
+apiKey = "xxxxxxxxxxxxx"
+
 
 //grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
@@ -200,12 +153,9 @@ log4j = {
             'org.codehaus.groovy.grails.plugins.orm.auditable',
             'org.mortbay.log',
             'org.springframework.webflow',
-            'grails.app',
             'org.apache',
             'org',
             'com',
-            'au',
-            'grails.app',
             'net',
             'org.apache.http.wire',
             'http',

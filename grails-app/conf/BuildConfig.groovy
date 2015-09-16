@@ -28,9 +28,10 @@ grails.project.dependency.resolution = {
     plugins {
         build ":release:3.0.1"
         build ":tomcat:7.0.54"
-        runtime ":ala-bootstrap2:2.1"
-        runtime ":ala-auth:1.2"
+        runtime ":ala-bootstrap2:2.2"
+        runtime ":ala-auth:1.3.1"
         runtime ":csv:0.3.1"
         runtime ":tika-parser:1.3.0.1"
+        runtime ":pretty-time:2.1.3.Final-1.0.1"
     }
 }

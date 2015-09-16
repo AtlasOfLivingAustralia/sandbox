@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html xmlns="http://www.w3.org/1999/html">
   <head>
-    <title>Sandbox | Atlas of Living Australia</title>
+    <title>${grailsApplication.config.skin.appName} | ${grailsApplication.config.skin.orgNameLong}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="main" />
     <r:require modules="progressbar, sandbox"/>
@@ -49,12 +49,17 @@
   </head>
 <body>
 <div class="container">
-  <h1>Sandbox</h1>
+
+  <div class="pull-right">
+     <g:link controller="myDatasets" action="index" class="btn">My uploaded datasets</g:link>
+  </div>
+
+  <h1>${grailsApplication.config.skin.appName}</h1>
+
   <div class="row-fluid" class="span12">
       <p>
-        This is a sandbox environment for data uploads, to allow users to view their data with ALA tools.
-        This is currently an <strong>experimental</strong> feature of the Atlas.<br/>
-        Uploaded data will be <strong>periodically cleared</strong> from the system.
+        This is a sandbox environment for data uploads, to allow users to view their data with mapping & analysis tools.
+        <br/>
         This tool accepts comma separated values (CSV) and tab separated data.
         <br/>
         To <b>upload file</b> instead, <g:link controller="upload" action="index">click here</g:link>.
@@ -109,7 +114,7 @@
           <div class="well">
             <label for="datasetName" class="datasetName"><strong>Your dataset name</strong></label>
             <input id="datasetName" class="datasetName" name="datasetName" type="text" value="My test dataset" style="width:350px; margin-bottom:5px;"/>
-            <a id="uploadButton" class="btn" href="javascript:uploadToSandbox();">Upload your data</a>
+            <a id="uploadButton" class="btn btn-primary" href="javascript:uploadToSandbox();">Upload your data</a>
 
             <div id="uploadFeedback" style="clear:right;">
             </div>

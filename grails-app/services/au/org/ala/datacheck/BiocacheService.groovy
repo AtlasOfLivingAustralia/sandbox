@@ -1,5 +1,6 @@
 package au.org.ala.datacheck
 
+import org.apache.commons.httpclient.methods.DeleteMethod
 import org.apache.commons.httpclient.methods.PostMethod
 import org.apache.commons.httpclient.HttpClient
 import grails.converters.JSON
@@ -115,6 +116,7 @@ class BiocacheService {
 
     /**
      * Upload the data to the biocache, passing back the response
+     *
      * @param csvData
      * @param headers
      * @param datasetName
@@ -153,6 +155,7 @@ class BiocacheService {
 
     /**
      * Upload the data to the biocache, passing back the response
+     *
      * @param csvData
      * @param headers
      * @param datasetName
@@ -161,27 +164,33 @@ class BiocacheService {
      * @return response as string
      */
     def uploadFile(String fileId, String headers, String datasetName, String separator,
-                   String firstLineIsData, String customIndexedFields){
+                   String firstLineIsData, String customIndexedFields, String dataResourceUid){
 
-      //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
       def urlPath = new ApplicationTagLib().createLink([controller: 'upload', action:'serveFile', params:[fileId:fileId]])
-      def csvUrl = grailsApplication.config.security.cas.appServerName + urlPath
-      NameValuePair[] nameValuePairs = new NameValuePair[7]
-      nameValuePairs[0] = new NameValuePair("csvZippedUrl", csvUrl)
-      nameValuePairs[1] = new NameValuePair("headers", headers)
-      nameValuePairs[2] = new NameValuePair("datasetName", datasetName)
-      nameValuePairs[3] = new NameValuePair("separator", separator)
-      nameValuePairs[4] = new NameValuePair("firstLineIsData", firstLineIsData)
-      nameValuePairs[5] = new NameValuePair("customIndexedFields", customIndexedFields)
-      nameValuePairs[6] = new NameValuePair("alaId", authService.getUserId())
+      def csvUrl = grailsApplication.config.serverName + urlPath
 
-      def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/post")
-      post.setRequestBody(nameValuePairs)
+      List nameValuePairs = [
+              new NameValuePair("csvZippedUrl", csvUrl),
+              new NameValuePair("headers", headers),
+              new NameValuePair("datasetName", datasetName),
+              new NameValuePair("separator", separator),
+              new NameValuePair("firstLineIsData", firstLineIsData),
+              new NameValuePair("customIndexedFields", customIndexedFields),
+              new NameValuePair("uiUrl", grailsApplication.config.sandboxHubsWebapp),
+              new NameValuePair("alaId", authService.getUserId())
+      ]
+
+      //add the data resource UID if supplied
+      if(dataResourceUid){
+          nameValuePairs << new NameValuePair("dataResourceUid", dataResourceUid)
+      }
+
+      def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/")
+      post.setRequestBody(nameValuePairs.toArray(new NameValuePair[0]))
 
       def http = new HttpClient()
       http.executeMethod(post)
 
-      //TODO check the response
       log.debug(post.getResponseBodyAsString())
 
       //reference the UID caches
@@ -193,8 +202,15 @@ class BiocacheService {
 
     def uploadStatus(String uid){
       def http = new HttpClient()
-      def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/upload/status/"+uid+".json")
+      def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/upload/status/${uid}")
       http.executeMethod(get)
       get.getResponseBodyAsString()
+    }
+
+    Boolean deleteResource(String uid){
+        def http = new HttpClient()
+        def delete = new DeleteMethod(grailsApplication.config.biocacheServiceUrl + "/upload/${uid}?apiKey=" + grailsApplication.config.apiKey)
+        def responseCode = http.executeMethod(delete)
+        responseCode == 200
     }
 }

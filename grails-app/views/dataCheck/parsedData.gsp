@@ -25,7 +25,7 @@
 
 </style>
 <script type="text/javascript">
-    jQuery("input.columnHeaderInput").autocomplete('${createLink(controller:'dataCheck', action:'autocomplete')}.json', {
+    jQuery("input.columnHeaderInput").autocomplete('${createLink(controller:'dataCheck', action:'autocomplete')}', {
         extraParams: {limit: 100},
         dataType: 'json',
         matchSubset: false,
