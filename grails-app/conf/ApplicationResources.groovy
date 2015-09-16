@@ -9,9 +9,11 @@ modules = {
     }
     sandbox {
         resource url:[dir:'js', file:'sandbox.js']
+        resource url:[dir:'css', file:'sandbox.css']
     }
     sandboxupload {
         resource url:[dir:'js', file:'sandboxupload.js'], disposition: 'head'
+        resource url:[dir:'css', file:'sandbox.css']
     }
 }
 

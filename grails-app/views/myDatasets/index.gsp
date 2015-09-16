@@ -3,7 +3,7 @@
 <head>
     <title>My datasets | ${grailsApplication.config.skin.appName} | ${grailsApplication.config.skin.orgNameLong}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="main" />
+    <meta name="layout" content="${grailsApplication.config.skin.layout}" />
 </head>
 <body>
     <h1>${grailsApplication.config.skin.appName} - My uploaded datasets</h1>

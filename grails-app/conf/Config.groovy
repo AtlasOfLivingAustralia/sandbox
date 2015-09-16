@@ -48,6 +48,7 @@ uploadFilePath = "/data/datacheck/uploads/"
 
 skin.orgNameLong = "Atlas of Living Australia"
 skin.appName = "Sandbox"
+skin.layout = "main"
 apiKey = "xxxxxxxxxxxxx"
 
 

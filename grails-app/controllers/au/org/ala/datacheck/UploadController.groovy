@@ -13,6 +13,7 @@ class UploadController {
     def fileService
     def biocacheService
     def collectoryService
+    def authService
 
     def rowsToPreview = 5
 
@@ -22,6 +23,13 @@ class UploadController {
     }
 
     def uploadToSandbox() {
+
+        def userId = authService.getUserId()
+        if(!userId){
+            response.sendError(401)
+            return null
+        }
+
         def js = new JsonSlurper()
         def jsonPayload = request.reader.text
         def json = js.parseText(jsonPayload)
@@ -131,7 +139,7 @@ class UploadController {
     }
 
     def preview() {
-        [id: params.id]
+        [id: params.id, userId: authService.getUserId()]
     }
 
     def parseColumnsWithFirstLineInfo = {

@@ -7,13 +7,14 @@ class DataCheckController {
 
   def biocacheService
   def darwinCoreService
+  def authService
 
   static allowedMethods = [processData: "POST"]
 
   def noOfRowsToDisplay = 5
 
   def index = {
-    redirect(uri:"../index")
+    [userId:authService.getUserId()]
   }
 
   def parseColumns = {
@@ -169,6 +170,13 @@ class DataCheckController {
   }
 
   def upload = {
+
+    def userId = authService.getUserId()
+    if(!userId){
+      response.sendError(401)
+      return null
+    }
+
     //read the csv
     String headers = request.getParameter("headers").trim();
     String csvData = request.getParameter("rawData").trim()
@@ -176,7 +184,7 @@ class DataCheckController {
     String datasetName = request.getParameter("datasetName").trim()
     String customIndexedFields = request.getParameter("customIndexedFields").trim();
     String firstLineIsData = request.getParameter("firstLineIsData")
-    def responseString = biocacheService.uploadData(csvData,headers,datasetName,separator,firstLineIsData, customIndexedFields)
+    def responseString = biocacheService.uploadData(csvData, headers, datasetName, separator, firstLineIsData, customIndexedFields)
     response.setContentType("application/json")
     render(responseString)
   }

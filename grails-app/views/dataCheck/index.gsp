@@ -3,7 +3,7 @@
   <head>
     <title>${grailsApplication.config.skin.appName} | ${grailsApplication.config.skin.orgNameLong}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="main" />
+    <meta name="layout" content="${grailsApplication.config.skin.layout}" />
     <r:require modules="progressbar, sandbox"/>
     <r:script disposition='head'>
 
@@ -11,7 +11,8 @@
 
       var SANDBOX = {
           dataResourceUid: "",
-          currentPaste:""
+          currentPaste:"",
+          userId: "${userId}"
       }
 
       //setup the page
@@ -21,13 +22,9 @@
               window.setTimeout('parseColumns()', 1500, true);
           });
 
-          $('#copyPasteData').keydown( function(){
-            //  reset();
-          });
-
           init();
 
-          //enable tabs in textareas
+          //enable tabs in text areas
           $("textarea").keydown(function(e) {
               if(e.keyCode === 9) { // tab was pressed
                   // get caret position/selection
@@ -148,5 +145,21 @@
       </div><!-- processedData -->
   </div><!-- wrapper -->
 </div><!-- content -->
+
+<!-- Login Alert Modal -->
+<div id="loginAlertModel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Please login to upload data</h3>
+    </div>
+    <div class="modal-body">
+        <p>Please login to upload your data and visual through the Atlas.</p>
+        <p><a href="${grailsApplication.config.casServerLoginUrl}?service=${createLink(action: "index", controller:"dataCheck", absolute: true)}">Click here</a> to login.</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    </div>
+</div>
+
 </body>
 </html>

@@ -188,10 +188,15 @@ function uploadToSandbox(){
             "customIndexedFields": $('#customIndexedFields').val()
         },
         function(data){
-            //alert('Value returned from service: '  + data.uid);
             updateStatus(data.uid);
         }
-    );
+    ).fail(function(jqXHR) {
+        if(jqXHR.status == 401){
+            $('#loginAlertModel').modal({})
+        } else {
+            alert('Fail:' + jqXHR.status);
+        }
+    });
 }
 
 function getColumnHeaders(){

@@ -11,7 +11,7 @@ class UrlMappings {
 		"/reload/$dataResourceUid"(controller: "upload", action: "reload")
 		"/my-data"(controller: "myDatasets")
 
-		"/"(view:"/index")
+		"/"(controller: "dataCheck", view:"/dataCheck/index")
 		"500"(view:'/error')
 	}
 }

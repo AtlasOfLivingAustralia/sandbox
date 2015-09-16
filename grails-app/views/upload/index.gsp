@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html xmlns="http://www.w3.org/1999/html">
 <head>
-    <title>${grailsApplication.config.skin.appName} | File upload | Atlas of Living Australia</title>
+    <title>${grailsApplication.config.skin.appName} | File upload |  ${grailsApplication.config.skin.orgNameLong}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="main" />
+    <meta name="layout" content="${grailsApplication.config.skin.layout}" />
     <r:require modules="fileupload"/>
 </head>
 <body>

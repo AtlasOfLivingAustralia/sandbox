@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html xmlns="http://www.w3.org/1999/html">
 <head>
-    <title>Sandbox file upload | Atlas of Living Australia</title>
+    <title>Sandbox file upload |  ${grailsApplication.config.skin.orgNameLong}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="main" />
+    <meta name="layout" content="${grailsApplication.config.skin.layout}" />
     <r:require modules="fileupload, progressbar, sandboxupload"/>
     <r:script disposition='head'>
 
@@ -18,7 +18,8 @@
         uploadLink: "${createLink(controller:'upload', action:'uploadToSandbox')}",
         parseColumnsWithFirstLineInfoUrl: "${createLink(controller:'upload', action:'parseColumnsWithFirstLineInfo')}?id=${params.id}&firstLineIsData=",
         viewProcessDataUrl:"${createLink(controller:'upload', action:'viewProcessData')}?id=",
-        parseColumnsUrl:"${createLink(controller:'upload', action:'parseColumns')}?id="
+        parseColumnsUrl:"${createLink(controller:'upload', action:'parseColumns')}?id=",
+        userId: "${userId}"
       };
 
       //setup the page
@@ -111,5 +112,21 @@
           </div><!-- processedSample -->
       </div>
     </div>
+
+<!-- Login Alert Modal -->
+<div id="loginAlertModel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Please login to upload data</h3>
+    </div>
+    <div class="modal-body">
+        <p>Please login to upload your data and visual through the Atlas.</p>
+        <p><a href="${grailsApplication.config.casServerLoginUrl}?service=${createLink(action: "preview", controller:"upload", absolute: true, params:[id: params.id, fn:params.fn])}">Click here</a> to login.</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    </div>
+</div>
+
 </body>
 </html>

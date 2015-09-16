@@ -144,18 +144,20 @@ function uploadToSandbox(){
         type:"POST",
         url: SANDBOXUPLOAD.uploadLink,
         data: JSON.stringify(uploadInfo),
-        success: function(data){
-            if(data && data.hasOwnProperty('uid')){
-                updateStatus(data.uid);
-            } else {
-                alert("There was a problem starting the upload. Please email support@ala.org.au");
-            }
-        },
-        error: function(){
-            alert("There was a problem starting the upload. Please email support@ala.org.au");
-        },
         dataType: 'json',
-        contentType: "application/json",
+        contentType: "application/json"
+    }).done(function( data ) {
+        if(data && data.hasOwnProperty('uid')){
+            updateStatus(data.uid);
+        } else {
+            alert("There was a problem starting the upload. Please email support@ala.org.au");
+        }
+    }).fail(function(jqXHR) {
+        if(jqXHR.status == 401){
+            $('#loginAlertModel').modal({})
+        } else {
+            alert('Fail:' + jqXHR.status);
+        }
     });
 }
 
