@@ -111,7 +111,7 @@ function updateStatusPolling(){
             $('#spatialPortalLink').attr('href', SANDBOXUPLOAD.spatialPortalLink + SANDBOX.dataResourceUid);
             $('#hubLink').attr('href', SANDBOXUPLOAD.hubLink + SANDBOX.dataResourceUid);
             $('#downloadLink').attr('href', SANDBOXUPLOAD.downloadLink + SANDBOX.dataResourceUid);
-            $('#optionsAfterDownload').css({'display':'block'});
+            if(!SANDBOXUPLOAD.tag) $('#optionsAfterDownload').css({'display':'block'});
             $("#uploadFeedback").html('');
         } else if(data.status == "FAILED"){
             $("#uploadFeedback").html('<span>Dataset upload <strong>failed</strong>. Please email support@ala.org.au with e details of your dataset.</span>');
@@ -127,7 +127,7 @@ function updateStatusPolling(){
 function uploadToSandbox(){
     console.log('Uploading to sandbox...');
 
-    $('#uploadButton').removeClass("disabled");
+    $('#uploadButton').addClass("disabled");
     $('#uploadFeedback').html('<p class="uploaded">Starting upload of dataset....</p>');
 
     var uploadInfo = {
@@ -135,7 +135,8 @@ function uploadToSandbox(){
         "headers": getColumnHeaders(),
         "datasetName": $('#datasetName').val(),
         "firstLineIsData": $('#firstLineIsData').val(),
-        "dataResourceUid": $('#dataResourceUid').val()
+        "dataResourceUid": $('#dataResourceUid').val(),
+        "tag" : SANDBOXUPLOAD.tag
     };
 
     console.log(uploadInfo);

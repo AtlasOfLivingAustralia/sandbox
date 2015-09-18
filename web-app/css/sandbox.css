@@ -1,1 +1,2 @@
 #progressBar { height:20px; }
+.disabled { pointer-events: none; }

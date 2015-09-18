@@ -5,6 +5,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="${grailsApplication.config.skin.layout}" />
     <r:require modules="fileupload, progressbar, sandboxupload"/>
+    <g:if test="${params.tag}">
+        <link type="text/css" href="${resource(dir: 'css', file: 'embedded.css', absolute: true)}" rel="stylesheet"/>
+    </g:if>
     <r:script disposition='head'>
 
       if (!window.console) console = {log: function() {}};
@@ -19,7 +22,8 @@
         parseColumnsWithFirstLineInfoUrl: "${createLink(controller:'upload', action:'parseColumnsWithFirstLineInfo')}?id=${params.id}&firstLineIsData=",
         viewProcessDataUrl:"${createLink(controller:'upload', action:'viewProcessData')}?id=",
         parseColumnsUrl:"${createLink(controller:'upload', action:'parseColumns')}?id=",
-        userId: "${userId}"
+        userId: "${userId}",
+        tag: "${params.tag}"
       };
 
       //setup the page
@@ -121,7 +125,7 @@
     </div>
     <div class="modal-body">
         <p>Please login to upload your data and visual through the Atlas.</p>
-        <p><a href="${grailsApplication.config.casServerLoginUrl}?service=${createLink(action: "preview", controller:"upload", absolute: true, params:[id: params.id, fn:params.fn])}">Click here</a> to login.</p>
+        <p><a href="${grailsApplication.config.casServerLoginUrl}?service=${createLink(action: "preview", controller:"upload", absolute: true, params:[id: params.id, fn:params.fn, tag:params.tag])}">Click here</a> to login.</p>
     </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
