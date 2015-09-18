@@ -8,6 +8,7 @@ class DataCheckController {
   def biocacheService
   def darwinCoreService
   def authService
+  def tagService
 
   static allowedMethods = [processData: "POST"]
 
@@ -217,9 +218,20 @@ class DataCheckController {
 
   def uploadStatus = {
     log.debug("Request to retrieve upload status")
-    def responseString = biocacheService.uploadStatus(params.uid)
-    response.setContentType("application/json")
-    render(responseString)
+    def responseString
+    if (params.tag) {
+        params.uid = tagService.get(params.tag).uid
+    }
+    if (params.uid) {
+        responseString = biocacheService.uploadStatus(params.uid)
+        response.setContentType("application/json")
+        if (params.tag) {
+            //include uid in JSON response
+            responseString = responseString.substring(0, responseString.length() - 1) + ",\"uid\":\"" + tagService.get(params.tag).uid + "\"}"
+        }
+        render(responseString)
+    } else response.sendError(404)
+    
   }
 
   def autocomplete = {

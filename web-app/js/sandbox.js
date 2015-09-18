@@ -178,7 +178,7 @@ function updateStatusPolling(){
 
 function uploadToSandbox(){
     console.log('Uploading to sandbox...');
-    $('#uploadButton').removeClass("disabled");
+    $('#uploadButton').addClass("disabled");
     $('#uploadFeedback').html('<p class="uploaded">Starting upload of dataset....</p>');
     $.post("dataCheck/upload",
         { "rawData": $('#copyPasteData').val(),

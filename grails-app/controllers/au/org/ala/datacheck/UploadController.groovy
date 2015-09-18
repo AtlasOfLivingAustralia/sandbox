@@ -1,6 +1,7 @@
 package au.org.ala.datacheck
 
 import au.com.bytecode.opencsv.CSVReader
+import grails.converters.JSON
 import groovy.json.JsonSlurper
 import org.apache.commons.io.FileUtils
 import org.jsoup.Jsoup
@@ -14,6 +15,7 @@ class UploadController {
     def biocacheService
     def collectoryService
     def authService
+    def tagService
 
     def rowsToPreview = 5
 
@@ -42,6 +44,9 @@ class UploadController {
                 "",
                 json.dataResourceUid)
         response.setContentType("application/json")
+        if (json.tag) {
+            tagService.put(json.tag, (JSON.parse(responseString) as Map) + [fileId: json.fileId])
+        }
         render(responseString)
     }
 
@@ -131,11 +136,12 @@ class UploadController {
         fileService.zipFile(extractedFile)
 
         //redirect to upload
-        if(dataResourceUid){
-            redirect([controller: 'upload', action: 'preview', id: fileId, params: [fn:newFile.getName(), dataResourceUid:dataResourceUid, datasetName: params.datasetName]])
-        } else {
-            redirect([controller: 'upload', action: 'preview', id: fileId, params: [fn:newFile.getName()]])
+        def p = [fn:newFile.getName()]
+        if (dataResourceUid) {
+            p.putAll([dataResourceUid: dataResourceUid, datasetName: params.datasetName])
         }
+        if (params.tag) p.putAll([tag: params.tag])
+        redirect([controller: 'upload', action: 'preview', id: fileId, params: p])
     }
 
     def preview() {

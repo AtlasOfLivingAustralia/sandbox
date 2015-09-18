@@ -4,6 +4,9 @@
     <title>${grailsApplication.config.skin.appName} | File upload |  ${grailsApplication.config.skin.orgNameLong}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="${grailsApplication.config.skin.layout}" />
+    <g:if test="${params.tag}">
+        <link type="text/css" href="${resource(dir: 'css', file: 'embedded.css', absolute: true)}" rel="stylesheet"/>
+    </g:if>
     <r:require modules="fileupload"/>
 </head>
 <body>
@@ -54,6 +57,9 @@
                 </div>
             </g:if>
 
+            <g:if test="${params.tag}">
+                <input type="hidden" name="tag" value="${params.tag}"/>
+            </g:if>
         </g:uploadForm>
       </div>
     </div>
