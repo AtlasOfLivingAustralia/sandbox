@@ -8,6 +8,20 @@
 <body>
     <h1>${grailsApplication.config.skin.appName} - My uploaded datasets</h1>
     <g:if test="${userUploads}">
+
+        <g:if test="${params.containsKey("deleteSuccess")}">
+            <g:if test="${params.deleteSuccess}">
+                <div class="alert alert-info">
+                    Dataset deleted.
+                </div>
+            </g:if>
+            <g:else>
+                <div class="alert alert-error">
+                    Unable to delete this dataset.
+                </div>
+            </g:else>
+        </g:if>
+
         <p class="lead">
             Here is a listing of your previously uploaded datasets.
         </p>
