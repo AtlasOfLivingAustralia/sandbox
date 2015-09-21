@@ -11,7 +11,7 @@ class MyDatasetsController {
         def userUploads = collectoryService.getUserUploads()
         def currentUserId = authService.getUserId()
         //filter uploads by biocache URL
-        def filteredUploads = userUploads.collect { upload ->
+        def filteredUploads = userUploads.findAll { upload ->
             upload.webserviceUrl == grailsApplication.config.biocacheServiceUrl
         }
         [userUploads: filteredUploads, user:authService.getUserForUserId(currentUserId, true)]
