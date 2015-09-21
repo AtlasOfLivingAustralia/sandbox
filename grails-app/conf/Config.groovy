@@ -51,6 +51,10 @@ skin.appName = "Sandbox"
 skin.layout = "main"
 apiKey = "xxxxxxxxxxxxx"
 
+skin.supportEmail = "support@ala.org.au"
+
+clubRole = ""
+
 
 //grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format

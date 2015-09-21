@@ -192,7 +192,15 @@ function uploadToSandbox(){
         }
     ).fail(function(jqXHR) {
         if(jqXHR.status == 401){
-            $('#loginAlertModel').modal({})
+
+            var isAuthenticated = jqXHR.getResponseHeader("X-Sandbox-Authenticated");
+            var isAuthorised = jqXHR.getResponseHeader("X-Sandbox-Authorised");
+            if(!isAuthenticated){
+                $('#loginAlertModel').modal({});
+            } else {
+                $('#notAuthorisedAlertModel').modal({});
+            }
+
         } else {
             alert('Fail:' + jqXHR.status);
         }

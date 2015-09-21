@@ -146,20 +146,10 @@
   </div><!-- wrapper -->
 </div><!-- content -->
 
-<!-- Login Alert Modal -->
-<div id="loginAlertModel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="myModalLabel">Please login to upload data</h3>
-    </div>
-    <div class="modal-body">
-        <p>Please login to upload your data and visual through the Atlas.</p>
-        <p><a href="${grailsApplication.config.casServerLoginUrl}?service=${createLink(action: "index", controller:"dataCheck", absolute: true)}">Click here</a> to login.</p>
-    </div>
-    <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    </div>
-</div>
+
+<g:set var="loginLink" value="${grailsApplication.config.casServerLoginUrl}?service=${createLink(action: "index", controller:"dataCheck", absolute: true)}"/>
+
+<g:render template="../alertModals" var="${loginLink}"/>
 
 </body>
 </html>

@@ -27,7 +27,20 @@ class UploadController {
         def userId = authService.getUserId()
         if(!userId){
             response.sendError(401)
+            response.setHeader("X-Sandbox-Authenticated", "false")
+            response.setHeader("X-Sandbox-Authorised", "false")
             return null
+        }
+
+        if(grailsApplication.config.clubRole){
+            //check roles
+            def isInClub = authService.userInRole(grailsApplication.config.clubRole)
+            if(!isInClub) {
+                response.setHeader("X-Sandbox-Authenticated", "true")
+                response.setHeader("X-Sandbox-Authorised", "false")
+                response.sendError(401)
+                return null
+            }
         }
 
         def js = new JsonSlurper()
