@@ -2,6 +2,14 @@ package au.org.ala.datacheck
 
 class CamelCaseTagLib {
 
+  def formatFieldName = { attr, body ->
+    def fieldName = attr['value']
+    if(fieldName.endsWith("_s") || fieldName.endsWith("_i") || fieldName.endsWith("_d")){
+      fieldName = fieldName.substring(0, fieldName.length() - 2)
+    }
+    out << formatCamelCase(fieldName.replaceAll('_', ' '))
+  }
+
   def prettyCamel = { attr, body ->
 
     String i18nMessage = g.message([code:attr['value']])

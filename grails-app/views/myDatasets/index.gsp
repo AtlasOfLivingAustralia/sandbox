@@ -41,6 +41,10 @@
                         <td>
                             <a class="btn" href="${userUpload.uiUrl ?: grailsApplication.config.sandboxHubsWebapp}/occurrences/search?q=data_resource_uid:${userUpload.uid}">View records</a>
 
+                            <g:link class="btn" controller="myDatasets" action="chartOptions" params="${[tempUid:userUpload.uid]}">
+                                <i class="icon-cog"></i> Configure chart
+                            </g:link>
+
                             <g:link class="btn" controller="upload" action="reload" params="${[dataResourceUid:userUpload.uid]}">
                                 <i class="icon-repeat"></i> Reload
                             </g:link>
