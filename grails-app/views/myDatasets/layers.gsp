@@ -8,10 +8,10 @@
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 </head>
 <body>
-    <h1>${metadata.name} - Chart display options</h1>
+<h1>${metadata.name} - Chart display options</h1>
 
-    <g:form action="saveChartOptions">
-        <input type="hidden" name="tempUid" value="${tempUid}"/>
+<g:form action="saveChartOptions">
+    <input type="hidden" name="tempUid" value="${tempUid}"/>
 
     <div class="pull-right">
         <input class="btn btn-primary" type="submit" value="Save" />
@@ -24,24 +24,32 @@
     </p>
     <table class="table table-condensed table-striped">
         <thead>
-            <th>Field name</th>
-            <th>Chart type</th>
-            <th>Show</th>
+        <th>Layer name</th>
+        <th>Category</th>
+        <th>Sub category</th>
+        <th>Chart type</th>
+        <th>Show</th>
         </thead>
         <tbody class="customIndexes">
-        <g:each in="${chartConfig}" var="chartCfg" status="indexStatus">
+        <g:each in="${layers}" var="layer" status="indexStatus">
             <tr>
                 <td>
-                    <g:formatFieldName value="${chartCfg.field}"/>
-                    <input type="hidden" name="field" value="${chartCfg.field}"/>
+                    ${layer.displayname}
+                    <input type="hidden" name="field" value="${layer.name}"/>
                 </td>
                 <td>
-                    <g:select name="format" from="['pie', 'bar', 'column', 'line', 'scatter']" value="${chartCfg.format}"/>
+                    ${layer.classification1}
+                </td>
+                <td>
+                    ${layer.classification2}
+                </td>
+                <td>
+                    <g:select name="format" from="['pie', 'bar', 'column', 'line', 'scatter']" value="${layer.format}"/>
                 </td>
                 <td>
                     <input type="hidden" name="visible_${indexStatus}" value="off" />
                     <input type="checkbox" name="visible_${indexStatus}"
-                           <g:if test="${chartCfg.visible.toBoolean()}">checked="true"</g:if>
+                           <g:if test="${layer?.visible?.toBoolean()}">checked="true"</g:if>
                     />
                 </td>
             </tr>
@@ -53,7 +61,7 @@
         <g:link class="btn" controller="myDatasets">Cancel</g:link>
     </div>
 
-    </g:form>
+</g:form>
 
 </div>
 </body>

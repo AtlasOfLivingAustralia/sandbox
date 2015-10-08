@@ -28,6 +28,37 @@ class CollectoryService {
     }
 
     /**
+     * Retrieves a listing of all uploads.
+     * @return JSON list of data resources
+     */
+    def getAllUploads(){
+        try {
+            def url = "${grailsApplication.config.collectoryUrl}/tempDataResource"
+            def js = new JsonSlurper()
+            js.parseText(new URL(url).text)
+        } catch (Exception e){
+            log.error(e.getMessage(), e)
+            null
+        }
+    }
+
+    /**
+     * Retrieves a listing of all uploads for this user.
+     * @return JSON list of data resources
+     */
+    def getAllUploadsForUser(userId){
+        try {
+            def url = "${grailsApplication.config.collectoryUrl}/tempDataResource?alaId=${userId}"
+            def js = new JsonSlurper()
+            js.parseText(new URL(url).text)
+        } catch (Exception e){
+            log.error(e.getMessage(), e)
+            null
+        }
+
+    }
+
+    /**
      * Retrieves metadata for temporary resource
      * @param dataResourceUid
      * @return JSON metadata

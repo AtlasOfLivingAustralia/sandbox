@@ -235,4 +235,19 @@ class BiocacheService {
         http.executeMethod(get)
         JSON.parse(get.getResponseBodyAsString())
     }
+
+    def saveLayerOptions(String uid, options){
+        def http = new HttpClient()
+        def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/layers/${uid}")
+        post.setRequestBody((options as JSON).toString())
+        int status = http.executeMethod(post)
+        status
+    }
+
+    def getLayerOptions(String uid){
+        def http = new HttpClient()
+        def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/upload/layers/${uid}")
+        http.executeMethod(get)
+        JSON.parse(get.getResponseBodyAsString())
+    }
 }

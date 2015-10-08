@@ -287,7 +287,7 @@ class UploadController {
 
     def viewProcessData() {
 
-        def extractedFile = new File('/data/datacheck/uploads/' + params.id + File.separatorChar + params.id + '.csv')
+        def extractedFile = new File(grailsApplication.config.uploadFilePath + File.separatorChar + params.id + File.separatorChar + params.id + '.csv')
 
         def headers = null
         if (params.headers) {

@@ -43,7 +43,7 @@ spatialPortalUrlOptions = "&dynamic=true&ws=http%3A%2F%2Fsandbox.ala.org.au%2Fhu
 
 
 bie.searchPath = "/search"
-uploadFilePath = "/data/datacheck/uploads/"
+uploadFilePath = "/data/${appName}/uploads/"
 
 
 skin.orgNameLong = "Atlas of Living Australia"

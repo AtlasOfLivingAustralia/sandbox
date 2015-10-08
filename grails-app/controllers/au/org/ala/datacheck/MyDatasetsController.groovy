@@ -1,5 +1,7 @@
 package au.org.ala.datacheck
 
+import groovy.json.JsonSlurper
+
 class MyDatasetsController {
 
     def collectoryService
@@ -14,12 +16,38 @@ class MyDatasetsController {
         def filteredUploads = userUploads.findAll { upload ->
             upload.webserviceUrl == grailsApplication.config.biocacheServiceUrl
         }
-        [userUploads: filteredUploads, user:authService.getUserForUserId(currentUserId, true)]
+        [userUploads: filteredUploads, user:authService.getUserForUserId(currentUserId, true), currentUserId: currentUserId]
+    }
+
+    def layers(){
+        def metadata = collectoryService.getTempResourceMetadata(params.tempUid)
+        def js = new JsonSlurper()
+        def layers = js.parseText(new URL("http://spatial.ala.org.au/ws/layers").getText("UTF-8"))
+        [layers: layers, metadata: metadata]
+    }
+
+    def userDatasets(){
+        [userUploads: collectoryService.getAllUploadsForUser(params.userId), user: authService.getUserForUserId(params.userId, false)]
+    }
+
+    def allDatasets(){
+
+        def uploads = collectoryService.getAllUploads()
+        uploads.each { upload ->
+            if(upload.alaId) {
+                def userDetails = authService.getUserForUserId(upload.alaId, false)
+                if (userDetails) {
+                    upload.userDisplayName = userDetails.displayName
+                }
+            }
+        }
+        [userUploads: collectoryService.getAllUploads()]
     }
 
     def chartOptions(){
         //retrieve the current chart options
         //retrieve the list of custom indexes...
+        def metadata = collectoryService.getTempResourceMetadata(params.tempUid)
         def customIndexes = biocacheService.getCustomIndexes(params.tempUid)
         def chartConfig = biocacheService.getChartOptions(params.tempUid)
 
@@ -34,7 +62,7 @@ class MyDatasetsController {
             }
         }
 
-        render(view:"charts", model:[chartConfig : chartConfig, tempUid: params.tempUid])
+        render(view:"charts", model:[metadata: metadata, chartConfig: chartConfig, tempUid: params.tempUid])
     }
 
     def saveChartOptions(){
