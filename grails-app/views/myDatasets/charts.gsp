@@ -8,8 +8,11 @@
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 </head>
 <body>
-    <h1>${metadata.name} - Chart display options</h1>
-
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h1>${metadata.name} - Chart display options</h1>
+    </div>
+    <div class="panel-body">
     <g:form action="saveChartOptions">
         <input type="hidden" name="tempUid" value="${tempUid}"/>
 
@@ -24,9 +27,11 @@
     </p>
     <table class="table table-condensed table-striped">
         <thead>
+        <tr>
             <th>Field name</th>
             <th>Chart type</th>
             <th>Show</th>
+        </tr>
         </thead>
         <tbody class="customIndexes">
         <g:each in="${chartConfig}" var="chartCfg" status="indexStatus">
@@ -50,11 +55,11 @@
     </table>
     <div class="pull-right">
         <input class="btn btn-primary" type="submit" value="Save" />
-        <g:link class="btn" controller="myDatasets">Cancel</g:link>
+        <g:link class="btn btn-default" controller="myDatasets">Cancel</g:link>
     </div>
 
     </g:form>
-
+    </div>
 </div>
 </body>
 

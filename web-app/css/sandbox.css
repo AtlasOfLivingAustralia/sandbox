@@ -1,1 +1,4 @@
 #progressBar { height:20px; }
+.panel .panel-heading h1, .panel .panel-heading h2 {
+    margin-bottom: 0;
+}

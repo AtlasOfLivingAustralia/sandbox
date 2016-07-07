@@ -40,7 +40,7 @@
           </tr>
         </g:if>
         <g:each in="${processedRecord.assertions}" var="assertion">
-            <g:set var="cssClass"><g:if test="${assertion.qaStatus == "0"}">important</g:if><g:elseif test="${assertion.qaStatus == "1"}">success</g:elseif><g:elseif test="${assertion.qaStatus == "2"}">warning</g:elseif></g:set>
+            <g:set var="cssClass"><g:if test="${assertion.qaStatus == "0"}">primary</g:if><g:elseif test="${assertion.qaStatus == "1"}">success</g:elseif><g:elseif test="${assertion.qaStatus == "2"}">warning</g:elseif></g:set>
             <g:set var="result"><g:if test="${assertion.qaStatus == "0"}">warning</g:if>
                 <g:elseif test="${assertion.qaStatus == "1"}">passed</g:elseif>
                 <g:elseif test="${assertion.qaStatus == "2"}">not checked</g:elseif></g:set>

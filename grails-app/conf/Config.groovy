@@ -97,6 +97,13 @@ grails.spring.bean.packages = []
 // request parameters to mask when logging exceptions
 grails.exceptionresolver.params.exclude = ['password']
 
+// What URL patterns should be processed by the resources plugin
+grails.resources.adhoc.patterns = ['/js/*', '/images/*', '/css/*', '/plugins/*', '/vendor/*']
+grails.resources.adhoc.includes = ['/js/**', '/images/**', '/css/**','/plugins/**', '/vendor/**']
+
+// make paginate tag compatible with BS3
+grails.plugins.twitterbootstrap.fixtaglib = true
+
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {

@@ -127,7 +127,7 @@ function updateStatus(uid){
     SANDBOX.dataResourceUid = uid;
     $('#progressBar').show();
 
-    $('.progress .bar').progressbar({
+    $('.progress .progress-bar').progressbar({
         use_percentage: true,
         display_text: 2,
         refresh_speed: 50,
@@ -157,9 +157,9 @@ function updateStatusPolling(){
     $.get("dataCheck/uploadStatus?uid="+SANDBOX.dataResourceUid+"&random=" + randomString(10), function(data){
         console.log("Retrieving status...." + data.status + ", percentage: " + data.percentage);
         if(data.status == "COMPLETE"){
-            $('.progress .bar').attr('data-percentage', '100');
+            $('.progress .progress-bar').attr('data-transitiongoal', '100');
             $('#uploadFeedback').html('Upload complete.');
-            $('.progress .bar').progressbar();
+            $('.progress .progress-bar').progressbar();
             $('#spatialPortalLink').attr('href', 'dataCheck/redirectToSpatialPortal?uid=' + SANDBOX.dataResourceUid);
             $('#hubLink').attr('href', 'dataCheck/redirectToBiocache?uid=' + SANDBOX.dataResourceUid);
             $('#downloadLink').attr('href', 'dataCheck/redirectToDownload?uid=' + SANDBOX.dataResourceUid);
@@ -168,8 +168,8 @@ function updateStatusPolling(){
         } else if(data.status == "FAILED"){
             $("#uploadFeedback").html('<span>Dataset upload <strong>failed</strong>. Please email support@ala.org.au with e details of your dataset.</span>');
         } else {
-            $('.progress .bar').attr('data-percentage', data.percentage);
-            $('.progress .bar').progressbar();
+            $('.progress .progress-bar').attr('data-transitiongoal', data.percentage);
+            $('.progress .progress-bar').progressbar();
             $("#uploadFeedback").html('<span>Percentage completed: '+data.percentage+'%. </span><span>STATUS: '+data.status+', '+data.description+"</span>");
             setTimeout("updateStatusPolling()", 1000);
         }

@@ -1,11 +1,11 @@
 modules = {
     progressbar {
-        resource url: [dir: 'js', file: 'bootstrap-progressbar.min.js']
-        resource url: [dir: 'css', file: 'bootstrap-progressbar.min.css']
+        resource url: [dir: 'vendor/bootstrap-progressbar-0.9.0', file: 'bootstrap-progressbar.js']
+        resource url: [dir: 'vendor/bootstrap-progressbar-0.9.0/css', file: 'bootstrap-progressbar-3.3.4.css']
     }
-    fileupload {
-        resource url: [dir: 'js', file: 'bootstrap-fileupload.min.js']
-        resource url: [dir: 'css', file: 'bootstrap-fileupload.min.css']
+    jasnybootstrap {
+        resource url: [dir: 'vendor/jasny-bootstrap-3.1.3/js', file: 'jasny-bootstrap.js']
+        resource url: [dir: 'vendor/jasny-bootstrap-3.1.3/css', file: 'jasny-bootstrap.css']
     }
     sandbox {
         resource url: [dir: 'js', file: 'sandbox.js']
