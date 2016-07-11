@@ -2,12 +2,18 @@ package au.org.ala.datacheck
 import au.com.bytecode.opencsv.CSVReader
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
+import org.apache.commons.io.FileUtils
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 
 class DataCheckController {
 
   def biocacheService
   def darwinCoreService
   def authService
+  def tikaService
+  def fileService
 
   static allowedMethods = [processData: "POST"]
 
@@ -17,18 +23,25 @@ class DataCheckController {
     [userId:authService.getUserId()]
   }
 
-  def parseColumns = {
+  def parseColumns() {
 
     log.debug("Content type>>" + request.getContentType())
     request.getHeaderNames().each { x -> log.debug(x + ": " + request.getHeader(x))}
 
     //is it comma separated or tab separated
-    def raw = request.getReader().readLines().join("\n").trim()
+    def raw = params.rawData
+    def fileId = params.fileId
+    def firstLineIsData = params.boolean('firstLineIsData')
 
     //def raw = request.getParameter("rawData").trim()
-    log.debug("Unparsed RAW>> "  + raw)
+    log.debug("Unparsed RAW>> $raw")
 
-    CSVReader csvReader = getCSVReaderForText(raw)
+    if (!raw && !fileId) {
+      response.sendError(400, "must provide raw paste data or a file id")
+      return
+    }
+
+    CSVReader csvReader = raw ? fileService.getCSVReaderForText(raw) : fileService.getCSVReaderForFile(fileService.getFileForFileId(fileId))
 
     //determine column headers
     def columnHeadersUnparsed = csvReader.readNext()
@@ -37,20 +50,45 @@ class DataCheckController {
 
     def columnHeaders = null
     def columnHeaderMap = null
-    def firstLineIsData  = false
     def dataRows = new ArrayList<String[]>()
 
-    //is the first line a set of column headers ??
-    if(biocacheService.areColumnHeaders(columnHeadersUnparsed)){
-      log.debug("First line of data recognised as darwin core terms")
-      firstLineIsData = false
-      columnHeaderMap = biocacheService.mapColumnHeaders(columnHeadersUnparsed)
+    //guess at the first line if the request didn't specify the first line is data
+    if (firstLineIsData == null) {
+      if(biocacheService.areColumnHeaders(columnHeadersUnparsed)){
+        log.debug("First line of data recognised as darwin core terms")
+        firstLineIsData = false
+        columnHeaderMap = biocacheService.mapColumnHeaders(columnHeadersUnparsed)
+      } else {
+        //first line is data
+        log.debug("First line of data is assumed to be data")
+        firstLineIsData = true
+        dataRows.add(columnHeadersUnparsed)
+        columnHeaders = biocacheService.guessColumnHeaders(columnHeadersUnparsed)
+      }
     } else {
-      //first line is data
-      log.debug("First line of data is assumed to be data")
-      firstLineIsData = true
-      dataRows.add(columnHeadersUnparsed)
-      columnHeaders = biocacheService.guessColumnHeaders(columnHeadersUnparsed)
+      if(firstLineIsData) {
+        log.debug("First line of data is assumed to be data")
+        dataRows.add(columnHeadersUnparsed)
+        columnHeaders = biocacheService.guessColumnHeaders(columnHeadersUnparsed)
+      } else {
+        //first line is data
+        log.debug("First line of data recognised as darwin core terms")
+        columnHeaderMap = biocacheService.mapColumnHeaders(columnHeadersUnparsed)
+      }
+    }
+
+    // homogenise the columns
+    def headers
+    if (columnHeaders) {
+      def unknownCount = 0
+      headers = columnHeaders.collect {
+        if (it) [header: it, known: true]
+        else [header: "Unknown ${unknownCount++}", known: false]
+      }
+    } else {
+      headers = columnHeaderMap.collect { entry ->
+        [header: entry.value ?: entry.key, known: !!entry.value, original: entry.key]
+      }
     }
 
     log.debug("Parsed>> "  + columnHeaders + ", size: " + columnHeaders)
@@ -58,100 +96,126 @@ class DataCheckController {
     def startAt = firstLineIsData ? 0 : 1
 
     def currentLine = csvReader.readNext()
-    for(int i=startAt; i<noOfRowsToDisplay && currentLine!=null; i++){
+    for(int i = startAt; i < startAt + noOfRowsToDisplay && currentLine != null; i++) {
       dataRows.add(currentLine)
       currentLine = csvReader.readNext()
     }
     // pass back HTML table
-    if(firstLineIsData){
-      render(view:'parsedData',  model:[columnHeaders:columnHeaders, dataRows:dataRows, firstLineIsData:firstLineIsData])
+    if (firstLineIsData) {
+      final instance = [headers: headers, columnHeaders:columnHeaders, dataRows:dataRows, firstLineIsData:firstLineIsData]
+      respond(instance, view:'parsedData',  model: instance)
     } else {
-      render(view:'parsedData',  model:[columnHeaderMap:columnHeaderMap, dataRows:dataRows, firstLineIsData:firstLineIsData])
+      final instance = [headers: headers, columnHeaderMap:columnHeaderMap, dataRows:dataRows, firstLineIsData:firstLineIsData]
+      respond(instance, view:'parsedData',  model: instance)
     }
   }
 
-  def parseColumnsWithFirstLineInfo = {
+  def uploadFile() {
 
-    //is it comma separated or tab separated
-    def raw = request.getParameter("rawData").trim()
-    def firstLineIsData = Boolean.parseBoolean(request.getParameter("firstLineIsData").trim())
-    CSVReader csvReader = getCSVReaderForText(raw)
+    def f = request.getFile('myFile')
+    if (f.empty) {
+      response.sendError(400, 'file cannot be empty')
+      return
+    }
 
-    //determine column headers
-    def columnHeadersUnparsed = csvReader.readNext()
+    def dataResourceUid = params.dataResourceUid
+    if (dataResourceUid) {
+      log.info "Loading data resource ${dataResourceUid}"
+    }
 
-    log.debug("Unparsed>> "  + columnHeadersUnparsed)
+    def fileId = UUID.randomUUID().toString()
+    def uploadDir = new File(grailsApplication.config.uploadFilePath, fileId)
+    log.debug "Creating upload directory $uploadDir"
+    FileUtils.forceMkdir(uploadDir)
 
-    def columnHeaders = null
-    def columnHeaderMap = null
-    def dataRows = new ArrayList<String[]>()
+    log.debug "Transferring file to directory..."
+    def newFile = new File(uploadDir, f.getFileItem().getName())
+    f.transferTo(newFile)
 
-    //is the first line a set of column headers ??
-    if(firstLineIsData){
-      log.debug("First line of data is assumed to be data")
-      dataRows.add(columnHeadersUnparsed)
-      columnHeaders = biocacheService.guessColumnHeaders(columnHeadersUnparsed)
+    log.debug "Detecting file formats...."
+    def contentType = fileService.detectFormat(newFile)
+
+    log.debug "Content type.... $contentType"
+    //if its GZIPPED or ZIPPED extract the file
+    if (contentType == "application/zip") {
+      //upzip it
+      def result = fileService.extractZip(newFile)
+      if (result.success) {
+        newFile = result.file
+        contentType = fileService.detectFormat(result.file)
+      } else {
+        response.sendError(400, result.message)
+        return
+      }
+    } else if (contentType == "application/x-gzip") {
+      def result = fileService.extractGZip(newFile)
+      if (result.success) {
+        newFile = result.file
+        contentType = fileService.detectFormat(result.file)
+      } else {
+        response.sendError(400, result.message)
+        return
+      }
+    }
+
+    def extractedFile = new File(uploadDir, fileId + '.csv')
+
+    if (contentType.startsWith("text")) {
+      //extract and re-write into common CSV format
+      log.debug("Is a CSV....")
+      FileUtils.copyFile(newFile, extractedFile)
     } else {
-      //first line is data
-      log.debug("First line of data recognised as darwin core terms")
-      columnHeaderMap = biocacheService.mapColumnHeaders(columnHeadersUnparsed)
+      //extract the data
+      def csvWriter = new au.com.bytecode.opencsv.CSVWriter(new FileWriter(extractedFile))
+      String extractedString = tikaService.parseFile(newFile)
+      //HTML version of the file
+      Document doc = Jsoup.parse(extractedString)
+      Elements dataTable = doc.select("tr")
+
+      if (dataTable?.size() > 0) {
+        def cellCount = dataTable?.get(0)?.select("td")?.size() ?: 0
+        dataTable.each { tr ->
+          def cells = tr.select("td")
+          def fields = new String[cellCount]
+          if (cells) {
+            cells.eachWithIndex { cell, idx ->
+              if (idx < cellCount) {
+                fields[idx] = cell.text().trim()
+              }
+            }
+          }
+          csvWriter.writeNext(fields)
+        }
+        csvWriter.close()
+      }
     }
 
-    log.debug("Parsed>> "  + columnHeaders)
-    def startAt = firstLineIsData ? 0 : 1
+    //create a zipped version for uploading
+    fileService.zipFile(extractedFile)
 
-    def currentLine = csvReader.readNext()
-    for(int i=startAt; i<noOfRowsToDisplay && currentLine!=null; i++){
-      dataRows.add(currentLine)
-      currentLine = csvReader.readNext()
-    }
-    // pass back HTML table
-    if(firstLineIsData){
-      render(view:'parsedData',  model:[columnHeaders:columnHeaders, dataRows:dataRows, firstLineIsData:firstLineIsData])
-    } else {
-      render(view:'parsedData',  model:[columnHeaderMap:columnHeaderMap, dataRows:dataRows, firstLineIsData:firstLineIsData])
-    }
+    def instance = [fileId: fileId, fileName: newFile.name, dataResourceUid: dataResourceUid, datasetName: params.datasetName]
+    respond instance
   }
 
-  def getCSVReaderForText(String raw) {
-    def separator = getSeparator(raw)
-    def csvReader = new CSVReader(new StringReader(raw), separator.charAt(0))
-    csvReader
-  }
-
-  def getSeparator(String raw) {
-    int tabs = raw.count("\t")
-    int commas = raw.count(",")
-    if(tabs > commas)
-      return '\t'
-    else
-      return ','
-  }
-
-  def getSeparatorName(String raw) {
-    int tabs = raw.count("\t")
-    int commas = raw.count(",")
-    if(tabs > commas)
-      return "TAB"
-    else
-      return "COMMA"
-  }
-
-  def processData = {
+  def processData() {
 
     def headers = null
     if(params.headers){
-        headers = params.headers.split(",")
+      headers = params.headers
+      if (headers instanceof String) {
+        headers = headers.split(',')
+      }
     }
 
-    def csvData = params.rawData.trim()
-    def firstLineIsData = Boolean.parseBoolean(params.firstLineIsData)
+    def csvData = params.rawData?.trim()
+    def fileId = params.fileId
+    def firstLineIsData = params.boolean('firstLineIsData')
 
     //the data to pass back
     List<ParsedRecord> processedRecords = new ArrayList<ParsedRecord>()
 
     def counter = 0
-    def csvReader = getCSVReaderForText(csvData)
+    def csvReader = csvData ? fileService.getCSVReaderForText(csvData) : fileService.getCSVReaderForFile(fileService.getFileForFileId(fileId))
     def currentLine = csvReader.readNext()
     if(firstLineIsData){
       counter += 1
@@ -166,10 +230,15 @@ class DataCheckController {
       currentLine = csvReader.readNext()
     }
 
-    render(view:'processedData',  model:[processedRecords:processedRecords])
+    processedRecords.each { pr ->
+
+    }
+
+    def instance = [processedRecords:processedRecords]
+    respond(instance, view:'processedData',  model:[processedRecords:processedRecords])
   }
 
-  def upload = {
+  def upload() {
 
     def userId = authService.getUserId()
     if(!userId){
@@ -193,7 +262,7 @@ class DataCheckController {
     //read the csv
     String headers = request.getParameter("headers").trim();
     String csvData = request.getParameter("rawData").trim()
-    String separator = getSeparatorName(csvData)
+    String separator = fileService.getSeparatorName(csvData)
     String datasetName = request.getParameter("datasetName").trim()
     String customIndexedFields = request.getParameter("customIndexedFields").trim();
     String firstLineIsData = request.getParameter("firstLineIsData")
@@ -202,7 +271,7 @@ class DataCheckController {
     render(responseString)
   }
 
-  def redirectToBiocache = {
+  def redirectToBiocache() {
     def http = new HttpClient()
     //reference the UID caches
     def get = new GetMethod(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
@@ -210,7 +279,7 @@ class DataCheckController {
     redirect(url:grailsApplication.config.sandboxHubsWebapp + "/occurrences/search?q=data_resource_uid:" + params.uid)
   }
 
-  def redirectToSpatialPortal = {
+  def redirectToSpatialPortal() {
     def http = new HttpClient()
     //reference the UID caches
     def get = new GetMethod(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
@@ -218,7 +287,7 @@ class DataCheckController {
     redirect(url:grailsApplication.config.spatialPortalUrl + "?q=data_resource_uid:" + params.uid + grailsApplication.config.spatialPortalUrlOptions)
   }
 
-  def redirectToDownload = {
+  def redirectToDownload() {
     def http = new HttpClient()
     //reference the UID caches
     def get = new GetMethod(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
@@ -228,17 +297,17 @@ class DataCheckController {
   }
 
 
-  def uploadStatus = {
+  def uploadStatus() {
     log.debug("Request to retrieve upload status")
     def responseString = biocacheService.uploadStatus(params.uid)
     response.setContentType("application/json")
     render(responseString)
   }
 
-  def autocomplete = {
+  def autocomplete() {
     def query = params.q
     //def limit = params.limit !=null ? params.limit.asType(Integer.class) : 10
     def list = darwinCoreService.autoComplete(query, 10)
-    render(contentType:"application/json") {list}
+    respond(list)
   }
 }

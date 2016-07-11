@@ -35,7 +35,7 @@
             <td colspan="3" class="error XXassertionHeader" colspan="1">
                 <span class="dataQualityHdr">Data quality tests for this record</span>
                 <span class="label label-success">Passed <dc:countByQaStatus assertions="${processedRecord.assertions}" qaStatus="1" /></span>
-                <span class="label label-important"> Warnings <dc:countByQaStatus assertions="${processedRecord.assertions}" qaStatus="0" /></span>
+                <span class="label label-warning"> Warnings <dc:countByQaStatus assertions="${processedRecord.assertions}" qaStatus="0" /></span>
             </td>
           </tr>
         </g:if>

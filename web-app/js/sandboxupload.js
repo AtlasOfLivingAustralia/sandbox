@@ -77,7 +77,7 @@ function updateStatus(uid){
 
     $('.progress .progress-bar').progressbar({
         use_percentage: true,
-        display_text: 2,
+        display_text: 'fill',
         refresh_speed: 50,
         text:'Starting the upload...'
     });
@@ -184,7 +184,7 @@ function getColumnHeaders(){
 }
 
 function processedData(){
-    $('#processedData').slideUp("slow");
+    $('#processData').slideUp("slow");
     $('.processDataBtn').addClass("disabled");
     $('.processDataBtn').text('Reprocessing.......');
     $.ajaxSetup({
@@ -199,8 +199,8 @@ function processedData(){
             firstLineIsData: $('#firstLineIsData').val()
         },
         success: function(data){
-            $('#processedData').html(data);
-            $('#processedData').slideDown("slow");
+            $('#processData').html(data);
+            $('#processData').slideDown("slow");
             $('.processDataBtn').text('Reprocess data');
             $('.processDataBtn').removeClass("disabled");
         },

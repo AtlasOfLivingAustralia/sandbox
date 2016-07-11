@@ -56,12 +56,12 @@
                     Fields marked in <strong>yellow</strong> havent been matched to a recognised field name
                     (<a href="http://rs.tdwg.org/dwc/terms/" target="_blank">darwin core terms</a>).<br/>
                     After adjusting, click
-                    <a href="javascript:processedData();" id="processDataBtn" name="processDataBtn" class="btn btn-default processDataBtn">Reprocess sample</a>
+                    <a href="javascript:processData();" id="processDataBtn" name="processDataBtn" class="btn btn-default processDataBtn">Reprocess sample</a>
                 </p>
 
                 <div class="well" >
                     <div id="recognisedData"></div>
-                    <a href="javascript:processedData();" id="processDataBtn2" name="processDataBtn2" class="btn btn-default processDataBtn">Reprocess sample</a>
+                    <a href="javascript:processData();" id="processDataBtn2" name="processDataBtn2" class="btn btn-default processDataBtn">Reprocess sample</a>
                 </div>
 
               </div><!-- recognisedDataDiv -->
