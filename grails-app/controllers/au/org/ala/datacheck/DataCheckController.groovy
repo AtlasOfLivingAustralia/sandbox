@@ -14,12 +14,13 @@ class DataCheckController {
   def authService
   def tikaService
   def fileService
+  def formatService
 
   static allowedMethods = [processData: "POST"]
 
   def noOfRowsToDisplay = 5
 
-  def index = {
+  def index() {
     [userId:authService.getUserId()]
   }
 
@@ -132,7 +133,7 @@ class DataCheckController {
     def newFile = new File(uploadDir, f.getFileItem().getName())
     f.transferTo(newFile)
 
-    log.debug "Detecting file formats...."
+    log.debug "Detecting file formats..."
     def contentType = fileService.detectFormat(newFile)
 
     log.debug "Content type.... $contentType"
@@ -230,8 +231,15 @@ class DataCheckController {
       currentLine = csvReader.readNext()
     }
 
+    // add formatted data for ui
     processedRecords.each { pr ->
-
+      pr.values.each { v ->
+        v.camelCaseName = formatService.prettyCamel(v.name)
+        v.formattedProcessed = formatService.formatProperty(v.processed)
+      }
+      pr.assertions.each { a ->
+        a.name = message(code: a.name, default: a.name)
+      }
     }
 
     def instance = [processedRecords:processedRecords]

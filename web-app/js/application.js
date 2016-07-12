@@ -319,9 +319,9 @@ function sandbox(config) {
         return field.processed != field.raw && field.processed != null ? 'changedValue' : 'originalConfirmed';
       };
 
-      self.countByQaStatus = function(status) {
+      self.countByQaStatus = function(processedRecord, status) {
         var count = 0;
-        angular.forEach(processedData.assertions, function (it) {
+        angular.forEach(processedRecord.assertions, function (it) {
           if(it.qaStatus == status){
             count++
           }

@@ -1,8 +1,10 @@
 package au.org.ala.datacheck
 
+import groovy.json.JsonSlurper
+import org.springframework.context.NoSuchMessageException
 import org.springframework.context.i18n.LocaleContextHolder
 
-class CamelCaseService {
+class FormatService {
 
     def messageSource
 
@@ -15,7 +17,10 @@ class CamelCaseService {
 
     def prettyCamel(String value) {
 
-        String i18nMessage = messageSource.getMessage(value, [], LocaleContextHolder.locale)
+        String i18nMessage
+        try {
+            i18nMessage = messageSource.getMessage(value, null, LocaleContextHolder.locale)
+        } catch (NoSuchMessageException e) { }
         if (i18nMessage != null && !i18nMessage.isEmpty() && i18nMessage != value) {
             return i18nMessage
         } else if(value.contains("ID")){
@@ -35,6 +40,20 @@ class CamelCaseService {
             buff += entry.capitalize()
         }
         buff
+    }
+
+    def formatProperty(String value) {
+
+        if (value?.startsWith("[") && value?.endsWith("]")) {
+            def js = new JsonSlurper()
+            def json = js.parseText(value)
+            def buff = []
+            json.each { buff << messageSource.getMessage(it, null, it, Locale.getDefault()) }
+            //convert to thumb URL
+            return buff.join(", ")
+        } else {
+            return messageSource.getMessage(value, null, value, Locale.getDefault())
+        }
     }
 
 }

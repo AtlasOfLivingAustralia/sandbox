@@ -18,7 +18,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="pull-right">
-                <a ui-sref="/myUploads" class="btn btn-default">My uploaded datasets</a>
+                <a ui-sref="/my-data" class="btn btn-default">My uploaded datasets</a>
             </div>
 
             <h1>${grailsApplication.config.skin.appName}</h1>
@@ -194,25 +194,19 @@
             </thead>
             <tbody>
                 <tr ng-repeat="field in processedRecord.values">
-                    <td class="fieldNameTD" ng-class="preview.processedRecordFieldClass(field)" ng-bind="field.name">
-                        %{--TODO <g:prettyCamel value="${field.name}"/> --}%
-                    </td>
+                    <td class="fieldNameTD" ng-class="preview.processedRecordFieldClass(field)" ng-bind="field.camelCaseName"></td>
                     <td ng-bind="field.raw"></td>
-                    <td ng-class="preview.processedRecordChangedClass(field)" ng-bind="field.processed">
-                        %{-- TODO <dc:formatProperty value="${field.processed}"/>--}%
-                    </td>
+                    <td ng-class="preview.processedRecordChangedClass(field)" ng-bind="field.formattedProcessed"></td>
                 </tr>
                 <tr ng-show="processedRecord.assertions" class="error">
                     <td colspan="3" class="error XXassertionHeader">
                         <span class="dataQualityHdr">Data quality tests for this record</span>
-                        <span class="label label-success">Passed {{ preview.countByQaStatus(1) }}</span>
-                        <span class="label label-warning">Warnings {{ preview.countByQaStatus(0) }}</span>
+                        <span class="label label-success">Passed {{ preview.countByQaStatus(processedRecord, 1) }}</span>
+                        <span class="label label-warning">Warnings {{ preview.countByQaStatus(processedRecord, 0) }}</span>
                     </td>
                 </tr>
                 <tr ng-repeat="assertion in processedRecord.assertions">
-                    <td class="assertionName" ng-bind="assertion.name">
-                        %{--TODO <g:message code="${assertion.name}" default="${assertion.name}"/>--}%
-                    </td>
+                    <td class="assertionName" ng-bind="assertion.name"></td>
                     <td colspan="2">
                         <span class="label"
                               ng-class="'label-' + (assertion.qaStatus == 0 ? 'primary' : assertion.qaStatus == 1 ? 'success' : assertion.qaStatus == 2 ? 'warning' : 'default')"
