@@ -7,17 +7,17 @@ class UrlMappings {
 			}
 		}
 
-		"/"(view: "new")
-		"/*"(view: "new")
-		"/my-data"(view: "new")
-		"/datasets/*"(view: "new")
-		"/datasets/**/*"(view: "new")
-		"/layers/*"(view: "new")
-		"/layers/**/*"(view: "new")
-		"/charts/*"(view: "new")
-		"/charts/**/*"(view: "new")
-		"/dataCheck/*" (view: "new")
-		"/dataCheck/**/*" (view: "new")
+		"/"(view: "index")
+		"/*"(view: "index")
+		"/my-data"(view: "index")
+		"/datasets/*"(view: "index")
+		"/datasets/**/*"(view: "index")
+		"/layers/*"(view: "index")
+		"/layers/**/*"(view: "index")
+		"/charts/*"(view: "index")
+		"/charts/**/*"(view: "index")
+		"/dataCheck/*" (view: "index")
+		"/dataCheck/**/*" (view: "index")
 
 //		"/upload"(controller: "upload", action: "index")
 //		"/reload/$dataResourceUid"(controller: "upload", action: "reload")

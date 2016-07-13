@@ -125,7 +125,7 @@ class BiocacheService {
      * @return response as string
      */
     def uploadData(String csvData, String headers, String datasetName, String separator,
-                   String firstLineIsData, String customIndexedFields){
+                   String firstLineIsData, String customIndexedFields, String dataResourceUid){
 
       //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
       NameValuePair[] nameValuePairs = new NameValuePair[7]
@@ -136,6 +136,11 @@ class BiocacheService {
       nameValuePairs[4] = new NameValuePair("firstLineIsData", firstLineIsData)
       nameValuePairs[5] = new NameValuePair("customIndexedFields", customIndexedFields)
       nameValuePairs[6] = new NameValuePair("alaId", authService.getUserId())
+
+      //add the data resource UID if supplied
+      if(dataResourceUid){
+        nameValuePairs << new NameValuePair("dataResourceUid", dataResourceUid)
+      }
 
       def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/post")
       post.setRequestBody(nameValuePairs)

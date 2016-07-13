@@ -7,7 +7,7 @@
     </div>
     <div class="modal-body">
         <p>Please login to upload your data and visual through the Atlas.</p>
-        <p><a ng-href="{{loginLink}}">Click here</a> to login.</p>
+        <p><a href="${loginLink}">Click here</a> to login.</p>
     </div>
     <div class="modal-footer">
         <button class="btn btn-default" data-dismiss="modal">Close</button>

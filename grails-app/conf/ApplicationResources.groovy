@@ -21,6 +21,12 @@ modules = {
 //        resource url: grailsApplication.config.headerAndFooter.baseURL + '/css/bootstrap.min.css', attrs:[media:'screen, projection, print']
 //        resource url: grailsApplication.config.headerAndFooter.baseURL + '/css/ala-styles.css', attrs:[media:'screen, projection, print']
         resource url: [dir: 'css', file: 'sandbox.css']
+//        resource url: [dir: 'node_modules/jquery-ui/ui', file: 'core.js']
+        resource url: [dir: 'node_modules/jquery-ui/ui', file: 'data.js']
+        resource url: [dir: 'node_modules/jquery-ui/ui', file: 'scroll-parent.js']
+        resource url: [dir: 'node_modules/jquery-ui/ui', file: 'widget.js']
+        resource url: [dir: 'node_modules/jquery-ui/ui/widgets', file: 'mouse.js']
+        resource url: [dir: 'node_modules/jquery-ui/ui/widgets', file: 'sortable.js']
         resource url: [dir: 'node_modules/angular', file: 'angular-csp.css']
         resource url: [dir: 'node_modules/angular-ui-bootstrap/dist', file: 'ui-bootstrap-csp.css']
         resource url: [dir: 'node_modules/angular-loading-bar/build', file: 'loading-bar.css']
@@ -31,9 +37,12 @@ modules = {
         resource url: [dir: 'node_modules/angular-loading-bar/build', file: 'loading-bar.js']
         resource url: [dir: 'node_modules/ng-file-upload/dist', file: 'ng-file-upload.js']
         resource url: [dir: 'node_modules/angular-ui-bootstrap/dist', file: 'ui-bootstrap-tpls.js']
+        resource url: [dir: 'node_modules/angular-ui-sortable/dist', file: 'sortable.js']
         resource url: [dir: 'node_modules/angular-ui-router/release', file: 'angular-ui-router.js']
         resource url: [dir: 'node_modules/underscore', file: 'underscore.js']
         resource url: [dir: 'js', file: 'application.js']
+        resource url: [dir: 'js', file: 'preview.js']
+        resource url: [dir: 'js', file: 'datasets.js']
     }
 }
 

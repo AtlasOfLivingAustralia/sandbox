@@ -281,7 +281,8 @@ class DataCheckController {
     String datasetName = request.getParameter("datasetName")?.trim()
     String customIndexedFields = request.getParameter("customIndexedFields")?.trim()
     String firstLineIsData = request.getParameter("firstLineIsData")
-    def responseString = biocacheService.uploadData(csvData, headers, datasetName, separator, firstLineIsData, customIndexedFields)
+    String dataResourceUid = request.getParameter('dataResourceUid')
+    def responseString = biocacheService.uploadData(csvData, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
     response.setContentType("application/json")
     render(responseString)
   }
