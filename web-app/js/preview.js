@@ -144,6 +144,7 @@
         self.uploadingCsv = true;
         var p = previewService.uploadCsvFile(self.file);
         p.then(function (response) {
+          self.text = ''; // blank out text since we have a file.
           angular.extend(self, response.data);
           self.parseColumns();
         }, function(error) {

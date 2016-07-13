@@ -20,7 +20,7 @@
 
             <div class="panel-body">
                 <uib-tabset>
-                    <uib-tab heading="Paste CSV">
+                    <uib-tab heading="Paste CSV" disable="preview.file && preview.fileId">
                         <p>
                             This tool accepts comma separated values (CSV) and tab separated data.
                         </p>
@@ -32,7 +32,7 @@
                         <div class="form">
                             <div class="form-group">
                                 <textarea id="copyPasteData" class="form-control" name="copyPasteData" rows="10"
-                                          cols="120" ng-model="preview.text"
+                                          cols="120" ng-model="preview.text" allow-tab
                                           ng-model-options="{ debounce: { 'default': 1500, 'blur': 0 } }"></textarea>
                             </div>
 
@@ -41,7 +41,7 @@
                                     ng-bind="preview.checkDataLabel()"></button>
                         </div>
                     </uib-tab>
-                    <uib-tab heading="Load File">
+                    <uib-tab heading="Load File" disable="preview.text">
                         <p>
                             This is a sandbox environment for data uploads, to allow users to view their data with ALA tools.
                             This is currently an <strong>experimental</strong> feature of the Atlas.<br/>

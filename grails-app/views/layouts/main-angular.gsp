@@ -13,8 +13,6 @@
 
     <title><g:layoutTitle /></title>
 
-    <r:require modules="application"/>
-
     <r:layoutResources/>
     <g:layoutHead />
 
