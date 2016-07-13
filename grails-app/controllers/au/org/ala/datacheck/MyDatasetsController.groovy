@@ -8,6 +8,7 @@ class MyDatasetsController {
     def biocacheService
     def authService
     def grailsApplication
+    def formatService
 
     def index(){
         def userUploads = collectoryService.getUserUploads()
@@ -27,7 +28,8 @@ class MyDatasetsController {
     }
 
     def userDatasets(){
-        [userUploads: collectoryService.getAllUploadsForUser(params.userId), user: authService.getUserForUserId(params.userId, false)]
+        def instance = [userUploads: collectoryService.getAllUploadsForUser(params.userId), user: authService.getUserForUserId(params.userId, false)]
+        respond instance, model: instance
     }
 
     def allDatasets(){
@@ -38,10 +40,13 @@ class MyDatasetsController {
                 def userDetails = authService.getUserForUserId(upload.alaId, false)
                 if (userDetails) {
                     upload.userDisplayName = userDetails.displayName
+                } else {
+                    upload.userDisplayName = 'Unknown'
                 }
             }
         }
-        [userUploads: collectoryService.getAllUploads()]
+        def instance = [userUploads: collectoryService.getAllUploads()]
+        respond(instance, model: instance)
     }
 
     def chartOptions(){
@@ -56,51 +61,73 @@ class MyDatasetsController {
             customIndexes.each {
                 chartConfig << [
                         field: it,
-                        format: 'Pie chart',
+                        format: 'pie',
                         visible: true
                 ]
             }
         }
 
-        render(view:"charts", model:[metadata: metadata, chartConfig: chartConfig, tempUid: params.tempUid])
+        chartConfig.each { cfg ->
+            cfg.formattedField = formatService.formatFieldName(cfg.field)
+        }
+
+        def instance = [metadata: metadata, chartConfig: chartConfig, tempUid: params.tempUid]
+        respond(instance, view:"charts", model: instance)
     }
 
     def saveChartOptions(){
 
         def chartOptions = []
-        def fields = params.field
-        def format = params.format
-        fields.eachWithIndex { field, idx ->
+        if (request.contentType.startsWith('application/json')) {
+            chartOptions = request.getJSON()
+        } else { // form encoded
+            def fields = params.field
+            def format = params.format
+            fields.eachWithIndex { field, idx ->
 
-            def visibleFlag = 'visible_' + idx
-            def values = params[visibleFlag]
-            def visible = {
-                if(values instanceof String[]){
-                    true
-                } else {
-                    false
-                }
-            }.call()
-            chartOptions << [
-                field: field,
-                format: format[idx],
-                visible: visible
-            ]
+                def visibleFlag = 'visible_' + idx
+                def values = params[visibleFlag]
+                def visible = {
+                    if(values instanceof String[]){
+                        true
+                    } else {
+                        false
+                    }
+                }.call()
+                chartOptions << [
+                        field: field,
+                        format: format[idx],
+                        visible: visible
+                ]
+            }
         }
-        biocacheService.saveChartOptions(params.tempUid, chartOptions)
-        redirect(action: 'index')
+        def uid = params.tempUid
+        log.debug("Saving chart options for $uid: $chartOptions")
+        def status = [status: biocacheService.saveChartOptions(uid, chartOptions)]
+        respond(status)
     }
 
-    def deleteResource(){
+    def deleteResource() {
+        def uid = params.uid
+        def result
+        def status = 200
+        if(checkUserIsOwner(uid)) {
+            log.info("Attempting to delete $uid")
+            def success = biocacheService.deleteResource(uid)
+            result = [deleteSuccess: success]
+        } else {
+            log.warn("${authService.userId} attempting to delete $uid but is not the owner")
+            status = 401
+            result = [deleteSuccess: false]
+        }
+        respond result, status: status
+//            redirect(controller:"myDatasets", action:"index", params: result)
+    }
+
+    private def checkUserIsOwner(uid) {
         //check userId
         def currentUserId = authService.getUserId()
-        def metadata = collectoryService.getTempResourceMetadata(params.uid)
-        if(metadata.alaId == currentUserId){
-            def success = biocacheService.deleteResource(params.uid)
-            redirect(controller:"myDatasets", action:"index", params:[deleteSuccess:success])
-        } else {
-            redirect(controller:"myDatasets", action:"index", params:[deleteSuccess:false])
-        }
-        null
+        def metadata = collectoryService.getTempResourceMetadata(uid)
+        return currentUserId == metadata.alaId
     }
 }

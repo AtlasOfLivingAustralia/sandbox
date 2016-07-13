@@ -1,7 +1,7 @@
 var SANDBOX = {
     dataResourceUid: "",
     currentPaste:""
-}
+};
 
 function init(){
     console.log("Initialising sandbox...");
@@ -54,7 +54,7 @@ function parseColumns(){
         //$('#uploadProgressBar').progressbar( "destroy" );
         $.ajaxSetup({
             scriptCharset: "utf-8",
-            contentType: "text/html; charset=utf-8"
+            contentType: "text/csv; charset=utf-8"
         });
         $.ajax({
             type: "POST",
@@ -63,7 +63,7 @@ function parseColumns(){
             success: function(data){
                 $('#checkDataButton').removeClass("disabled");
                 console.log(data);
-                $('#recognisedData').html(data)
+                $('#recognisedData').html(data);
                 $('#recognisedDataDiv').slideDown("slow");
                 processedData();
                 $('#processSample').slideDown("slow");
@@ -83,7 +83,7 @@ function parseColumnsWithFirstLineInfo(){
     console.log("Parsing first line to do interpretation...");
     $.post("dataCheck/parseColumnsWithFirstLineInfo", { "rawData": $('#copyPasteData').val(), "firstLineIsData": $('#firstLineIsData').val() },
         function(data){
-            $('#recognisedData').html(data)
+            $('#recognisedData').html(data);
             $('#recognisedDataDiv').slideDown("slow");
             processedData();
             $('#processSample').slideDown("slow");
@@ -94,7 +94,7 @@ function parseColumnsWithFirstLineInfo(){
 }
 
 function processedData(){
-    $('#processedData').slideUp("slow");
+    $('#processData').slideUp("slow");
     $('.processDataBtn').addClass("disabled");
     $('.processDataBtn').text('Reprocessing.......');
     $.ajaxSetup({
@@ -111,8 +111,8 @@ function processedData(){
             rawData: $('#copyPasteData').val()
         },
         success: function(data){
-            $('#processedData').html(data);
-            $('#processedData').slideDown("slow");
+            $('#processData').html(data);
+            $('#processData').slideDown("slow");
             $('.processDataBtn').text('Reprocess data');
             $('.processDataBtn').removeClass("disabled");
         },
@@ -129,7 +129,7 @@ function updateStatus(uid){
 
     $('.progress .progress-bar').progressbar({
         use_percentage: true,
-        display_text: 2,
+        display_text: 'fill',
         refresh_speed: 50,
         text:'Starting the upload...'
     });

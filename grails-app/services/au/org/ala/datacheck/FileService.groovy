@@ -17,7 +17,7 @@ import java.util.zip.ZipOutputStream
 
 class FileService {
 
-    def serviceMethod() {}
+    def grailsApplication
 
     def detectFormat(file){
         AutoDetectParser parser = new AutoDetectParser()
@@ -106,10 +106,29 @@ class FileService {
         }
     }
 
+    def getFileForFileId(String fileId) {
+        new File(new File(grailsApplication.config.uploadFilePath, fileId), "${fileId}.csv")
+    }
+
+    def getCSVReaderForFile(File file) {
+        new CSVReader(file.newReader('UTF-8'), getSeparator(file).charAt(0))
+    }
+
     def getCSVReaderForText(String raw) {
         def separator = getSeparator(raw)
         def csvReader = new CSVReader(new StringReader(raw), separator.charAt(0))
         csvReader
+    }
+
+    def getSeparator(File file) {
+        int tabs = 0, commas = 0;
+        file.withReader('UTF-8') { fr ->
+            fr.eachLine { line ->
+                tabs += line.count('\t')
+                commas += line.count(',')
+            }
+        }
+        return tabs > commas ? '\t' : commas > 0 ? ',': null
     }
 
     def getSeparator(String raw) {
@@ -121,5 +140,18 @@ class FileService {
             return ','
         else
             null
+    }
+
+    def separatorName(String separator) {
+        separator == '\t' ? 'TAB' : 'COMMA'
+    }
+
+    def getSeparatorName(String raw) {
+        int tabs = raw.count("\t")
+        int commas = raw.count(",")
+        if(tabs > commas)
+            return "TAB"
+        else
+            return "COMMA"
     }
 }

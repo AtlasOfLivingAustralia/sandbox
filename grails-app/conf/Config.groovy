@@ -58,7 +58,8 @@ clubRole = ""
 
 //grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
-grails.mime.use.accept.header = false
+grails.mime.use.accept.header = true
+grails.mime.disable.accept.header.userAgents = []
 grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
                       xml: ['text/xml', 'application/xml'],
                       text: 'text/plain',
@@ -77,7 +78,7 @@ grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
 //grails.urlmapping.cache.maxsize = 1000
 
 // The default codec used to encode data with ${}
-grails.views.default.codec = "none" // none, html, base64
+grails.views.default.codec = "html" // none, html, base64
 grails.views.gsp.encoding = "UTF-8"
 grails.converters.encoding = "UTF-8"
 // enable Sitemesh preprocessing of GSP pages
@@ -98,8 +99,8 @@ grails.spring.bean.packages = []
 grails.exceptionresolver.params.exclude = ['password']
 
 // What URL patterns should be processed by the resources plugin
-grails.resources.adhoc.patterns = ['/js/*', '/images/*', '/css/*', '/plugins/*', '/vendor/*']
-grails.resources.adhoc.includes = ['/js/**', '/images/**', '/css/**','/plugins/**', '/vendor/**']
+grails.resources.adhoc.patterns = ['/js/*', '/images/*', '/css/*', '/plugins/*', '/vendor/*', '/node_modules/*']
+grails.resources.adhoc.includes = ['/js/**', '/images/**', '/css/**','/plugins/**', '/vendor/**', '/node_modules/**']
 
 // make paginate tag compatible with BS3
 grails.plugins.twitterbootstrap.fixtaglib = true
@@ -112,6 +113,7 @@ environments {
     }
     development {
         grails.serverURL = "http://localhost:8080/${appName}"
+        grails.resources.debug = true
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
