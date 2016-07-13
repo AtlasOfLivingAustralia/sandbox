@@ -15,6 +15,7 @@ class DataCheckController {
   def tikaService
   def fileService
   def formatService
+  def collectoryService
 
   static allowedMethods = [processData: "POST"]
 
@@ -22,6 +23,12 @@ class DataCheckController {
 
   def index() {
     [userId:authService.getUserId()]
+  }
+
+  def reload() {
+    def dataResource = collectoryService.getTempResourceMetadata(params.dataResourceUid)
+
+    respond(dataResource, view:"index", model:[reload:true, dataResource: dataResource ])
   }
 
   def parseColumns() {
@@ -268,11 +275,11 @@ class DataCheckController {
     }
 
     //read the csv
-    String headers = request.getParameter("headers").trim();
-    String csvData = request.getParameter("rawData").trim()
+    String headers = request.getParameter("headers")?.trim()
+    String csvData = request.getParameter("rawData")?.trim()
     String separator = fileService.getSeparatorName(csvData)
-    String datasetName = request.getParameter("datasetName").trim()
-    String customIndexedFields = request.getParameter("customIndexedFields").trim();
+    String datasetName = request.getParameter("datasetName")?.trim()
+    String customIndexedFields = request.getParameter("customIndexedFields")?.trim()
     String firstLineIsData = request.getParameter("firstLineIsData")
     def responseString = biocacheService.uploadData(csvData, headers, datasetName, separator, firstLineIsData, customIndexedFields)
     response.setContentType("application/json")

@@ -63,7 +63,7 @@ function sandbox(config) {
 
   sandbox.config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
     cfpLoadingBarProvider.includeSpinner = false;
-    cfpLoadingBarProvider.parentSelector = '#loading-bar-container';
+    // cfpLoadingBarProvider.parentSelector = '#loading-bar-container';
   }]);
 
   sandbox.config(
@@ -73,23 +73,38 @@ function sandbox(config) {
         $locationProvider.html5Mode(true);
 
         $urlRouterProvider
-         // If the url is ever invalid, e.g. '/asdf', then redirect to '/' aka the home state
+          .when('/dataCheck/index', '/dataCheck')
           .when('/my-data', '/datasets/'+config.userId)
-          .otherwise('/dataCheck/index');
+          .otherwise('/datasets/'+config.userId);
 
 
         // Use $stateProvider to configure your states.
         $stateProvider
           .state("preview", {
             controller: 'PreviewCtrl as preview',
-            url: "/dataCheck/index",
-            templateUrl: 'preview.html'
+            url: "/dataCheck?reload",
+            templateUrl: 'preview.html',
+            resolve: {
+              existing: ['previewService', '$stateParams',
+                function (previewService, $stateParams) {
+                  if ($stateParams.reload) {
+                    return previewService.reload($stateParams.reload)
+                  } else {
+                    return null;
+                  }
+                }]
+            }
           })
-          .state('dataset', {
+          .state('userDatasets', {
             url: '/datasets/:userId',
-            controller: 'DatasetCtrl as dataset',
-            // Showing off how you could return a promise from templateProvider
-            templateUrl: 'datasets.html'
+            controller: 'DatasetsCtrl as datasets',
+            templateUrl: 'datasets.html',
+            resolve: {
+              datasets: ['datasetService', '$stateParams',
+                function(datasetService, $stateParams) {
+                  return datasetService.getDatasetsForUser($stateParams.userId);
+                }]
+            }
           })
       }
     ]
@@ -133,6 +148,18 @@ function sandbox(config) {
         },
         pollUploadStatus: function(uid) {
           return $http.get(sandboxConfig.uploadStatusUrl, { params: { uid: uid , random: randomString(10)}, ignoreLoadingBar: true });
+        },
+        autocompleteColumnHeaders: function(header) {
+          return $http.get(sandboxConfig.autocompleteColumnHeadersUrl, { params: { q: header }, ignoreLoadingBar: true });
+        },
+        reload: function(uid) {
+          return $http.get(sandboxConfig.reloadDataResourceUrl, { params: {dataResourceUid: uid} }).then(
+            function (response) { return response.data; },
+            function (error) {
+              if (error.status == 404) return { error: true, notFound: true };
+              else return { error: true, notFound: false };
+            }
+          );
         }
       };
     }]);
@@ -140,13 +167,21 @@ function sandbox(config) {
   sandbox.factory('datasetService', ['$http', '$httpParamSerializer', 'sandboxConfig',
     function ($http, $httpParamSerializer, sandboxConfig) {
       return {
-
+        getDatasetsForUser: function(userId) {
+          return $http.get(sandboxConfig.getDatasetsUrl, { params: { userId: userId } }).then(function(response) { return response.data; });
+        }
       };
     }]);
 
-  sandbox.controller("PreviewCtrl", ['$log', '$timeout', '$uibModal', '$window', 'previewService',
-    function($log, $timeout, $uibModal, $window, previewService) {
+  sandbox.controller("PreviewCtrl", ['$log', '$timeout', '$uibModal', '$window', 'existing', 'previewService',
+    function($log, $timeout, $uibModal, $window, existing, previewService) {
       var self = this;
+
+      if (!existing || existing.error) {
+        self.existing = {};
+      } else {
+        self.existing = existing;
+      }
 
       self.firstLineOptions = [
         // {value: '', label: 'Autodetect' },
@@ -177,7 +212,6 @@ function sandbox(config) {
       self.uploadFailed = false;
 
       self.dataResourceUid = null;
-      self.datasetName = null;
 
       function reset() {
         self.preview = {
@@ -239,6 +273,7 @@ function sandbox(config) {
         self.processedData = {};
         var p = previewService.processData(columnHeaders(), self.preview.firstLineIsData, self.text, self.fileId);
         p.then(function(response) {
+          _.each(response.data.processedRecords, function(e,i) { e.isOpen = false; });
           angular.extend(self.processedData, response.data);
         }, function(error) {
           $log.error("Error getting processed data", error);
@@ -255,7 +290,7 @@ function sandbox(config) {
         self.uploading = true;
         self.uploadPercent = 0;
         self.uploadFailed = false;
-        var p = previewService.uploadToSandbox(columnHeaders(), self.preview.firstLineIsData, text, self.fileId, self.datasetName, null);
+        var p = previewService.uploadToSandbox(columnHeaders(), self.preview.firstLineIsData, self.text, self.fileId, self.datasetName, null);
         p.then(function(response) {
           self.dataResourceUid = response.data.uid;
           updateStatusPolling();
@@ -280,14 +315,14 @@ function sandbox(config) {
         p.then(function (response) {
           var data = response.data;
           $log.info("Retrieving status...." + data.status + ", percentage: " + data.percentage);
+          self.uploadStatus = data.status;
+          self.uploadDescription = data.description;
           if (data.status == "COMPLETE") {
             self.uploadPercent = 100;
           } else if (data.status == "FAILED") {
             self.uploadFailed = true;
           } else {
             self.uploadPercent = data.percentage;
-            self.uploadStatus = data.status;
-            self.uploadDescription = data.description;
             $timeout(updateStatusPolling, 1000);
           }
         });
@@ -302,10 +337,9 @@ function sandbox(config) {
       };
 
       self.reprocessDataLabel = function() {
-        return self.parsing ? 'Reprocessing...' : 'Reprocess data';
+        return self.parsing ? 'Processing...' : self.processingData ? 'Reprocessing...' : 'Reprocess data';
       };
-
-
+      
       self.isHeaderUnknown = function(header) {
         var searchString = 'Unknown ';
         return header.substr(0, searchString.length) === searchString;
@@ -319,6 +353,16 @@ function sandbox(config) {
         return field.processed != field.raw && field.processed != null ? 'changedValue' : 'originalConfirmed';
       };
 
+      self.missingUsefulColumns = function() {
+        var headers = self.columnHeaders();
+        return _.difference(['scientifcName', 'decimalLatitude', 'decimalLongitude', 'eventDate'], headers);
+      };
+
+      self.missingUsefulColumnsMessage = function() {
+        var missing = self.missingUsefulColumns();
+        return "Your dataset is missing the following fields: " + missing.join(', ');
+      };
+
       self.countByQaStatus = function(processedRecord, status) {
         var count = 0;
         angular.forEach(processedRecord.assertions, function (it) {
@@ -328,9 +372,52 @@ function sandbox(config) {
         });
         return count;
       };
+
+      self.processedRecordHeader = function(processedRecord) {
+        var scientificName = _.find(processedRecord.values, function(v) { return v.name == 'scientificName' });
+        var eventDate = _.find(processedRecord.values, function(v) { return v.name == 'eventDate' });
+        var catNo = _.find(processedRecord.values, function(v) { return v.name == 'catalogNumber' });
+        var title = [];
+        if (catNo) {
+          title.push(catNo.camelCaseName + ' ' + (catNo.formattedProcessed || catNo.raw));
+        }
+        if (scientificName) {
+          title.push(scientificName.camelCaseName + ' ' + (scientificName.formattedProcessed || scientificName.raw));
+        }
+        if (eventDate) {
+          title.push(eventDate.camelCaseName + ' ' + (eventDate.formattedProcessed || eventDate.raw));
+        }
+        return title.join(', ')
+      };
+
+      self.autocompleteColumnHeaders = function(header) {
+        return previewService.autocompleteColumnHeaders(header)
+          .then(function(response) {
+            return response.data;
+          });
+      };
     }]);
 
-  sandbox.controller('DatasetCtrl', [ '$stateParams', function($stateParams) {
-    
-  }]);
+  sandbox.controller('DatasetsCtrl', [ '$stateParams', 'datasets', 'datasetService', 'sandboxConfig',
+    function($stateParams, datasets, datasetService, sandboxConfig) {
+      var self = this;
+      angular.extend(self, datasets);
+      self.userId = $stateParams.userId;
+      self.sandboxConfig = sandboxConfig;
+
+      self.deleteSuccesses = [];
+      self.deleteFailures = [];
+      function isCurrentUser() {
+        return self.userId == sandboxConfig.userId;
+      }
+      self.isCurrentUser = isCurrentUser;
+      self.title = function() {
+        return isCurrentUser() ? 'My uploaded datasets' : datasets.user.displayName + "'s datasets";
+      };
+
+      self.deleteResource = function(uid) {
+
+      };
+      self.deleteAlertDimissed = function() {};
+    }]);
 }

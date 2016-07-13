@@ -27,7 +27,8 @@ class MyDatasetsController {
     }
 
     def userDatasets(){
-        [userUploads: collectoryService.getAllUploadsForUser(params.userId), user: authService.getUserForUserId(params.userId, false)]
+        def instance = [userUploads: collectoryService.getAllUploadsForUser(params.userId), user: authService.getUserForUserId(params.userId, false)]
+        respond instance, model: instance
     }
 
     def allDatasets(){
@@ -62,7 +63,8 @@ class MyDatasetsController {
             }
         }
 
-        render(view:"charts", model:[metadata: metadata, chartConfig: chartConfig, tempUid: params.tempUid])
+        def instance = [metadata: metadata, chartConfig: chartConfig, tempUid: params.tempUid]
+        respond(instance, view:"charts", model: instance)
     }
 
     def saveChartOptions(){

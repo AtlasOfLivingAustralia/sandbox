@@ -25,16 +25,13 @@
 	  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="${pageProperty(name:'body.class')}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}" ng-app="ala.sandbox">
+<body class="${pageProperty(name:'body.class')}" id="${pageProperty(name:'body.id')}" ng-app="ala.sandbox">
 
 <!-- Header -->
 <hf:banner logoutUrl="${g.createLink(controller:"logout", action:"logout", absolute: true)}" />
 <!-- End header -->
-<g:set var="fluidLayout" value="${pageProperty(name:'meta.fluidLayout')?:grailsApplication.config.skin?.fluidLayout}"/>
-<!-- Container -->
-<div class="${fluidLayout ? 'container-fluid' : 'container'}" id="main">
-    <g:layoutBody />
-</div><!-- End container #main col -->
+
+<g:layoutBody />
 
 <!-- Footer -->
 <hf:footer/>
@@ -43,9 +40,12 @@
 <!-- JS resources-->
 <r:script>
   sandbox({
+      autocompleteColumnHeadersUrl: '${createLink(controller:'dataCheck', action:'autocomplete')}',
+      getDatasetsUrl: '${createLink(controller:'myDatasets', action: 'userDatasets')}',
       loginUrl: '${grailsApplication.config.casServerLoginUrl}?service=${createLink(uri: '/', absolute: true)}',
       parseColumnsUrl: '${createLink(controller:'dataCheck', action:'parseColumns')}',
       processDataUrl: '${createLink(controller:'dataCheck', action:'processData')}',
+      reloadDataResourceUrl: '${createLink(controller:'dataCheck', action:'reload')}',
       uploadCsvUrl: '${createLink(controller:'dataCheck', action:'uploadFile')}',
       uploadToSandboxUrl: '${createLink(controller:'dataCheck', action:'upload')}',
       uploadStatusUrl: '${createLink(controller:'dataCheck', action:'uploadStatus')}',
