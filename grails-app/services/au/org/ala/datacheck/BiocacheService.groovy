@@ -171,7 +171,7 @@ class BiocacheService {
     def uploadFile(String fileId, String headers, String datasetName, String separator,
                    String firstLineIsData, String customIndexedFields, String dataResourceUid){
 
-      def urlPath = new ApplicationTagLib().createLink([controller: 'upload', action:'serveFile', params:[fileId:fileId]])
+      def urlPath = new ApplicationTagLib().createLink([controller: 'dataCheck', action:'serveFile', params:[fileId:fileId]])
       def csvUrl = grailsApplication.config.serverName + urlPath
 
       List nameValuePairs = [

@@ -147,11 +147,10 @@ class FileService {
     }
 
     def getSeparatorName(String raw) {
-        int tabs = raw.count("\t")
-        int commas = raw.count(",")
-        if(tabs > commas)
-            return "TAB"
-        else
-            return "COMMA"
+        separatorName(getSeparator(raw))
+    }
+
+    def getSeparatorName(File file) {
+        separatorName(getSeparator(file))
     }
 }

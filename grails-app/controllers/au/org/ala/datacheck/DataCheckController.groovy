@@ -7,6 +7,9 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
 class DataCheckController {
 
   def biocacheService
@@ -62,7 +65,7 @@ class DataCheckController {
 
     //guess at the first line if the request didn't specify the first line is data
     if (firstLineIsData == null) {
-      if(biocacheService.areColumnHeaders(columnHeadersUnparsed)){
+      if(biocacheService.areColumnHeaders(columnHeadersUnparsed)) {
         log.debug("First line of data recognised as darwin core terms")
         firstLineIsData = false
         columnHeaderMap = biocacheService.mapColumnHeaders(columnHeadersUnparsed)
@@ -201,7 +204,7 @@ class DataCheckController {
     //create a zipped version for uploading
     fileService.zipFile(extractedFile)
 
-    def instance = [fileId: fileId, fileName: newFile.name, dataResourceUid: dataResourceUid, datasetName: params.datasetName]
+    def instance = [fileId: fileId, fileName: newFile.name]
     respond instance
   }
 
@@ -256,17 +259,17 @@ class DataCheckController {
   def upload() {
 
     def userId = authService.getUserId()
-    if(!userId){
+    if (!userId) {
       response.sendError(401)
       response.setHeader("X-Sandbox-Authenticated", "false")
       response.setHeader("X-Sandbox-Authorised", "false")
       return null
     }
 
-    if(grailsApplication.config.clubRole){
+    if (grailsApplication.config.clubRole) {
       //check roles
       def isInClub = authService.userInRole(grailsApplication.config.clubRole)
-      if(!isInClub) {
+      if (!isInClub) {
         response.setHeader("X-Sandbox-Authenticated", "true")
         response.setHeader("X-Sandbox-Authorised", "false")
         response.sendError(401)
@@ -275,14 +278,28 @@ class DataCheckController {
     }
 
     //read the csv
-    String headers = request.getParameter("headers")?.trim()
+    String headers
+    def headersVal = params.headers
+    if (headersVal instanceof String) {
+      headers = headersVal
+    } else {
+      headers = headersVal?.join(',')?.trim()
+    }
     String csvData = request.getParameter("rawData")?.trim()
-    String separator = fileService.getSeparatorName(csvData)
+    String fileId = request.getParameter("fileId")?.trim()
     String datasetName = request.getParameter("datasetName")?.trim()
     String customIndexedFields = request.getParameter("customIndexedFields")?.trim()
     String firstLineIsData = request.getParameter("firstLineIsData")
     String dataResourceUid = request.getParameter('dataResourceUid')
-    def responseString = biocacheService.uploadData(csvData, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
+
+    def responseString
+    if (csvData) {
+      String separator = fileService.getSeparatorName(csvData)
+      responseString = biocacheService.uploadData(csvData, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
+    } else {
+      String separator = fileService.getSeparatorName(fileService.getFileForFileId(fileId))
+      responseString = biocacheService.uploadFile(fileId, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
+    }
     response.setContentType("application/json")
     render(responseString)
   }
@@ -325,5 +342,25 @@ class DataCheckController {
     //def limit = params.limit !=null ? params.limit.asType(Integer.class) : 10
     def list = darwinCoreService.autoComplete(query, 10)
     respond(list)
+  }
+
+  def serveFile() {
+    def fileId = params.fileId
+    def file = Paths.get(grailsApplication.config.uploadFilePath, fileId, fileId + '.csv.zip').toFile()
+
+    response.setHeader("Cache-Control", "must-revalidate")
+    response.setHeader("Pragma", "must-revalidate")
+    response.setHeader("Content-Disposition", "attachment;filename=${params.fileId}.csv.zip")
+    response.contentType = "application/zip"
+    response.contentLength = file.length()
+
+    def output = response.outputStream
+    output.withStream {
+      file.withInputStream { input ->
+        output << input
+        output.flush()
+      }
+    }
+    null
   }
 }
