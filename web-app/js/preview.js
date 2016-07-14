@@ -61,14 +61,18 @@
       var self = this;
       self.sandboxConfig = sandboxConfig;
 
+      var EMPTY_EXISTING = {
+        name: null,
+        uid: null
+      };
+
       if (!existing || existing.error) {
-        self.existing = {
-          name: null,
-          uid: null
-        };
+        self.existing = angular.copy(EMPTY_EXISTING);
         self.datasetName = 'My test dataset';
+        self.dataResourceUid = null;
       } else {
         self.existing = existing;
+        self.dataResourceUid = existing.uid;
         self.datasetName = existing.name;
       }
 
@@ -99,8 +103,6 @@
       self.uploading = false;
       self.uploadPercent = 0;
       self.uploadFailed = false;
-
-      self.dataResourceUid = null;
 
       function reset() {
         self.preview = {
@@ -269,6 +271,11 @@
           }
         });
         return count;
+      };
+
+      self.unlinkFromExisting = function() {
+        self.existing = angular.copy(EMPTY_EXISTING);
+        self.dataResourceUid = null;
       };
 
       self.processedRecordHeader = function(processedRecord) {

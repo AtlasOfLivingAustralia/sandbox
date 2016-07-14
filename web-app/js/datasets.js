@@ -46,7 +46,7 @@
         datasetService.deleteResource(uid).then(function(response) {
           if (response.data.success) {
             self.deleteSuccesses.push(uid);
-            var idx = _.indexOf(self.userUploads, function(e) { e.uid == uid; });
+            var idx = _.indexOf(self.userUploads, function(e) { return e.uid == uid; });
             self.userUploads.splice(idx,1);
           } else {
             self.deleteFailures.push(uid);
