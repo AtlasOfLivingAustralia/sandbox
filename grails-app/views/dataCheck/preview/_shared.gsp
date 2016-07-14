@@ -7,7 +7,7 @@
         </button>
         <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="split-button">
             <li role="menuitem"><a href="#TODO">Edit Metadata</a></li>
-            <li role="menuitem" ng-show="preview.dataResourceUid"><a href ng-click="preview.unlinkFromExisting()">Reset Data Resource ID</a></li>
+            <li role="menuitem" ng-show="preview.existing.uid"><a href ng-click="preview.unlinkFromExisting()">Reset Data Resource ID</a></li>
         </ul>
     </div>
 </div>
