@@ -1,0 +1,19 @@
+<script>
+    var SANDBOX_CONFIG = {
+        autocompleteColumnHeadersUrl: '${createLink(controller:'dataCheck', action:'autocomplete')}',
+        biocacheServiceUrl: '${grailsApplication.config.biocacheServiceUrl}',
+        chartOptionsUrl: '${createLink(controller:'myDatasets', action: 'chartOptions')}',
+        deleteResourceUrl: '${createLink(controller:'myDatasets', action: 'deleteResource')}',
+        getAllDatasetsUrl: '${createLink(controller:'myDatasets', action: 'allDatasets')}',
+        getDatasetsUrl: '${createLink(controller:'myDatasets', action: 'userDatasets')}',
+        loginUrl: '${grailsApplication.config.casServerLoginUrl}?service=${createLink(uri: '/', absolute: true)}',
+        parseColumnsUrl: '${createLink(controller:'dataCheck', action:'parseColumns')}',
+        processDataUrl: '${createLink(controller:'dataCheck', action:'processData')}',
+        reloadDataResourceUrl: '${createLink(controller:'dataCheck', action:'reload')}',
+        saveChartOptionsUrl: '${createLink(controller:'myDatasets', action:'saveChartOptions')}',
+        uploadCsvUrl: '${createLink(controller:'dataCheck', action:'uploadFile')}',
+        uploadToSandboxUrl: '${createLink(controller:'dataCheck', action:'upload')}',
+        uploadStatusUrl: '${createLink(controller:'dataCheck', action:'uploadStatus')}',
+        userId: '${u.userId()}'
+    };
+</script>

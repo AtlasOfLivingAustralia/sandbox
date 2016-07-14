@@ -72,13 +72,13 @@ class MyDatasetsController {
         }
 
         def instance = [metadata: metadata, chartConfig: chartConfig, tempUid: params.tempUid]
-        respond(instance, view:"charts", model: instance)
+        respond(instance, view:"chartOptions", model: instance)
     }
 
     def saveChartOptions(){
 
         def chartOptions = []
-        if (request.contentType.startsWith('application/json')) {
+        if (request.contentType?.startsWith('application/json')) {
             chartOptions = request.getJSON()
         } else { // form encoded
             def fields = params.field
@@ -104,7 +104,13 @@ class MyDatasetsController {
         def uid = params.tempUid
         log.debug("Saving chart options for $uid: $chartOptions")
         def status = [status: biocacheService.saveChartOptions(uid, chartOptions)]
-        respond(status)
+        request.withFormat {
+            form multipartForm {
+//                flash.message = message(code: 'default.updated.message', args: [message(code: 'ChartOptions.label', default: 'Chart Options'), uid])
+                redirect(action:"index", method: 'GET')
+            }
+            '*'{ respond status }
+        }
     }
 
     def deleteResource() {
@@ -112,16 +118,26 @@ class MyDatasetsController {
         def result
         def status = 200
         if(checkUserIsOwner(uid)) {
-            log.info("Attempting to delete $uid")
+            log.debug("Attempting to delete $uid")
             def success = biocacheService.deleteResource(uid)
+            log.debug("Delete $uid result: $success")
             result = [deleteSuccess: success]
         } else {
             log.warn("${authService.userId} attempting to delete $uid but is not the owner")
             status = 401
             result = [deleteSuccess: false]
         }
-        respond result, status: status
-//            redirect(controller:"myDatasets", action:"index", params: result)
+        request.withFormat {
+            form multipartForm {
+                log.debug("Redirecting")
+//                flash.message = message(code: 'default.deleted.message', args: [message(code: 'Resource.label', default: 'Resource'), uid])
+                redirect(controller:"myDatasets", action:"index", params: result, method: 'GET')
+            }
+            '*'{
+                log.debug("Responding")
+                respond result, status: status
+            }
+        }
     }
 
     private def checkUserIsOwner(uid) {

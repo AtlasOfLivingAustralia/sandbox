@@ -7,23 +7,18 @@
 </head>
 
 <body>
+<h1>${user?.displayName}'s datasets</h1>
 <div class="panel panel-default">
-    <div class="panel-heading">
-        <h1>${user?.displayName}'s datasets</h1>
-    </div>
-
     <div class="panel-body">
-        <g:if test="${userUploads}">
-
-            <p class="lead">
-                Here is a listing of uploaded datasets in this system uploaded by ${user?.displayName}.
-            </p>
-        </g:if>
-        <g:else>
-            <p class="lead">
+        <p>
+            Here is a listing of uploaded datasets in this system uploaded by ${user?.displayName}.
+        </p>
+        <g:if test="${!userUploads}">
+            <p>
                 This user has not yet uploaded a dataset to this system.
             </p>
-        </g:else>
+        </g:if>
+
     </div>
     <table class="table">
         <thead>
@@ -41,7 +36,7 @@
                         date="${new Date().parse("yyyy-MM-dd'T'HH:mm:ss", userUpload.dateCreated)}"/></td>
                 <td>${userUpload.numberOfRecords}</td>
                 <td>
-                    <a class="btn"
+                    <a class="btn btn-default"
                        href="${userUpload.uiUrl ?: grailsApplication.config.sandboxHubsWebapp}/occurrences/search?q=data_resource_uid:${userUpload.uid}"><i
                             class="icon-th-list"></i> View records</a>
                 </td>

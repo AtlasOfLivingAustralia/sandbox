@@ -8,10 +8,8 @@
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 </head>
 <body>
+<h1>${metadata.name} - Chart display options</h1>
 <div class="panel panel-default">
-    <div class="panel-heading">
-        <h1>${metadata.name} - Chart display options</h1>
-    </div>
     <div class="panel-body">
     <g:form action="saveChartOptions">
         <input type="hidden" name="tempUid" value="${tempUid}"/>

@@ -25,7 +25,8 @@ class DataCheckController {
   def noOfRowsToDisplay = 5
 
   def index() {
-    [userId:authService.getUserId()]
+    def model = [existing: [:], reload: false]
+    respond model, view: 'index', model: model
   }
 
   def reload() {

@@ -1,29 +1,8 @@
 (function sandboxPreview() {
   "use strict";
-  var sandbox = angular.module('ala.sandbox');
-  sandbox.config(
-    [          '$stateProvider', '$urlRouterProvider', '$locationProvider',
-      function ($stateProvider,   $urlRouterProvider, $locationProvider) {
+  var preview = angular.module('ala.sandbox.preview', ['ui.bootstrap', 'ngFileUpload']);
 
-        $stateProvider
-          .state("preview", {
-            controller: 'PreviewCtrl as preview',
-            url: "/dataCheck?reload",
-            templateUrl: 'preview.html',
-            resolve: {
-              existing: ['previewService', '$stateParams',
-                function (previewService, $stateParams) {
-                  if ($stateParams.reload) {
-                    return previewService.reload($stateParams.reload)
-                  } else {
-                    return null;
-                  }
-                }]
-            }
-          });
-      }]);
-
-  sandbox.factory('previewService', ['$http', '$httpParamSerializer', 'sandboxConfig', 'Upload',
+  preview.factory('previewService', ['$http', '$httpParamSerializer', 'sandboxConfig', 'Upload',
     function ($http, $httpParamSerializer, sandboxConfig, Upload) {
       function randomString(length) {
         var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
@@ -77,7 +56,7 @@
       };
     }]);
 
-  sandbox.controller("PreviewCtrl", ['$log', '$timeout', '$uibModal', '$window', 'existing', 'previewService', 'sandboxConfig',
+  preview.controller("PreviewCtrl", ['$log', '$timeout', '$uibModal', '$window', 'existing', 'previewService', 'sandboxConfig',
     function($log, $timeout, $uibModal, $window, existing, previewService, sandboxConfig) {
       var self = this;
       self.sandboxConfig = sandboxConfig;

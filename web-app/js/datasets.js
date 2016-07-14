@@ -1,51 +1,8 @@
 (function datasets() {
   "use strict";
-  var sandbox = angular.module('ala.sandbox');
+  var datasets = angular.module('ala.sandbox.datasets', ['ui.router']);
 
-  sandbox.config(
-    [          '$stateProvider',
-      function ($stateProvider) {
-
-        $stateProvider
-          .state('userDatasets', {
-            url: '/datasets/:userId',
-            controller: 'DatasetsCtrl as datasets',
-            templateUrl: 'datasets.html',
-            resolve: {
-              datasets: ['datasetService', '$q', '$stateParams',
-                function(datasetService, $q, $stateParams) {
-                  if (!$stateParams.userId) return $q.reject("No userId found");
-                  return datasetService.getDatasetsForUser($stateParams.userId);
-                }]
-            }
-          })
-          .state('chartOptions', {
-            url: '/charts/:tempUid',
-            controller: 'ChartOptionsCtrl as charts',
-            templateUrl: 'chartOptions.html',
-            resolve: {
-              chartOptions: ['datasetService', '$stateParams',
-                function(datasetService, $stateParams) {
-                  return datasetService.getChartOptions($stateParams.tempUid);
-                }]
-            }
-          })
-          .state('allDatasets', {
-            url: '/datasets',
-            controller: 'AllDatasetsCtrl as allDatasets',
-            templateUrl: 'allDatasets.html',
-            resolve: {
-              allDatasets: ['datasetService',
-                function(datasetService) {
-                  return datasetService.getAllDatasets();
-                }]
-            }
-          })
-      }
-    ]
-  );
-
-  sandbox.factory('datasetService', ['$http', '$httpParamSerializer', 'sandboxConfig',
+  datasets.factory('datasetService', ['$http', '$httpParamSerializer', 'sandboxConfig',
     function ($http, $httpParamSerializer, sandboxConfig) {
       return {
         deleteResource: function(uid) {
@@ -68,7 +25,7 @@
     }]);
 
 
-  sandbox.controller('DatasetsCtrl', [ '$log', '$stateParams', 'datasets', 'datasetService', 'sandboxConfig',
+  datasets.controller('DatasetsCtrl', [ '$log', '$stateParams', 'datasets', 'datasetService', 'sandboxConfig',
     function($log, $stateParams, datasets, datasetService, sandboxConfig) {
       var self = this;
       angular.extend(self, datasets);
@@ -100,7 +57,7 @@
       };
     }]);
 
-  sandbox.controller('ChartOptionsCtrl', [ '$state', '$stateParams', '$window', 'chartOptions', 'datasetService', 'sandboxConfig',
+  datasets.controller('ChartOptionsCtrl', [ '$state', '$stateParams', '$window', 'chartOptions', 'datasetService', 'sandboxConfig',
     function($state, $stateParams, $window, chartOptions, datasetService, sandboxConfig) {
       var self = this;
       self.saving = false;
@@ -119,7 +76,7 @@
       }
     }]);
 
-  sandbox.controller('AllDatasetsCtrl', ['sandboxConfig', 'allDatasets', function(sandboxConfig, allDatasets) {
+  datasets.controller('AllDatasetsCtrl', ['sandboxConfig', 'allDatasets', function(sandboxConfig, allDatasets) {
     var self = this;
     angular.extend(self, allDatasets);
     self.showUserUpload = function(userUpload) {

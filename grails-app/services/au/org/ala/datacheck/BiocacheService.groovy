@@ -17,8 +17,6 @@ class BiocacheService {
 
     def authService
 
-    def serviceMethod() {}
-
     def areColumnHeaders(String[] columnHeadersUnparsed){
       def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/parser/areDwcTerms")
       def http = new HttpClient()
@@ -128,14 +126,15 @@ class BiocacheService {
                    String firstLineIsData, String customIndexedFields, String dataResourceUid){
 
       //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
-      NameValuePair[] nameValuePairs = new NameValuePair[7]
-      nameValuePairs[0] = new NameValuePair("csvData", csvData)
-      nameValuePairs[1] = new NameValuePair("headers", headers)
-      nameValuePairs[2] = new NameValuePair("datasetName", datasetName)
-      nameValuePairs[3] = new NameValuePair("separator", separator)
-      nameValuePairs[4] = new NameValuePair("firstLineIsData", firstLineIsData)
-      nameValuePairs[5] = new NameValuePair("customIndexedFields", customIndexedFields)
-      nameValuePairs[6] = new NameValuePair("alaId", authService.getUserId())
+      List nameValuePairs = [
+        new NameValuePair("csvData", csvData),
+        new NameValuePair("headers", headers),
+        new NameValuePair("datasetName", datasetName),
+        new NameValuePair("separator", separator),
+        new NameValuePair("firstLineIsData", firstLineIsData),
+        new NameValuePair("customIndexedFields", customIndexedFields),
+        new NameValuePair("alaId", authService.getUserId())
+      ]
 
       //add the data resource UID if supplied
       if(dataResourceUid){
@@ -143,7 +142,7 @@ class BiocacheService {
       }
 
       def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/post")
-      post.setRequestBody(nameValuePairs)
+      post.setRequestBody(nameValuePairs.toArray(new NameValuePair[0]))
 
       def http = new HttpClient()
       http.executeMethod(post)
