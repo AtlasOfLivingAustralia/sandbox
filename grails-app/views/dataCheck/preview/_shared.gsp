@@ -171,7 +171,11 @@
                     <span ng-show="preview.uploadFailed">Dataset upload <strong>failed</strong>. Please email <a href="mailto:${grailsApplication.config.skin.supportEmail}">${grailsApplication.config.skin.supportEmail}</a> with the details of your dataset.</span>
                 </div>
 
-                <uib-progressbar ng-show="preview.uploading" value="preview.uploadPercent" type="success" title="Upload progress"></uib-progressbar>
+                <uib-progressbar class="progress-striped" ng-class="{ active: preview.uploadPercent < 100 }"
+                                 ng-show="preview.uploading" value="preview.uploadPercent"
+                                 type="{{ preview.uploadPercent < 100 ? 'info': 'success'}}" title="Upload progress">
+                    <b>{{preview.uploadPercent}}%</b>
+                </uib-progressbar>
 
                 <div id="optionsAfterDownload" ng-show="preview.uploadPercent == 100"
                      style="margin-bottom: 0; padding-bottom: 0;">

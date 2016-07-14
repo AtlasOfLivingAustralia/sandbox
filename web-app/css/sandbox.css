@@ -89,3 +89,7 @@
     background-color: #DA644E;
     border-color: #F26649;
 }
+/* reset progress bar height so text is visible */
+.progress {
+    height: 20px;
+}
