@@ -1,6 +1,7 @@
 language: groovy
 jdk:
 - oraclejdk7
+node_js: "6.2"
 sudo: false
 branches:
   only:
