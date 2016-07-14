@@ -38,12 +38,14 @@
                     <div class="form-group">
                         <textarea id="copyPasteData" class="form-control" name="copyPasteData" rows="10"
                                   cols="120" ng-model="preview.text" ng-change="preview.parseColumns()" allow-tab
-                                  ng-model-options="{ debounce: { 'default': 1500, 'blur': 0 } }"></textarea>
+                                  ng-model-options="{ debounce: { 'default': 1500, 'blur': 0 } }"
+                                  ng-disabled="preview.parsing || preview.processingData || preview.uploading"></textarea>
                     </div>
 
                     <button type="button" id="checkDataButton" class="btn btn-primary"
-                            ng-click="preview.parseColumns()" ng-disabled="preview.parsing"
+                            ng-click="preview.parseColumns()" ng-disabled="preview.parsing || preview.processingData || preview.uploading"
                             ng-bind="preview.checkDataLabel()"></button>
+                    <button type="button" class="btn btn-default" ng-click="preview.text = ''; preview.parseColumns()" ng-disabled="preview.parsing || preview.processingData || preview.uploading">Clear</button>
                 </div>
             </uib-tab>
             <uib-tab heading="Load File" disable="preview.text">
@@ -63,7 +65,7 @@
                     <label class="btn btn-default btn-file">
                         {{preview.file.name || 'Select File' }} <input type="file" ngf-select ng-model="preview.file" ng-disabled="preview.parsing" style="display: none;">
                     </label>
-                    <button type="button" class="btn btn-success" ng-show="preview.file" ng-disabled="preview.parsing"
+                    <button type="button" class="btn btn-success" ng-show="preview.file" ng-disabled="preview.parsing || preview.processingData || preview.uploading"
                             ng-click="preview.uploadCsvFile()" ng-bind="preview.uploadCsvStatusLabel()"></button>
                 </div>
             </uib-tab>
@@ -83,7 +85,7 @@
         (<a href="http://rs.tdwg.org/dwc/terms/" target="_blank">darwin core terms</a>).<br/>
 
             After adjusting, click
-            <button type="button" class="btn btn-default" ng-disabled="preview.processingData"
+            <button type="button" class="btn btn-default" ng-disabled="preview.processingData || preview.uploading"
                     ng-click="preview.getProcessedData()" ng-bind="preview.reprocessDataLabel()"></button>
         </p>
 
@@ -92,7 +94,8 @@
                 <div id="interpretation">
                     <label for="firstLineIsData">The first line is:</label>
                     <select id="firstLineIsData" name="firstLineIsData" ng-model="preview.preview.firstLineIsData"
-                            ng-change="preview.parseColumns()" ng-options="o.value as o.label for o in preview.firstLineOptions">
+                            ng-change="preview.parseColumns()" ng-options="o.value as o.label for o in preview.firstLineOptions"
+                            ng-disabled="preview.processingData || preview.uploading">
                     </select>
                 </div>
 
@@ -105,6 +108,7 @@
                                 <input class="columnHeaderInput" type="text" autocomplete="off" name="q"
                                        ng-model="header.header" ng-class="{unrecognizedField: !header.known}"
                                        uib-typeahead="dwc for dwc in preview.autocompleteColumnHeaders($viewValue)"
+                                       ng-disabled="preview.processingData || preview.uploading"
                                 />
                             </th>
                         </tr>
@@ -122,7 +126,7 @@
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-default" ng-disabled="preview.processingData"
+            <button type="button" class="btn btn-default" ng-disabled="preview.processingData || preview.uploading"
                     ng-click="preview.getProcessedData()" ng-bind="preview.reprocessDataLabel()"></button>
         </div>
     </div><!-- panel-body -->
@@ -153,7 +157,7 @@
                     <div class="form-group">
                         <label for="datasetName" class="datasetName"><strong>Your dataset name</strong></label>
                         <input id="datasetName" class="datasetName form-control" name="datasetName" type="text"
-                               ng-model="preview.datasetName" />
+                               ng-model="preview.datasetName" ng-disabled="preview.uploading" />
                     </div>
                     <button type="button" id="uploadButton" class="btn btn-primary"
                             ng-click="preview.uploadToSandbox()" ng-bind="preview.uploadToSandboxLabel()" ng-disabled="preview.uploading">Upload your data</button>
