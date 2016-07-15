@@ -72,10 +72,10 @@
     background: #F26649 !important;
 }
 #loading-bar .peg {
-    -moz-box-shadow: #F26649 1px 0 6px 1px !important;
-    -ms-box-shadow: #F26649 1px 0 6px 1px !important;
-    -webkit-box-shadow: #F26649 1px 0 6px 1px !important;
-    box-shadow: #F26649 1px 0 6px 1px !important;
+    -moz-box-shadow: #f26548 1px 0 6px 1px !important;
+    -ms-box-shadow: #f26548 1px 0 6px 1px !important;
+    -webkit-box-shadow: #f26548 1px 0 6px 1px !important;
+    box-shadow: #f26548 1px 0 6px 1px !important;
 }
 /* animate icon rotation */
 .fa.animate {

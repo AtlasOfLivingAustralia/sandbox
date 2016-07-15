@@ -1,13 +1,14 @@
 package au.org.ala.datacheck
 import au.com.bytecode.opencsv.CSVReader
+import grails.converters.JSON
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
-import java.nio.file.Files
 import java.nio.file.Paths
 
 class DataCheckController {
@@ -301,6 +302,13 @@ class DataCheckController {
       String separator = fileService.getSeparatorName(fileService.getFileForFileId(fileId))
       responseString = biocacheService.uploadFile(fileId, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
     }
+
+    def biocacheResponse = JSON.parse(responseString)
+
+    // on a successful response, save a copy of the file under the UID
+    def inputStream = csvData ? IOUtils.toInputStream(csvData, 'UTF-8') : fileService.getFileForFileId(fileId).newInputStream()
+    fileService.saveArchiveCopy(biocacheResponse.uid, inputStream)
+
     response.setContentType("application/json")
     render(responseString)
   }
@@ -347,11 +355,21 @@ class DataCheckController {
 
   def serveFile() {
     def fileId = params.fileId
-    def file = Paths.get(grailsApplication.config.uploadFilePath, fileId, fileId + '.csv.zip').toFile()
+    def uid = params.uid
+    File file
+    if (uid) {
+      file = fileService.getArchiveCopy(uid)
+    } else {
+      file = Paths.get(grailsApplication.config.uploadFilePath, fileId, fileId + '.csv.zip').toFile()
+    }
+
+    if (!file.exists()) {
+      response.sendError(404, uid ? "Archive file for $uid not found" : "${fileID}.csv.zip not found")
+    }
 
     response.setHeader("Cache-Control", "must-revalidate")
     response.setHeader("Pragma", "must-revalidate")
-    response.setHeader("Content-Disposition", "attachment;filename=${params.fileId}.csv.zip")
+    response.setHeader("Content-Disposition", "attachment;filename=\"${file.name}\"")
     response.contentType = "application/zip"
     response.contentLength = file.length()
 
@@ -359,7 +377,6 @@ class DataCheckController {
     output.withStream {
       file.withInputStream { input ->
         output << input
-        output.flush()
       }
     }
     null

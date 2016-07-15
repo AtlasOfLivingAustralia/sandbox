@@ -1,6 +1,7 @@
 package au.org.ala.datacheck
 
 import au.com.bytecode.opencsv.CSVReader
+import org.apache.commons.io.FileUtils
 import org.apache.tika.metadata.HttpHeaders
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.metadata.TikaMetadataKeys
@@ -10,6 +11,7 @@ import org.apache.tika.parser.ParseContext
 import org.apache.tika.parser.Parser
 import org.xml.sax.helpers.DefaultHandler
 
+import java.nio.file.Paths
 import java.util.jar.JarFile
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
@@ -61,23 +63,23 @@ class FileService {
     def zipFile(File file){
         // input file
         FileInputStream input = new FileInputStream(file);
+        File outputFile = new File("${file.absolutePath}.zip")
 
+        zipStreamToFile(outputFile, file.name, input)
+    }
+
+    def zipStreamToFile(File outputZipFile, String inputFileName, InputStream input) {
         // out put file
-        ZipOutputStream output = new ZipOutputStream(new FileOutputStream(file.getAbsolutePath()+ ".zip") )
+        ZipOutputStream output = new ZipOutputStream(new FileOutputStream(outputZipFile) )
 
         // name the file inside the zip  file
-        output.putNextEntry(new ZipEntry(file.getName()))
+        output.putNextEntry(new ZipEntry(inputFileName))
 
-        // buffer size
-        def b = new byte[1024]
-        def count = -1
-
-        while ((count = input.read(b)) > 0) {
-            output.write(b, 0, count);
+        input.withStream {
+            output.withStream {
+                output << input
+            }
         }
-
-        output.close()
-        input.close()
     }
 
     def extractGZip(file){
@@ -152,5 +154,16 @@ class FileService {
 
     def getSeparatorName(File file) {
         separatorName(getSeparator(file))
+    }
+
+    def saveArchiveCopy(String uid, InputStream input) {
+        final archiveDir = new File(grailsApplication.config.uploadFilePath, 'archive')
+        final archiveFile = new File(archiveDir, "${uid}.csv.zip")
+        FileUtils.forceMkdir(archiveDir)
+        zipStreamToFile(archiveFile, "${uid}.csv", input)
+    }
+
+    File getArchiveCopy(String uid) {
+        Paths.get(grailsApplication.config.uploadFilePath, 'archive', "${uid}.csv.zip").toFile()
     }
 }
