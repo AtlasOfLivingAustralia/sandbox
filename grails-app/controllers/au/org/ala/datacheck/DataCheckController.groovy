@@ -449,6 +449,7 @@ class DataCheckController {
 
     if (!file.exists()) {
       response.sendError(404, uid ? "Archive file for $uid not found" : "${fileID}.csv.zip not found")
+      return
     }
 
     response.setHeader("Cache-Control", "must-revalidate")
