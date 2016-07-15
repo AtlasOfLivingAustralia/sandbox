@@ -218,6 +218,15 @@
                     <td ng-bind="field.raw"></td>
                     <td ng-class="preview.processedRecordChangedClass(field)" ng-bind="field.formattedProcessed"></td>
                 </tr>
+                <tr ng-show="processedRecord.validationMessages && (processedRecord.validationMessages.length > 0)" class="error">
+                    <td colspan="3" class="error XXassertionHeader">
+                        <span class="dataQualityHdr">Record Validation error</span>
+                        <span class="label label-warning">Warnings {{ processedRecord.validationMessages.size() }}</span>
+                    </td>
+                </tr>
+                <tr ng-repeat="vm in processedRecord.validationMessages">
+                    <td colspan="3" class="recordValidationMsg" ng-bind="vm.message" />
+                </tr>
                 <tr ng-show="processedRecord.assertions" class="error">
                     <td colspan="3" class="error XXassertionHeader">
                         <span class="dataQualityHdr">Data quality tests for this record</span>

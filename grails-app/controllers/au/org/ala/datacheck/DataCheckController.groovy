@@ -21,6 +21,12 @@ class DataCheckController {
   def formatService
   def collectoryService
 
+  // data columns more than the header
+  static String COLSIZE_MISMATCH = "colSizeMismatch"
+  static String DUPLICATE_HEADER = "colHeaderDuplicate"
+  static String DUPLICATE_CATALOGNUMBER = "catalogNumberDuplicate"
+  static String DUPLICATE_OCCURRENCEID = "duplicateOccurrenceId"
+
   static allowedMethods = [processData: "POST"]
 
   def noOfRowsToDisplay = 5
@@ -43,6 +49,8 @@ class DataCheckController {
 
     //is it comma separated or tab separated
     def raw = params.rawData
+    raw = raw.replaceAll("[\\t]\"[\\t]") {a -> a.replace("\"", "\"\"")}
+
     def fileId = params.fileId
     def firstLineIsData = params.boolean('firstLineIsData')
 
@@ -221,6 +229,8 @@ class DataCheckController {
     }
 
     def csvData = params.rawData?.trim()
+    csvData = csvData.replaceAll("[\\t]\"[\\t]") {a -> a.replace("\"", "\"\"")}
+
     def fileId = params.fileId
     def firstLineIsData = params.boolean('firstLineIsData')
 
@@ -230,16 +240,25 @@ class DataCheckController {
     def counter = 0
     def csvReader = csvData ? fileService.getCSVReaderForText(csvData) : fileService.getCSVReaderForFile(fileService.getFileForFileId(fileId))
     def currentLine = csvReader.readNext()
+
+    def rawHeader = null
+
     if(firstLineIsData){
       counter += 1
-      processedRecords.add(biocacheService.processRecord(headers, currentLine))
+      ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
+      performRecordValidation (processedRecords, pr, rawHeader, currentLine)
+      processedRecords.add(pr)
+    } else {
+      rawHeader = currentLine
     }
 
     currentLine = csvReader.readNext()
 
     while(currentLine != null && counter <noOfRowsToDisplay){
       counter += 1
-      processedRecords.add(biocacheService.processRecord(headers, currentLine))
+      ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
+      performRecordValidation (processedRecords, pr, rawHeader, currentLine)
+      processedRecords.add(pr)
       currentLine = csvReader.readNext()
     }
 
@@ -249,6 +268,9 @@ class DataCheckController {
         v.camelCaseName = formatService.prettyCamel(v.name)
         v.formattedProcessed = formatService.formatProperty(v.processed)
       }
+      pr.validationMessages.each { a ->
+        a.message = message(code: a.code, args: a.args, default: a.code)
+      }
       pr.assertions.each { a ->
         a.name = message(code: a.name, default: a.name)
       }
@@ -256,6 +278,68 @@ class DataCheckController {
 
     def instance = [processedRecords:processedRecords]
     respond(instance, view:'processedData',  model:[processedRecords:processedRecords])
+  }
+
+  private performRecordValidation (List<ParsedRecord> processedRecords, ParsedRecord pr, def rawHeader, def currentLine) {
+
+    List<ValidationMessage> messages = new ArrayList<ValidationMessage>()
+
+    // Check for Header and data columns mismatch and whether it contains duplicates. Only if there's a raw header is provided
+    if (rawHeader) {
+      List<String> rawHeaderList = Arrays.asList(rawHeader)
+      def testHeaderList = rawHeaderList.findAll{(it.trim()=="") || it.find("\\?")}
+      if ((testHeaderList.size() > 0) || (currentLine.size() != rawHeader.size())) {
+        testHeaderList.removeAll {(it.trim()=="")}
+        if (testHeaderList.size() > 0) {
+          ValidationMessage vm = new ValidationMessage(COLSIZE_MISMATCH, testHeaderList.toString())
+          messages.add(vm)
+        } else {
+          //ValidationMessage vm = new ValidationMessage(COLSIZE_MISMATCH, new ArrayList<String>().toString())
+          ValidationMessage vm = new ValidationMessage(COLSIZE_MISMATCH, "")
+          messages.add(vm)
+        }
+      }
+
+      def trimHeaderList = rawHeaderList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
+      def dupHeader = trimHeaderList.findAll{trimHeaderList.count(it)>1}.unique()
+
+      if (dupHeader.size() > 0) {
+        List<String> strArgs = new ArrayList<String>()
+        // This is to get back the actual raw text
+        for (String s: rawHeaderList) {
+          if (dupHeader.contains(s.toLowerCase().trim().replaceAll("\\s+", " "))) {
+            strArgs.add(s)
+          }
+        }
+        ValidationMessage vm = new ValidationMessage(DUPLICATE_HEADER, strArgs.toString())
+        messages.add(vm)
+      }
+    }
+
+    def rawCatalogNumber = pr.values.grep{it.name=="catalogNumber"}?.raw?.size() > 0 ? pr.values.grep{it.name=="catalogNumber"}?.raw.get(0) : ""
+
+    def dupCatalogNumberList = processedRecords.findAll {it.values.findAll{a-> ((a.name=="catalogNumber") && (a.raw == rawCatalogNumber))}}
+
+    if (dupCatalogNumberList.size() > 0) {
+      List<String> strArgs = new ArrayList<String>()
+      strArgs.add(rawCatalogNumber)
+      ValidationMessage vm = new ValidationMessage(DUPLICATE_CATALOGNUMBER, strArgs.toString())
+      messages.add(vm)
+    }
+
+    def occurrenceId = pr.values.grep{it.name=="occurrenceId"}?.raw?.size() > 0 ? pr.values.grep{it.name=="occurrenceId"}?.raw.get(0) : ""
+
+    def dupOccurrenceIdList = processedRecords.findAll {it.values.findAll{a-> ((a.name=="occurrenceId") && (a.raw == occurrenceId))}}
+
+    if (dupOccurrenceIdList.size() > 0) {
+      List<String> strArgs = new ArrayList<String>()
+      strArgs.add(occurrenceId)
+      ValidationMessage vm = new ValidationMessage(DUPLICATE_OCCURRENCEID, strArgs.toString())
+      messages.add(vm)
+    }
+
+    pr.validationMessages = messages.toArray()
+
   }
 
   def upload() {
