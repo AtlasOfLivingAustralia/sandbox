@@ -179,25 +179,36 @@
 
       self.uploadToSandbox = function() {
         $log.info('Uploading to sandbox...');
-        self.uploading = true;
-        self.uploadPercent = 0;
-        self.uploadFailed = false;
-        var p = previewService.uploadToSandbox(columnHeaders(), self.preview.firstLineIsData, self.text, self.fileId, self.datasetName, self.existing.uid, null);
-        p.then(function(response) {
-          self.dataResourceUid = response.data.uid;
-          updateStatusPolling();
-        }, function(error) {
-          if ( error.status == 401 ) {
-            var isAuthenticated = error.headers("X-Sandbox-Authenticated");
-            var isAuthorised = error.headers("X-Sandbox-Authorised");
-            var template = !isAuthenticated ? 'notAuthenticatedModal.html' : 'notAuthorisedModal.html';
-            $uibModal.open({
-              templateUrl: template
-            });
-          } else {
-            $window.alert('Fail:' + error.status);
+
+        var disableUpload = false;
+        for (var i=0; i< self.processedData.processedRecords.length; i++) {
+          if (self.processedData.processedRecords[i].validationMessages && self.processedData.processedRecords[i].validationMessages.length > 0) {
+            disableUpload = true;
+            alert ("You cannot upload invalid data. Please fix the errors highlighted in the validation section for the record.")
           }
-        });
+        }
+
+        if (!disableUpload) {
+          self.uploading = true;
+          self.uploadPercent = 0;
+          self.uploadFailed = false;
+          var p = previewService.uploadToSandbox(columnHeaders(), self.preview.firstLineIsData, self.text, self.fileId, self.datasetName, self.existing.uid, null);
+          p.then(function (response) {
+            self.dataResourceUid = response.data.uid;
+            updateStatusPolling();
+          }, function (error) {
+            if (error.status == 401) {
+              var isAuthenticated = error.headers("X-Sandbox-Authenticated");
+              var isAuthorised = error.headers("X-Sandbox-Authorised");
+              var template = !isAuthenticated ? 'notAuthenticatedModal.html' : 'notAuthorisedModal.html';
+              $uibModal.open({
+                templateUrl: template
+              });
+            } else {
+              $window.alert('Fail:' + error.status);
+            }
+          });
+        }
       };
 
       function updateStatusPolling() {

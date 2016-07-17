@@ -246,7 +246,7 @@ class DataCheckController {
     if(firstLineIsData){
       counter += 1
       ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
-      performRecordValidation (processedRecords, pr, rawHeader, currentLine)
+      performRecordValidation (processedRecords, pr, rawHeader, headers, currentLine)
       processedRecords.add(pr)
     } else {
       rawHeader = currentLine
@@ -257,7 +257,7 @@ class DataCheckController {
     while(currentLine != null && counter <noOfRowsToDisplay){
       counter += 1
       ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
-      performRecordValidation (processedRecords, pr, rawHeader, currentLine)
+      performRecordValidation (processedRecords, pr, rawHeader, headers, currentLine)
       processedRecords.add(pr)
       currentLine = csvReader.readNext()
     }
@@ -280,14 +280,14 @@ class DataCheckController {
     respond(instance, view:'processedData',  model:[processedRecords:processedRecords])
   }
 
-  private performRecordValidation (List<ParsedRecord> processedRecords, ParsedRecord pr, def rawHeader, def currentLine) {
+  private performRecordValidation (List<ParsedRecord> processedRecords, ParsedRecord pr, def rawHeader, def headers, def currentLine) {
 
     List<ValidationMessage> messages = new ArrayList<ValidationMessage>()
 
     // Check for Header and data columns mismatch and whether it contains duplicates. Only if there's a raw header is provided
     if (rawHeader) {
       List<String> rawHeaderList = Arrays.asList(rawHeader)
-      def testHeaderList = rawHeaderList.findAll{(it.trim()=="") || it.find("\\?")}
+      def testHeaderList = rawHeaderList.findAll{(it.trim()=="")}
       if ((testHeaderList.size() > 0) || (currentLine.size() != rawHeader.size())) {
         testHeaderList.removeAll {(it.trim()=="")}
         if (testHeaderList.size() > 0) {
@@ -300,13 +300,14 @@ class DataCheckController {
         }
       }
 
-      def trimHeaderList = rawHeaderList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
+      List<String> headerList = Arrays.asList(headers)
+      def trimHeaderList = headerList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
       def dupHeader = trimHeaderList.findAll{trimHeaderList.count(it)>1}.unique()
 
       if (dupHeader.size() > 0) {
         List<String> strArgs = new ArrayList<String>()
         // This is to get back the actual raw text
-        for (String s: rawHeaderList) {
+        for (String s: headerList) {
           if (dupHeader.contains(s.toLowerCase().trim().replaceAll("\\s+", " "))) {
             strArgs.add(s)
           }
@@ -378,8 +379,16 @@ class DataCheckController {
     String firstLineIsData = request.getParameter("firstLineIsData")
     String dataResourceUid = request.getParameter('dataResourceUid')
 
+    //response.setHeader("X-Sandbox-Authorised", "false")
+    response.setStatus(200)
+    response.setContentType("application/json")
+    def biocacheResponse = JSON.parse("Wrong response")
+    render(biocacheResponse)
+    return null
+
     def responseString
-    if (csvData) {
+    responseString = "wrong response!!!"
+   /* if (csvData) {
       String separator = fileService.getSeparatorName(csvData)
       responseString = biocacheService.uploadData(csvData, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
     } else {
@@ -388,10 +397,10 @@ class DataCheckController {
     }
 
     def biocacheResponse = JSON.parse(responseString)
-
+*/
     // on a successful response, save a copy of the file under the UID
-    def inputStream = csvData ? IOUtils.toInputStream(csvData, 'UTF-8') : fileService.getFileForFileId(fileId).newInputStream()
-    fileService.saveArchiveCopy(biocacheResponse.uid, inputStream)
+   // def inputStream = csvData ? IOUtils.toInputStream(csvData, 'UTF-8') : fileService.getFileForFileId(fileId).newInputStream()
+  //  fileService.saveArchiveCopy(biocacheResponse.uid, inputStream)
 
     response.setContentType("application/json")
     render(responseString)
