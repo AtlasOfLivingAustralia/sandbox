@@ -185,6 +185,7 @@
           if (self.processedData.processedRecords[i].validationMessages && self.processedData.processedRecords[i].validationMessages.length > 0) {
             disableUpload = true;
             alert ("You cannot upload invalid data. Please fix the errors highlighted in the validation section for the record.")
+            break;
           }
         }
 

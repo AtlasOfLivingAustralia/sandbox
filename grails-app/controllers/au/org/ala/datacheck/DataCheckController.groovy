@@ -302,7 +302,7 @@ class DataCheckController {
 
       List<String> headerList = Arrays.asList(headers)
       def trimHeaderList = headerList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
-      def dupHeader = trimHeaderList.findAll{trimHeaderList.count(it)>1}.unique()
+      def dupHeader = trimHeaderList.countBy {it}.findAll{it.value > 1}*.key
 
       if (dupHeader.size() > 0) {
         List<String> strArgs = new ArrayList<String>()
@@ -314,6 +314,22 @@ class DataCheckController {
         }
         ValidationMessage vm = new ValidationMessage(DUPLICATE_HEADER, strArgs.toString())
         messages.add(vm)
+      } else if (headerList.size() < rawHeaderList.size())  {
+        //  sometimes, duplicate headers in raw header can cause processed headers to be removed...therefore we check on raw headers for duplicates
+        def trimRawHeaderList = rawHeaderList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
+        def dupRawHeader = trimRawHeaderList.countBy {it}.findAll{it.value > 1}*.key
+
+        if (dupRawHeader.size() > 0) {
+          List<String> strArgs = new ArrayList<String>()
+          // This is to get back the actual raw text
+          for (String s : rawHeaderList) {
+            if (dupRawHeader.contains(s.toLowerCase().trim().replaceAll("\\s+", " "))) {
+              strArgs.add(s)
+            }
+          }
+          ValidationMessage vm = new ValidationMessage(DUPLICATE_HEADER, strArgs.toString())
+          messages.add(vm)
+        }
       }
     }
 
@@ -379,16 +395,8 @@ class DataCheckController {
     String firstLineIsData = request.getParameter("firstLineIsData")
     String dataResourceUid = request.getParameter('dataResourceUid')
 
-    //response.setHeader("X-Sandbox-Authorised", "false")
-    response.setStatus(200)
-    response.setContentType("application/json")
-    def biocacheResponse = JSON.parse("Wrong response")
-    render(biocacheResponse)
-    return null
-
     def responseString
-    responseString = "wrong response!!!"
-   /* if (csvData) {
+    if (csvData) {
       String separator = fileService.getSeparatorName(csvData)
       responseString = biocacheService.uploadData(csvData, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
     } else {
@@ -397,10 +405,10 @@ class DataCheckController {
     }
 
     def biocacheResponse = JSON.parse(responseString)
-*/
+
     // on a successful response, save a copy of the file under the UID
-   // def inputStream = csvData ? IOUtils.toInputStream(csvData, 'UTF-8') : fileService.getFileForFileId(fileId).newInputStream()
-  //  fileService.saveArchiveCopy(biocacheResponse.uid, inputStream)
+    def inputStream = csvData ? IOUtils.toInputStream(csvData, 'UTF-8') : fileService.getFileForFileId(fileId).newInputStream()
+    fileService.saveArchiveCopy(biocacheResponse.uid, inputStream)
 
     response.setContentType("application/json")
     render(responseString)
