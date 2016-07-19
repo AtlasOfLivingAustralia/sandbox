@@ -24,6 +24,10 @@
     </div>
 
     <div class="panel-body">
+        <uib-alert type="info">
+            <p>Please note that for a record to be effectively discoverable and able to be mapped it needs to include, at a minimum, the following set of fields: <code>scientificName</code>, <code>eventDate</code>, <code>decimalLatitude</code> and <code>decimalLongitude</code>.</p>
+            <p>Additional fields will increase the usability of the data.</p>
+        </uib-alert>
         <uib-tabset>
             <uib-tab heading="Paste CSV" disable="preview.file && preview.fileId">
                 <p>
@@ -156,7 +160,7 @@
 
             <div class="well">
                 <form class="form-inline">
-                    <uib-alert ng-if="preview.isMissingUsefulColumns()" ng-bind="preview.missingUsefulColumnsMessage()"></uib-alert>
+                    <uib-alert ng-if="preview.isMissingUsefulColumns">Your dataset is missing the following useful fields: <code ng-bind="preview.missingUsefulColumnsMessage"></code></uib-alert>
                     <div class="form-group">
                         <label for="datasetName" class="datasetName"><strong>Your dataset name</strong></label>
                         <input id="datasetName" class="datasetName form-control" name="datasetName" type="text"

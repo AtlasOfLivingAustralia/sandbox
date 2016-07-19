@@ -56,8 +56,8 @@
       };
     }]);
 
-  preview.controller("PreviewCtrl", ['$log', '$timeout', '$uibModal', '$window', 'existing', 'previewService', 'sandboxConfig',
-    function($log, $timeout, $uibModal, $window, existing, previewService, sandboxConfig) {
+  preview.controller("PreviewCtrl", ['$log', '$scope', '$timeout', '$uibModal', '$window', 'existing', 'previewService', 'sandboxConfig',
+    function($log, $scope, $timeout, $uibModal, $window, existing, previewService, sandboxConfig) {
       var self = this;
       self.sandboxConfig = sandboxConfig;
 
@@ -156,7 +156,7 @@
       };
 
       function columnHeaders() {
-        return _.pluck(self.preview.headers, 'header');
+        return _.pluck(arguments.length ? arguments[0] : self.preview.headers, 'header');
       }
 
       self.getProcessedData = function() {
@@ -257,18 +257,22 @@
         return field.processed != field.raw && field.processed != null ? 'changedValue' : 'originalConfirmed';
       };
 
-      self.isMissingUsefulColumns = function() {
-        return self.missingUsefulColumns().length != 0;
-      };
+      self.isMissingUsefulColumns = false;
 
-      self.missingUsefulColumns = function() {
-        var headers = columnHeaders();
+      self.missingUsefulColumnsMessage = '';
+
+      // explicit watch to prevent multiple watches on a function that iterates the headers.
+      $scope.$watch(function() {
+        return self.preview.headers;
+      }, function (newValue, oldValue) {
+        var missingColumns = self.missingUsefulColumns(newValue);
+        self.isMissingUsefulColumns = missingColumns.length != 0;
+        self.missingUsefulColumnsMessage = missingColumns.join(', ');
+      }, true);
+
+      self.missingUsefulColumns = function(headersStruct) {
+        var headers = columnHeaders(headersStruct);
         return _.difference(['scientificName', 'decimalLatitude', 'decimalLongitude', 'eventDate'], headers);
-      };
-
-      self.missingUsefulColumnsMessage = function() {
-        var missing = self.missingUsefulColumns();
-        return "Your dataset is missing the following useful fields: " + missing.join(', ');
       };
 
       self.uploadToSandboxLabel = function() {
