@@ -313,5 +313,18 @@
             return response.data;
           });
       };
+
+      // if the column header changes, mark it as unknown.
+      self.headerChanged = function(header) {
+        if (angular.isUndefined(header.originalKnown)) {
+          header.originalKnown = header.known;
+        }
+        header.known = false;
+      };
+
+      // but then if the column header is selected from the autocomplete list, mark it known
+      self.headerValueSelected = function(header) {
+        header.known = true;
+      };
     }]);
 })();

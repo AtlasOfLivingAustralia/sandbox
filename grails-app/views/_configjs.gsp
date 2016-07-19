@@ -1,4 +1,4 @@
-<script>
+<script type="text/javascript">
     var SANDBOX_CONFIG = {
         autocompleteColumnHeadersUrl: '${createLink(controller:'dataCheck', action:'autocomplete')}',
         biocacheServiceUrl: '${grailsApplication.config.biocacheServiceUrl}',

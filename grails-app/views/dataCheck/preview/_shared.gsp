@@ -1,13 +1,13 @@
 <div ng-show="preview.sandboxConfig.userId" class="pull-right">
     <div class="btn-group" uib-dropdown>
         <g:render template="${linkTemplate ?: '/dataCheck/preview/standaloneLink' }" />
-        <button type="button" class="btn btn-primary" uib-dropdown-toggle>
+        <button ng-show="preview.existing.uid" type="button" class="btn btn-primary" uib-dropdown-toggle>
             <span class="caret"></span>
             <span class="sr-only">Actions</span>
         </button>
         <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="split-button">
-            <li role="menuitem"><a href="#TODO">Edit Metadata</a></li>
-            <li role="menuitem" ng-show="preview.existing.uid"><a href ng-click="preview.unlinkFromExisting()">Reset Data Resource ID</a></li>
+            <li role="menuitem"><a ng-href="collectory/viewMetadata?uid={{preview.existing.uid}}">Edit Metadata</a></li>
+            <li role="menuitem"><a href ng-click="preview.unlinkFromExisting()">Reset Data Resource ID</a></li>
         </ul>
     </div>
 </div>
@@ -106,8 +106,11 @@
                         <tr>
                             <th ng-repeat="header in preview.preview.headers">
                                 <input class="columnHeaderInput" type="text" autocomplete="off" name="q"
-                                       ng-model="header.header" ng-class="{unrecognizedField: !header.known}"
+                                       ng-model="header.header" ng-change="preview.headerChanged(header)"
+                                       ng-class="{unrecognizedField: !header.known}"
                                        uib-typeahead="dwc for dwc in preview.autocompleteColumnHeaders($viewValue)"
+                                       typeahead-on-select="preview.headerValueSelected(header)"
+                                       typeahead-select-on-blur="true" typeahead-select-on-exact="true"
                                        ng-disabled="preview.processingData || preview.uploading"
                                 />
                             </th>
@@ -196,7 +199,7 @@
             </div><!--well-->
         </div><!-- processSampleUpload-->
     </div><!-- panel-body -->
-</div><!-- processedSample -->
+</div><!-- processSample -->
 
 <div id="processedData" ng-show="preview.processedData">
     <uib-accordion close-others="true">

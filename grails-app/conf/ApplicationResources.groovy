@@ -1,3 +1,5 @@
+def dev = grails.util.GrailsUtil.isDevelopmentEnv()
+
 modules = {
     application {
         dependsOn 'jquery', 'font-awesome', 'ala'
@@ -29,6 +31,9 @@ modules = {
         resource url: [dir: 'js', file: 'preview.js' ]
         resource url: [dir: 'js', file: 'application.js']
         resource url: [dir: 'js', file: 'app-routes.js' ]
+        if (!dev) {
+            resource url: [dir: 'js', file: 'app-production.js']
+        }
     }
     // cut down version of application for preview screen only
     preview {
@@ -48,6 +53,9 @@ modules = {
         resource url: [dir: 'js', file: 'components.js']
         resource url: [dir: 'js', file: 'preview.js']
         resource url: [dir: 'js', file: 'preview-app.js']
+        if (!dev) {
+            resource url: [dir: 'js', file: 'app-production.js']
+        }
     }
 }
 
