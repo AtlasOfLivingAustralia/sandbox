@@ -9,7 +9,12 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
+import javax.servlet.http.HttpServletResponse
 import java.nio.file.Paths
+
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
+import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED
+import static javax.servlet.http.HttpServletResponse.SC_OK
 
 class DataCheckController {
 
@@ -465,16 +470,28 @@ class DataCheckController {
     }
 
     if (!file.exists()) {
-      response.sendError(404, uid ? "Archive file for $uid not found" : "${fileID}.csv.zip not found")
+      response.sendError(SC_NOT_FOUND, uid ? "Archive file for $uid not found" : "${fileID}.csv.zip not found")
       return
     }
+    final fileModified = file.lastModified()
 
     response.setHeader("Cache-Control", "must-revalidate")
     response.setHeader("Pragma", "must-revalidate")
+
+    if (request.getDateHeader('If-Modified-Since') >= fileModified) {
+      render status: SC_NOT_MODIFIED
+      return
+    }
+
     response.setHeader("Content-Disposition", "attachment;filename=\"${file.name}\"")
     response.contentType = "application/zip"
-    response.contentLength = file.length()
+    response.contentLength = (int) file.length()
+    response.setDateHeader('Last-Modified', fileModified)
 
+    if (request.method == "HEAD") {
+      render status: SC_OK
+      return
+    }
     def output = response.outputStream
     output.withStream {
       file.withInputStream { input ->
