@@ -493,10 +493,8 @@ class DataCheckController {
       return
     }
     def output = response.outputStream
-    output.withStream {
-      file.withInputStream { input ->
-        output << input
-      }
+    file.withInputStream { input ->
+      output << input
     }
     null
   }
