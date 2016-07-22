@@ -2,6 +2,8 @@ package au.org.ala.datacheck
 
 import au.com.bytecode.opencsv.CSVReader
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
+import org.apache.commons.io.input.ReaderInputStream
 import org.apache.tika.metadata.HttpHeaders
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.metadata.TikaMetadataKeys
@@ -19,6 +21,8 @@ import java.util.zip.ZipOutputStream
 
 class FileService {
 
+    public static final String TAB_SEPARATOR = 'TAB'
+    public static final String COMMA_SEPARATOR = 'COMMA'
     def grailsApplication
 
     def detectFormat(file){
@@ -145,7 +149,7 @@ class FileService {
     }
 
     def separatorName(String separator) {
-        separator == '\t' ? 'TAB' : 'COMMA'
+        separator == '\t' ? TAB_SEPARATOR : COMMA_SEPARATOR
     }
 
     def getSeparatorName(String raw) {
@@ -156,11 +160,29 @@ class FileService {
         separatorName(getSeparator(file))
     }
 
-    def saveArchiveCopy(String uid, InputStream input) {
+    def saveArchiveCopy(String uid, Reader input, String headers, boolean firstLineIsData, String separatorName) {
         final archiveDir = new File(grailsApplication.config.uploadFilePath, 'archive')
         final archiveFile = new File(archiveDir, "${uid}.csv.zip")
         FileUtils.forceMkdir(archiveDir)
-        zipStreamToFile(archiveFile, "${uid}.csv", input)
+
+        if (separatorName == TAB_SEPARATOR) {
+            headers = headers.replaceAll(',','\t')
+        }
+
+        headers += System.lineSeparator()
+
+        if (!firstLineIsData) {
+            try {
+                def firstLine = input.readLine()
+                log.debug("Throwing away $firstLine")
+            } catch (e) {
+                IOUtils.closeQuietly(input)
+                throw e
+            }
+        }
+
+        MultiReader combinedReader = new MultiReader(new StringReader(headers), input)
+        zipStreamToFile(archiveFile, "${uid}.csv", new ReaderInputStream(combinedReader, 'UTF-8'))
     }
 
     File getArchiveCopy(String uid) {

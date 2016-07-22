@@ -399,19 +399,20 @@ class DataCheckController {
     String dataResourceUid = request.getParameter('dataResourceUid')
 
     def responseString
+    String separator
     if (csvData) {
-      String separator = fileService.getSeparatorName(csvData)
+      separator = fileService.getSeparatorName(csvData)
       responseString = biocacheService.uploadData(csvData, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
     } else {
-      String separator = fileService.getSeparatorName(fileService.getFileForFileId(fileId))
+      separator = fileService.getSeparatorName(fileService.getFileForFileId(fileId))
       responseString = biocacheService.uploadFile(fileId, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
     }
 
     def biocacheResponse = JSON.parse(responseString)
 
     // on a successful response, save a copy of the file under the UID
-    def inputStream = csvData ? IOUtils.toInputStream(csvData, 'UTF-8') : fileService.getFileForFileId(fileId).newInputStream()
-    fileService.saveArchiveCopy(biocacheResponse.uid, inputStream)
+    def reader = csvData ? new StringReader(csvData) : fileService.getFileForFileId(fileId).newReader('UTF-8')
+    fileService.saveArchiveCopy(biocacheResponse.uid, reader, headers, firstLineIsData == 'true', separator)
 
     response.setContentType("application/json")
     render(responseString)
@@ -471,11 +472,11 @@ class DataCheckController {
       response.sendError(SC_NOT_FOUND, uid ? "Archive file for $uid not found" : "${fileID}.csv.zip not found")
       return
     }
-    final fileModified = file.lastModified()
 
     response.setHeader("Cache-Control", "must-revalidate")
     response.setHeader("Pragma", "must-revalidate")
 
+    final fileModified = file.lastModified()
     if (request.getDateHeader('If-Modified-Since') >= fileModified) {
       render status: SC_NOT_MODIFIED
       return
