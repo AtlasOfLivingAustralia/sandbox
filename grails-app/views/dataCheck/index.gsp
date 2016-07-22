@@ -14,7 +14,7 @@
 </head>
 <body>
 <div class="col-sm-12 col-md-12" ng-app="ala.sandbox" ng-controller="PreviewCtrl as preview" ng-cloak>
-    <g:render template="preview/shared" />
+    <g:render template="/dataCheck/preview/shared" />
 </div>
 </body>
 </html>

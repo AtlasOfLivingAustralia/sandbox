@@ -2,6 +2,7 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+//grails.plugin.location.'collectory-hub' = '../collectory-hub'
 
 grails.server.port.http = 8090
 
@@ -26,6 +27,7 @@ grails.project.dependency.resolution = {
         runtime "commons-lang:commons-lang:2.6"
         runtime 'org.jsoup:jsoup:1.7.2'
         build "org.apache.tika:tika-parsers:1.4"
+        build "org.apache.httpcomponents:httpclient:4.3.3"
     }
     plugins {
         build ":release:3.0.1"
@@ -35,6 +37,8 @@ grails.project.dependency.resolution = {
         runtime ":csv:0.3.1"
         runtime ":tika-parser:1.3.0.1"
         runtime ":pretty-time:2.1.3.Final-1.0.1"
+        compile ":cache:1.1.8"
+        compile ":collectory-hub:0.1-SNAPSHOT"
 
         runtime ':resources:1.2.14'
         if (Environment.current == Environment.PRODUCTION) {

@@ -1,4 +1,5 @@
 package au.org.ala.datacheck
+
 import au.com.bytecode.opencsv.CSVReader
 import grails.converters.JSON
 import org.apache.commons.httpclient.HttpClient
@@ -9,12 +10,9 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
-import javax.servlet.http.HttpServletResponse
 import java.nio.file.Paths
 
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
-import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED
-import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.servlet.http.HttpServletResponse.*
 
 class DataCheckController {
 
@@ -282,7 +280,7 @@ class DataCheckController {
     }
 
     def instance = [processedRecords:processedRecords]
-    respond(instance, view:'processedData',  model:[processedRecords:processedRecords])
+    respond(instance, view:'processedData',  model: instance)
   }
 
   private performRecordValidation (List<ParsedRecord> processedRecords, ParsedRecord pr, def rawHeader, def headers, def currentLine) {
