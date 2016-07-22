@@ -27,17 +27,20 @@
 <!-- Header -->
 <hf:banner logoutUrl="${g.createLink(controller:"logout", action:"logout", absolute: true)}" />
 <!-- End header -->
-<g:set var="fluidLayout" value="${pageProperty(name:'meta.fluidLayout')?:grailsApplication.config.skin?.fluidLayout}"/>
+<g:set var="fluidLayout" value="${pageProperty(name:'meta.fluidLayout')?:grailsApplication.config.skin?.fluidLayout?.toBoolean()}"/>
 <!-- Container -->
 <div class="${fluidLayout ? 'container-fluid' : 'container'}" id="main">
-    <g:if test="${flash.message}">
-        <div class="alert alert-warning alert-dismissible" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            ${flash.message}
-        </div>
-    </g:if>
+    <div class="col-sm-12 col-md-12">
+        <g:if test="${flash.message}">
+            <div class="alert alert-warning alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                ${flash.message}
+            </div>
+        </g:if>
 
-    <g:layoutBody />
+        <g:layoutBody />
+
+    </div>
 </div><!-- End container #main col -->
 
 <!-- Footer -->

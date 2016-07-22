@@ -2,9 +2,9 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
-//grails.plugin.location.'collectory-hub' = '../collectory-hub'
+grails.plugin.location.'collectory-hub' = '../collectory-hub'
 
-grails.server.port.http = 8090
+grails.server.port.http = 8080
 
 grails.project.dependency.resolver = "maven"
 
@@ -40,7 +40,7 @@ grails.project.dependency.resolution = {
         runtime ":tika-parser:1.3.0.1"
         runtime ":pretty-time:2.1.3.Final-1.0.1"
         compile ":cache:1.1.8"
-        compile ":collectory-hub:0.1-SNAPSHOT"
+//        compile ":collectory-hub:0.1-SNAPSHOT"
 
         runtime ':resources:1.2.14'
         if (Environment.current == Environment.PRODUCTION) {
