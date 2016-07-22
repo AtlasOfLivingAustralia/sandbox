@@ -28,6 +28,8 @@ grails.project.dependency.resolution = {
         build "org.apache.tika:tika-parsers:1.4"
     }
     plugins {
+        compile ":cache:1.1.8"
+     //   compile ":cache-ehcache:1.0.0"
         build ":release:3.0.1"
         build ":tomcat:7.0.70"
         runtime ":ala-bootstrap3:1.6"
