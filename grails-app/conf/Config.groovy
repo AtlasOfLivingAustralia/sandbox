@@ -120,6 +120,17 @@ environments {
     }
 }
 
+grails.cache.config = {
+    cache {
+        name 'sandboxCache'
+        eternal false
+        overflowToDisk true
+        maxElementsInMemory 10000
+        maxElementsOnDisk 10000000
+        timeToLiveSeconds (3600 * 12) //1 day
+    }
+}
+
 def logging_dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
 
 // log4j configuration
