@@ -14,6 +14,7 @@
         uploadCsvUrl: '${createLink(controller:'dataCheck', action:'uploadFile')}',
         uploadToSandboxUrl: '${createLink(controller:'dataCheck', action:'upload')}',
         uploadStatusUrl: '${createLink(controller:'dataCheck', action:'uploadStatus')}',
-        userId: '${u.userId()}'
+        userId: '${u.userId()}',
+        roles: <u:roles />
     };
 </script>

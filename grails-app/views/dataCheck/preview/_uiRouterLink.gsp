@@ -1,1 +1,0 @@
-<a ui-sref="userDatasets({userId: preview.sandboxConfig.userId})" class="btn btn-primary">My uploaded datasets</a>
