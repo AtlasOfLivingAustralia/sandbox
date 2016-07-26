@@ -1,11 +1,11 @@
 package au.org.ala.datacheck
 
 import au.com.bytecode.opencsv.CSVReader
+import au.org.ala.collectory.CollectoryHubRestService
 import grails.converters.JSON
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.io.FileUtils
-import org.apache.commons.io.IOUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -23,6 +23,7 @@ class DataCheckController {
   def fileService
   def formatService
   def collectoryService
+  CollectoryHubRestService collectoryHubRestService
 
   // data columns more than the header
   static String COLSIZE_MISMATCH = "colSizeMismatch"
@@ -399,12 +400,14 @@ class DataCheckController {
     String dataResourceUid = request.getParameter('dataResourceUid')
 
     def responseString
-    String separator
+    String separator, separatorChar
     if (csvData) {
-      separator = fileService.getSeparatorName(csvData)
+      separatorChar = fileService.getSeparator(csvData)
+      separator = fileService.getSeparatorName(separatorChar)
       responseString = biocacheService.uploadData(csvData, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
     } else {
-      separator = fileService.getSeparatorName(fileService.getFileForFileId(fileId))
+      separatorChar = fileService.getSeparator(fileService.getFileForFileId(fileId))
+      separator = fileService.getSeparatorName(separatorChar)
       responseString = biocacheService.uploadFile(fileId, headers, datasetName, separator, firstLineIsData, customIndexedFields, dataResourceUid)
     }
 
@@ -414,8 +417,32 @@ class DataCheckController {
     def reader = csvData ? new StringReader(csvData) : fileService.getFileForFileId(fileId).newReader('UTF-8')
     fileService.saveArchiveCopy(biocacheResponse.uid, reader, headers, firstLineIsData == 'true', separator)
 
+    //update temp data resource with separator and key field value
+    if(!dataResourceUid){
+      Map drt = [
+              keyFields: getKeyFieldFromHeader(headers?.split(',')),
+              csvSeparator: separatorChar
+      ]
+
+      collectoryHubRestService.saveTempDataResource(drt, biocacheResponse.uid)
+    }
+
     response.setContentType("application/json")
     render(responseString)
+  }
+
+  /**
+   * This function chooses a key field. It chooses occurrenceID if present, otherwise catalogNumber.
+   * @param headers
+   * @return
+   */
+  private String getKeyFieldFromHeader(String[] headers){
+    String key = headers?.find { it == 'occurrenceID'}
+    if(!key) {
+      key = headers?.find { it == 'catalogNumber'}
+    }
+
+    key
   }
 
   def redirectToBiocache() {
@@ -496,5 +523,10 @@ class DataCheckController {
       output << input
     }
     null
+  }
+
+  def getSeparator(){
+    def uid = params.uid
+    File file = fileService.getArchiveCopy(uid)
   }
 }
