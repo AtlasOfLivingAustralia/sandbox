@@ -8,6 +8,7 @@ class UrlMappings {
 		}
 
 		"/my-data"(controller: "tempDataResource", action: "myData", plugin:'collectory-hub')
+		"/jenkins/console/$jobName/$id/$start"(controller: 'jenkins', action: 'console')
 
 //		"/layers/$tempUid"(controller: "myDatasets", action: "layers")
 //		"/charts/$tempUid"(controller: "myDatasets", action: "chartOptions")
