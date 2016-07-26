@@ -9,4 +9,11 @@
     cfpLoadingBarProvider.includeSpinner = false;
   }]);
 
+  sandbox.run(['$rootScope', 'sandboxConfig', function($rootScope, sandboxConfig) {
+    $rootScope.admin = _.contains(sandboxConfig.roles, 'ROLE_ADMIN');
+    $rootScope.isAdmin = function() {
+      return $rootScope.admin;
+    }
+  }]);
+
 })(SANDBOX_CONFIG);

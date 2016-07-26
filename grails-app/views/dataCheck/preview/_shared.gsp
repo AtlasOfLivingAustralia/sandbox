@@ -1,13 +1,14 @@
 <div ng-show="preview.sandboxConfig.userId" class="pull-right">
     <div class="btn-group" uib-dropdown>
-        <g:render template="${linkTemplate ?: '/dataCheck/preview/standaloneLink' }" />
-        <button ng-show="preview.existing.uid" type="button" class="btn btn-primary" uib-dropdown-toggle>
+        <g:link controller="tempDataResource" action="myData" class="btn btn-primary">My uploaded datasets</g:link>
+        <button ng-show="preview.existing.uid || isAdmin()" type="button" class="btn btn-primary" uib-dropdown-toggle>
             <span class="caret"></span>
             <span class="sr-only">Actions</span>
         </button>
         <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="split-button">
-            <li role="menuitem"><a ng-href="collectory/viewMetadata?uid={{preview.existing.uid}}">Edit Metadata</a></li>
-            <li role="menuitem"><a href ng-click="preview.unlinkFromExisting()">Reset Data Resource ID</a></li>
+            <li role="menuitem" ng-show="preview.existing.uid"><a ng-href="${createLink(controller: 'tempDataResource', action: 'viewMetadata')}?uid={{preview.existing.uid}}">Edit Metadata</a></li>
+            <li role="menuitem" ng-show="preview.existing.uid"><a href ng-click="preview.unlinkFromExisting()">Reset Data Resource ID</a></li>
+            <li role="menuitem" ng-show="isAdmin()"><g:link controller="tempDataResource" action="adminList">All Datasets</g:link></li>
         </ul>
     </div>
 </div>
