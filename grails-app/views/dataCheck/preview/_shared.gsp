@@ -162,13 +162,16 @@
             <div class="well">
                 <form class="form-inline">
                     <uib-alert ng-if="preview.isMissingUsefulColumns">Your dataset is missing the following useful fields: <code ng-bind="preview.missingUsefulColumnsMessage"></code></uib-alert>
+                    <uib-alert ng-if="!(preview.processedData.validationMessages.length == 0)">There are errors in the dataset that needs to be fixed before you can upload.
+                        <span ng-repeat="validationMsg in preview.processedData.validationMessages"><br/><code>{{ validationMsg }} </code></span>
+                    </uib-alert>
                     <div class="form-group">
                         <label for="datasetName" class="datasetName"><strong>Your dataset name</strong></label>
                         <input id="datasetName" class="datasetName form-control" name="datasetName" type="text"
                                ng-model="preview.datasetName" ng-disabled="preview.uploading" />
                     </div>
                     <button type="button" id="uploadButton" class="btn btn-primary"
-                            ng-click="preview.uploadToSandbox()" ng-bind="preview.uploadToSandboxLabel()" ng-disabled="preview.uploading">Upload your data</button>
+                            ng-click="preview.uploadToSandbox()" ng-bind="preview.uploadToSandboxLabel()" ng-disabled="(preview.uploading || !(preview.processedData.validationMessages.length == 0))">Upload your data</button>
                     <button type="button" id="resetButton" class="btn btn-warning" ng-show="preview.existing.uid"
                             ng-click="preview.unlinkFromExisting(); preview.uploadToSandbox();" ng-disabled="preview.uploading">Upload as a new resource instead</button>
                 </form>

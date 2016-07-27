@@ -31,6 +31,9 @@ class DataCheckController {
   static String DUPLICATE_CATALOGNUMBER = "catalogNumberDuplicate"
   static String DUPLICATE_OCCURRENCEID = "duplicateOccurrenceId"
 
+  static String OCCURRENCE_ID_COLUMN = "occurrenceID"
+  static String CATALOG_NUMBER_COLUMN = "catalogNumber"
+
   static allowedMethods = [processData: "POST"]
 
   def noOfRowsToDisplay = 5
@@ -247,11 +250,14 @@ class DataCheckController {
 
     def rawHeader = null
 
+    List<ParsedRecord> readList = new ArrayList<ParsedRecord> ()
+
     if(firstLineIsData){
       counter += 1
+      def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, true)
       ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
-      performRecordValidation (processedRecords, pr, rawHeader, headers, currentLine)
       processedRecords.add(pr)
+      pr.validationMessages = messages.toArray()
     } else {
       rawHeader = currentLine
     }
@@ -260,11 +266,14 @@ class DataCheckController {
 
     while(currentLine != null && counter <noOfRowsToDisplay){
       counter += 1
+      def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, true)
       ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
-      performRecordValidation (processedRecords, pr, rawHeader, headers, currentLine)
       processedRecords.add(pr)
+      pr.validationMessages = messages.toArray()
       currentLine = csvReader.readNext()
     }
+
+    List<String> validationMsg = new ArrayList<String>()
 
     // add formatted data for ui
     processedRecords.each { pr ->
@@ -274,92 +283,148 @@ class DataCheckController {
       }
       pr.validationMessages.each { a ->
         a.message = message(code: a.code, args: a.args, default: a.code)
+        if (!validationMsg.contains(a.message)) {
+          validationMsg.add(a.message)
+        }
       }
       pr.assertions.each { a ->
         a.name = message(code: a.name, default: a.name)
       }
     }
 
-    def instance = [processedRecords:processedRecords]
+    // Check the rest of the rows which are not displayed
+    while(currentLine != null && validationMsg.size()==0){
+      def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, false)
+      messages.each { m ->
+        validationMsg.add(message(code: m.code, args: m.args, default: m.code))
+      }
+      currentLine = csvReader.readNext()
+    }
+
+    def instance = [processedRecords:processedRecords, validationMessages: validationMsg]
     respond(instance, view:'processedData',  model: instance)
+
   }
 
-  private performRecordValidation (List<ParsedRecord> processedRecords, ParsedRecord pr, def rawHeader, def headers, def currentLine) {
+  private ParsedRecord storeValues (def headers, def currentLine) {
+    ParsedRecord parsedRecord = new ParsedRecord()
 
-    List<ValidationMessage> messages = new ArrayList<ValidationMessage>()
+    List<ProcessedValue> processedValues = new ArrayList<ProcessedValue>()
 
-    // Check for Header and data columns mismatch and whether it contains duplicates. Only if there's a raw header is provided
-    if (rawHeader) {
-      List<String> rawHeaderList = Arrays.asList(rawHeader)
-      def testHeaderList = rawHeaderList.findAll{(it.trim()=="")}
-      if ((testHeaderList.size() > 0) || (currentLine.size() != rawHeader.size())) {
-        testHeaderList.removeAll {(it.trim()=="")}
-        if (testHeaderList.size() > 0) {
-          ValidationMessage vm = new ValidationMessage(COLSIZE_MISMATCH, testHeaderList.toString())
-          messages.add(vm)
-        } else {
-          //ValidationMessage vm = new ValidationMessage(COLSIZE_MISMATCH, new ArrayList<String>().toString())
-          ValidationMessage vm = new ValidationMessage(COLSIZE_MISMATCH, "")
-          messages.add(vm)
+    for (int i= 0; i < headers.size(); i++) {
+      ProcessedValue processedValue = new ProcessedValue()
+      processedValue.name = headers[i]
+      if (i < currentLine.size()) {
+        processedValue.raw = currentLine[i]
+      } else {
+        processedValue.raw = ""
+      }
+      processedValues.add(processedValue)
+    }
+
+    parsedRecord.values = processedValues.toArray()
+
+    parsedRecord
+  }
+
+  private performHeaderValidation (List<ValidationMessage> messages, def rawHeader, def headers) {
+    List<String> rawHeaderList = Arrays.asList(rawHeader)
+    List<String> headerList = Arrays.asList(headers)
+    def trimHeaderList = headerList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
+    def dupHeader = trimHeaderList.countBy {it}.findAll{it.value > 1}*.key
+
+    if (dupHeader.size() > 0) {
+      List<String> strArgs = new ArrayList<String>()
+      // This is to get back the actual raw text
+      for (String s: headerList) {
+        if (dupHeader.contains(s.toLowerCase().trim().replaceAll("\\s+", " "))) {
+          strArgs.add(s)
         }
       }
+      ValidationMessage vm = new ValidationMessage(DUPLICATE_HEADER, strArgs.toString())
+      messages.add(vm)
+    } else if (headerList.size() < rawHeaderList.size())  {
+      //  sometimes, duplicate headers in raw header can cause processed headers to be removed...therefore we check on raw headers for duplicates
+      def trimRawHeaderList = rawHeaderList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
+      def dupRawHeader = trimRawHeaderList.countBy {it}.findAll{it.value > 1}*.key
 
-      List<String> headerList = Arrays.asList(headers)
-      def trimHeaderList = headerList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
-      def dupHeader = trimHeaderList.countBy {it}.findAll{it.value > 1}*.key
-
-      if (dupHeader.size() > 0) {
+      if (dupRawHeader.size() > 0) {
         List<String> strArgs = new ArrayList<String>()
         // This is to get back the actual raw text
-        for (String s: headerList) {
-          if (dupHeader.contains(s.toLowerCase().trim().replaceAll("\\s+", " "))) {
+        for (String s : rawHeaderList) {
+          if (dupRawHeader.contains(s.toLowerCase().trim().replaceAll("\\s+", " "))) {
             strArgs.add(s)
           }
         }
         ValidationMessage vm = new ValidationMessage(DUPLICATE_HEADER, strArgs.toString())
         messages.add(vm)
-      } else if (headerList.size() < rawHeaderList.size())  {
-        //  sometimes, duplicate headers in raw header can cause processed headers to be removed...therefore we check on raw headers for duplicates
-        def trimRawHeaderList = rawHeaderList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
-        def dupRawHeader = trimRawHeaderList.countBy {it}.findAll{it.value > 1}*.key
+      }
+    }
+  }
 
-        if (dupRawHeader.size() > 0) {
-          List<String> strArgs = new ArrayList<String>()
-          // This is to get back the actual raw text
-          for (String s : rawHeaderList) {
-            if (dupRawHeader.contains(s.toLowerCase().trim().replaceAll("\\s+", " "))) {
-              strArgs.add(s)
-            }
-          }
-          ValidationMessage vm = new ValidationMessage(DUPLICATE_HEADER, strArgs.toString())
+  private checkDuplicateRecords(def processedRecords, def pr, List<ValidationMessage> messages, String column, def currentLine, def messageCode) {
+    def rawValue = pr.values.grep { it.name == column }?.raw?.size() > 0 ? pr.values.grep {
+      it.name == column
+    }?.raw.get(0) : ""
+
+    def dupList = processedRecords.findAll {
+      it.values.findAll { a -> ((a.name == column) && (a.raw == rawValue)) }
+    }
+
+    if (dupList.size() > 0) {
+      List<String> strArgs = new ArrayList<String>()
+      strArgs.add(rawValue)
+      ValidationMessage vm = new ValidationMessage(messageCode, strArgs.toString())
+      messages.add(vm)
+    }
+  }
+
+  private performHeaderRecordValidation (List<ValidationMessage> messages, def rawHeader, def headers, def currentLine) {
+    List<String> headerList = Arrays.asList(headers)
+    // If all headers can be filled, check headers that it is not blank
+    if (headerList.size() == currentLine.size()) {
+      def testHeaderList = headerList.findAll{(it.trim()=="")}
+      if (testHeaderList.size() > 0) {
+        ValidationMessage vm = new ValidationMessage(COLSIZE_MISMATCH, "")
+        messages.add(vm)
+      }
+    } else {
+      List<String> rawHeaderList = Arrays.asList(rawHeader)
+      def testHeaderList = rawHeaderList.findAll{(it.trim()=="")}
+      if ((testHeaderList.size() > 0) || (currentLine.size() != rawHeader.size())) {
+        testHeaderList.removeAll { (it.trim() == "") }
+        if (testHeaderList.size() > 0) {
+          ValidationMessage vm = new ValidationMessage(COLSIZE_MISMATCH, " " + testHeaderList.toString())
+          messages.add(vm)
+        } else {
+          ValidationMessage vm = new ValidationMessage(COLSIZE_MISMATCH, "")
           messages.add(vm)
         }
       }
     }
+  }
 
-    def rawCatalogNumber = pr.values.grep{it.name=="catalogNumber"}?.raw?.size() > 0 ? pr.values.grep{it.name=="catalogNumber"}?.raw.get(0) : ""
+  private performPreviewValidation (List<ParsedRecord> readList, def rawHeader, def headers, def currentLine, def forPreview) {
 
-    def dupCatalogNumberList = processedRecords.findAll {it.values.findAll{a-> ((a.name=="catalogNumber") && (a.raw == rawCatalogNumber))}}
+    List<ValidationMessage> messages = new ArrayList<ValidationMessage>()
 
-    if (dupCatalogNumberList.size() > 0) {
-      List<String> strArgs = new ArrayList<String>()
-      strArgs.add(rawCatalogNumber)
-      ValidationMessage vm = new ValidationMessage(DUPLICATE_CATALOGNUMBER, strArgs.toString())
-      messages.add(vm)
+    // Check for Header and data columns mismatch and whether it contains duplicates. Only if there's a raw header is provided
+    if (rawHeader) {
+      performHeaderRecordValidation (messages, rawHeader, headers, currentLine)
+      if (forPreview) {
+        performHeaderValidation(messages, rawHeader, headers)
+      }
     }
 
-    def occurrenceId = pr.values.grep{it.name=="occurrenceId"}?.raw?.size() > 0 ? pr.values.grep{it.name=="occurrenceId"}?.raw.get(0) : ""
+    ParsedRecord readRecord = storeValues (headers, currentLine)
 
-    def dupOccurrenceIdList = processedRecords.findAll {it.values.findAll{a-> ((a.name=="occurrenceId") && (a.raw == occurrenceId))}}
+    checkDuplicateRecords(readList, readRecord, messages, OCCURRENCE_ID_COLUMN, currentLine, DUPLICATE_OCCURRENCEID)
 
-    if (dupOccurrenceIdList.size() > 0) {
-      List<String> strArgs = new ArrayList<String>()
-      strArgs.add(occurrenceId)
-      ValidationMessage vm = new ValidationMessage(DUPLICATE_OCCURRENCEID, strArgs.toString())
-      messages.add(vm)
-    }
+    checkDuplicateRecords(readList, readRecord, messages, CATALOG_NUMBER_COLUMN, currentLine, DUPLICATE_CATALOGNUMBER)
 
-    pr.validationMessages = messages.toArray()
+    readList.add(readRecord)
+
+    return messages
 
   }
 
