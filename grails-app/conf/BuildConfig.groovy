@@ -28,6 +28,7 @@ grails.project.dependency.resolution = {
         runtime 'org.jsoup:jsoup:1.7.2'
         build "org.apache.tika:tika-parsers:1.4"
         build "org.apache.httpcomponents:httpclient:4.3.3"
+        compile "org.apache.httpcomponents:httpmime:4.3.3"
     }
     plugins {
         compile ":cache:1.1.8"
