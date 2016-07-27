@@ -418,14 +418,12 @@ class DataCheckController {
     fileService.saveArchiveCopy(biocacheResponse.uid, reader, headers, firstLineIsData == 'true', separator)
 
     //update temp data resource with separator and key field value
+    Map drt = [ csvSeparator: separatorChar ]
+    String drtId = biocacheResponse.uid?:dataResourceUid
     if(!dataResourceUid){
-      Map drt = [
-              keyFields: getKeyFieldFromHeader(headers?.split(',')),
-              csvSeparator: separatorChar
-      ]
-
-      collectoryHubRestService.saveTempDataResource(drt, biocacheResponse.uid)
+      drt.keyFields = getKeyFieldFromHeader(headers?.split(','))
     }
+    collectoryHubRestService.saveTempDataResource(drt, drtId)
 
     response.setContentType("application/json")
     render(responseString)
