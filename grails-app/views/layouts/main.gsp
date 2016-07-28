@@ -48,6 +48,7 @@
 <!-- End footer -->
 
 <!-- JS resources-->
+<g:render template="/configjs" />
 <r:layoutResources disposition="defer"/>
 </body>
 </html>
