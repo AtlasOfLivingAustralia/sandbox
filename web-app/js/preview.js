@@ -30,8 +30,8 @@
           var data = $httpParamSerializer({ rawData: text, firstLineIsData: firstLineIsData, fileId: fileId });
           return $http.post(sandboxConfig.parseColumnsUrl, data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded'}});
         },
-        processData: function(columnHeaders, firstLineIsData, text, fileId) {
-          var data = $httpParamSerializer({ headers: columnHeaders, firstLineIsData: firstLineIsData, rawData: text, fileId: fileId });
+        processData: function(columnHeaders, firstLineIsData, text, fileId, dataResourceUid) {
+          var data = $httpParamSerializer({ headers: columnHeaders, firstLineIsData: firstLineIsData, rawData: text, fileId: fileId, dataResourceUid: dataResourceUid });
           return $http.post(sandboxConfig.processDataUrl, data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded'}});
         },
         uploadToSandbox: function(columnHeaders, firstLineIsData, text, fileId, datasetName, existingUid, customIndexedFields) {
@@ -163,7 +163,7 @@
         self.processingData = true;
         self.processedDataError = false;
         self.processedData = {};
-        var p = previewService.processData(columnHeaders(), self.preview.firstLineIsData, self.text, self.fileId);
+        var p = previewService.processData(columnHeaders(), self.preview.firstLineIsData, self.text, self.fileId, self.dataResourceUid);
         p.then(function(response) {
           _.each(response.data.processedRecords, function(e,i) { e.isOpen = false; });
           angular.extend(self.processedData, response.data);

@@ -28,8 +28,9 @@ class DataCheckController {
   // data columns more than the header
   static String COLSIZE_MISMATCH = "colSizeMismatch"
   static String DUPLICATE_HEADER = "colHeaderDuplicate"
-  static String DUPLICATE_CATALOGNUMBER = "catalogNumberDuplicate"
-  static String DUPLICATE_OCCURRENCEID = "duplicateOccurrenceId"
+  static String DUPLICATE_KEYFIELDS = "duplicateKeyFieldValues"
+  static String MISSING_KEYFIELDS = "newuploadMissingKeyFields"
+  static String MISSING_KEYFIELDS_REUPLOAD = "reuploadMissingKeyFields"
 
   static String OCCURRENCE_ID_COLUMN = "occurrenceID"
   static String CATALOG_NUMBER_COLUMN = "catalogNumber"
@@ -241,6 +242,19 @@ class DataCheckController {
     def fileId = params.fileId
     def firstLineIsData = params.boolean('firstLineIsData')
 
+    String dataResourceUid = params.dataResourceUid
+
+    String keyField = ""
+    Boolean reload
+    if (dataResourceUid) {
+      Map tempMetaData = collectoryService.getTempResourceMetadata(dataResourceUid)
+      keyField = tempMetaData?.keyFields?: ""
+      reload = true
+    } else {
+      keyField = getKeyFieldFromHeader(headers)
+      reload = false
+    }
+
     //the data to pass back
     List<ParsedRecord> processedRecords = new ArrayList<ParsedRecord>()
 
@@ -254,7 +268,7 @@ class DataCheckController {
 
     if(firstLineIsData){
       counter += 1
-      def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, true)
+      def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, true, keyField, reload)
       ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
       processedRecords.add(pr)
       pr.validationMessages = messages.toArray()
@@ -266,7 +280,7 @@ class DataCheckController {
 
     while(currentLine != null && counter <noOfRowsToDisplay){
       counter += 1
-      def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, true)
+      def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, true, keyField, reload)
       ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
       processedRecords.add(pr)
       pr.validationMessages = messages.toArray()
@@ -294,7 +308,7 @@ class DataCheckController {
 
     // Check the rest of the rows which are not displayed
     while(currentLine != null && validationMsg.size()==0){
-      def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, false)
+      def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, false, keyField, reload)
       messages.each { m ->
         validationMsg.add(message(code: m.code, args: m.args, default: m.code))
       }
@@ -327,15 +341,31 @@ class DataCheckController {
     parsedRecord
   }
 
-  private performHeaderValidation (List<ValidationMessage> messages, def rawHeader, def headers) {
+  private performHeaderValidation (List<ValidationMessage> messages, def rawHeader, def headers, String keyField, Boolean reload) {
     List<String> rawHeaderList = Arrays.asList(rawHeader)
     List<String> headerList = Arrays.asList(headers)
+
+    if (reload) {
+      if (keyField) {
+        // Check if required keyHeader is present
+        def keyHeader = headerList.find {it.toLowerCase().trim()==keyField.toLowerCase()}
+        if (!keyHeader) {
+          ValidationMessage vm = new ValidationMessage(MISSING_KEYFIELDS_REUPLOAD, keyField)
+          messages.add(vm)
+        }
+      }
+    } else {
+      if (!keyField) {
+        ValidationMessage vm = new ValidationMessage(MISSING_KEYFIELDS, keyField)
+        messages.add(vm)
+      }
+    }
+
     def trimHeaderList = headerList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
     def dupHeader = trimHeaderList.countBy {it}.findAll{it.value > 1}*.key
 
     if (dupHeader.size() > 0) {
       List<String> strArgs = new ArrayList<String>()
-      // This is to get back the actual raw text
       for (String s: headerList) {
         if (dupHeader.contains(s.toLowerCase().trim().replaceAll("\\s+", " "))) {
           strArgs.add(s)
@@ -362,20 +392,44 @@ class DataCheckController {
     }
   }
 
-  private checkDuplicateRecords(def processedRecords, def pr, List<ValidationMessage> messages, String column, def currentLine, def messageCode) {
-    def rawValue = pr.values.grep { it.name == column }?.raw?.size() > 0 ? pr.values.grep {
-      it.name == column
-    }?.raw.get(0) : ""
+  private validateKeyFieldValues(def processedRecords, def pr, List<ValidationMessage> messages, String keyFieldColumn, boolean reupload) {
 
-    def dupList = processedRecords.findAll {
-      it.values.findAll { a -> ((a.name == column) && (a.raw == rawValue)) }
+    String missingMessageCode = MISSING_KEYFIELDS
+    if (reupload) {
+      missingMessageCode = MISSING_KEYFIELDS_REUPLOAD
     }
 
-    if (dupList.size() > 0) {
-      List<String> strArgs = new ArrayList<String>()
-      strArgs.add(rawValue)
-      ValidationMessage vm = new ValidationMessage(messageCode, strArgs.toString())
-      messages.add(vm)
+    if (!messages.find {it.code == missingMessageCode}) {
+
+      def rawKeyArray = pr.values.grep { it.name == keyFieldColumn }
+      def rawValue = ""
+      if (rawKeyArray.size()) {
+        rawValue = rawKeyArray.raw?.get(0) ?: ""
+      }
+
+      if ("".equals(rawValue.trim())) {
+        List<String> strArgs = new ArrayList<String>()
+        strArgs.add(keyFieldColumn)
+        ValidationMessage vm = new ValidationMessage(missingMessageCode, strArgs.toString())
+        messages.add(vm)
+      }
+
+     /*
+      def rawValue = pr.values.grep { it.name == column }?.raw?.size() > 0 ? pr.values.grep {
+        it.name == column
+      }?.raw.get(0) : ""*/
+
+      def dupList = processedRecords.findAll {
+        it.values.findAll { a -> ((a.name == keyFieldColumn) && (a.raw == rawValue)) }
+      }
+
+      if (dupList.size() > 0) {
+        List<String> strArgs = new ArrayList<String>()
+        strArgs.add(keyFieldColumn + " " + rawValue)
+        ValidationMessage vm = new ValidationMessage(DUPLICATE_KEYFIELDS, strArgs.toString())
+        messages.add(vm)
+      }
+
     }
   }
 
@@ -404,7 +458,7 @@ class DataCheckController {
     }
   }
 
-  private performPreviewValidation (List<ParsedRecord> readList, def rawHeader, def headers, def currentLine, def forPreview) {
+  private performPreviewValidation (List<ParsedRecord> readList, def rawHeader, def headers, def currentLine, def forPreview, String keyField, Boolean reload) {
 
     List<ValidationMessage> messages = new ArrayList<ValidationMessage>()
 
@@ -412,15 +466,17 @@ class DataCheckController {
     if (rawHeader) {
       performHeaderRecordValidation (messages, rawHeader, headers, currentLine)
       if (forPreview) {
-        performHeaderValidation(messages, rawHeader, headers)
+        performHeaderValidation(messages, rawHeader, headers, keyField, reload)
       }
     }
 
     ParsedRecord readRecord = storeValues (headers, currentLine)
 
-    checkDuplicateRecords(readList, readRecord, messages, OCCURRENCE_ID_COLUMN, currentLine, DUPLICATE_OCCURRENCEID)
+    validateKeyFieldValues(readList, readRecord, messages, keyField, reload)
 
-    checkDuplicateRecords(readList, readRecord, messages, CATALOG_NUMBER_COLUMN, currentLine, DUPLICATE_CATALOGNUMBER)
+ //   checkDuplicateRecords(readList, readRecord, messages, OCCURRENCE_ID_COLUMN, DUPLICATE_OCCURRENCEID)
+
+ //   checkDuplicateRecords(readList, readRecord, messages, CATALOG_NUMBER_COLUMN, DUPLICATE_CATALOGNUMBER)
 
     readList.add(readRecord)
 
@@ -500,9 +556,9 @@ class DataCheckController {
    * @return
    */
   private String getKeyFieldFromHeader(String[] headers){
-    String key = headers?.find { it == 'occurrenceID'}
+    String key = headers?.find { it == OCCURRENCE_ID_COLUMN}
     if(!key) {
-      key = headers?.find { it == 'catalogNumber'}
+      key = headers?.find { it == CATALOG_NUMBER_COLUMN}
     }
 
     key
