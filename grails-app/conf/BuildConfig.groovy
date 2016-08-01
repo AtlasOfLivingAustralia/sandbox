@@ -28,7 +28,6 @@ grails.project.dependency.resolution = {
         runtime 'org.jsoup:jsoup:1.7.2'
         build "org.apache.tika:tika-parsers:1.4"
         build "org.apache.httpcomponents:httpclient:4.3.3"
-        compile "org.apache.httpcomponents:httpmime:4.3.3"
     }
     plugins {
         compile ":cache:1.1.8"
@@ -41,7 +40,7 @@ grails.project.dependency.resolution = {
         runtime ":tika-parser:1.3.0.1"
         runtime ":pretty-time:2.1.3.Final-1.0.1"
         compile ":cache:1.1.8"
-        compile ":collectory-hub:0.1-SNAPSHOT"
+        compile ":collectory-hub:1.0"
 
         runtime ':resources:1.2.14'
         if (Environment.current == Environment.PRODUCTION) {
