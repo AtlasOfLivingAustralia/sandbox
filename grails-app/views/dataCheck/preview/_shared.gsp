@@ -1,15 +1,12 @@
-<div ng-show="preview.sandboxConfig.userId" class="pull-right">
-    <div class="btn-group" uib-dropdown>
-        <g:link controller="tempDataResource" action="myData" class="btn btn-primary">My uploaded datasets</g:link>
-        <button ng-show="preview.existing.uid || isAdmin()" type="button" class="btn btn-primary" uib-dropdown-toggle>
-            <span class="caret"></span>
-            <span class="sr-only">Actions</span>
-        </button>
-        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="split-button">
-            <li role="menuitem" ng-show="preview.existing.uid"><a ng-href="${createLink(controller: 'tempDataResource', action: 'viewMetadata')}?uid={{preview.existing.uid}}">Edit Metadata</a></li>
-            <li role="menuitem" ng-show="preview.existing.uid"><a href ng-click="preview.unlinkFromExisting()">Reset Data Resource ID</a></li>
-            <li role="menuitem" ng-show="isAdmin()"><g:link controller="tempDataResource" action="adminList">All Datasets</g:link></li>
-        </ul>
+<div class="btn-toolbar pull-right" role="toolbar" aria-label="Sandbox tools">
+    <div class="btn-group" role="group" aria-label="Datasets">
+        <g:link class="btn btn-default" controller="tempDataResource" action="myData">My uploaded datasets</g:link>
+        <g:link class="btn btn-default" ng-show="isAdmin()" controller="tempDataResource" action="adminList">All Datasets</g:link>
+    </div>
+    <div ng-show="preview.existing.uid" class="btn-group" role="group" aria-label="Current dataset">
+        <a class="btn btn-default" ng-href="${createLink(controller: 'tempDataResource', action: 'viewMetadata')}?uid={{preview.existing.uid}}">View/edit details</a>
+        <a class="btn btn-default" ng-href="{{ preview.existing.uiUrl || '${grailsApplication.config.sandboxHubsWebapp}' }}/occurrences/search?q=data_resource_uid:{{preview.existing.uid}}">View records</a>
+        <button class="btn btn-default" ng-click="preview.unlinkFromExisting()">Reset Data Resource ID</button>
     </div>
 </div>
 
@@ -26,7 +23,13 @@
 
     <div class="panel-body">
         <uib-alert type="info">
-            <p>Please note that for a record to be effectively discoverable and able to be mapped it needs to include, at a minimum, the following set of fields: <code>scientificName</code>, <code>eventDate</code>, <code>decimalLatitude</code> and <code>decimalLongitude</code>.</p>
+            <p>Please note that for the records in a data set to be effectively discoverable and able to be mapped it
+            needs to meet a minimum set of standards. Data needs to include, at a minimum: <code>scientificName</code> /
+            <code>vernacularName</code> to identify the organism and <code>eventDate</code>,
+            <code>decimalLatitude</code> and <code>decimalLongitude</code> to indicate where and when the occurrence
+            happened. The data needs to have a unique identifier column - either <code>catalogNumber</code> or
+            <code>occurrenceID</code> with a unique value for each record. The number of columns must match the number
+            of column headers (problems with this often indicate commas and/or line breaks in the fields).</p>
             <p>Additional fields will increase the usability of the data.</p>
         </uib-alert>
         <uib-tabset>
@@ -72,6 +75,8 @@
                     </label>
                     <button type="button" class="btn btn-success" ng-show="preview.file" ng-disabled="preview.parsing || preview.processingData || preview.uploading"
                             ng-click="preview.uploadCsvFile()" ng-bind="preview.uploadCsvStatusLabel()"></button>
+                    <button type="button" class="btn btn-default" ng-show="preview.file" ng-disabled="preview.parsing || preview.processingData || preview.uploading"
+                            ng-click="preview.file = null; preview.fileId = null; preview.parseColumns()">Clear</button>
                 </div>
             </uib-tab>
         </uib-tabset>
@@ -99,7 +104,7 @@
                 <div id="interpretation">
                     <label for="firstLineIsData">The first line is:</label>
                     <select id="firstLineIsData" name="firstLineIsData" ng-model="preview.preview.firstLineIsData"
-                            ng-change="preview.parseColumns()" ng-options="o.value as o.label for o in preview.firstLineOptions"
+                            ng-change="preview.reparseColumns()" ng-options="o.value as o.label for o in preview.firstLineOptions"
                             ng-disabled="preview.processingData || preview.uploading">
                     </select>
                 </div>
@@ -198,18 +203,20 @@
                             <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToSpatialPortal')}?uid={{preview.dataResourceUid}}" id="spatialPortalLink" class="btn btn-default"
                                title="Mapping &amp; Analysis in the Spatial portal">Mapping & Analysis with your data</a>
                             <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToBiocache')}?uid={{preview.dataResourceUid}}" id="hubLink" class="btn btn-default"
-                               title="Tables &amp; charts for your data">Tables & charts of your data</a>
+                               title="Review data">Review data</a>
                             <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToDownload')}?uid={{preview.dataResourceUid}}" id="downloadLink" class="btn btn-default"
                                title="Life Science Identifier (pop-up)">Download the processed version of your data</a>
                         </div>
                     </div>
                 </div>
+
             </div><!--well-->
         </div><!-- processSampleUpload-->
     </div><!-- panel-body -->
 </div><!-- processSample -->
 
-<div id="processedData" ng-show="preview.processedData">
+<div id="processedData" ng-show="preview.previewLoaded && preview.processedData">
+    <p>Click to show details of processed sample records</p>
     <uib-accordion close-others="true">
         <uib-accordion-group ng-repeat="processedRecord in preview.processedData.processedRecords" is-open="processedRecord.isOpen" >
             <uib-accordion-heading>

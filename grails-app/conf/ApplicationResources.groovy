@@ -18,6 +18,7 @@ modules = {
         resource url: [dir: 'node_modules/underscore', file: 'underscore.js']
         resource url: [dir: 'js', file: 'components.js']
         resource url: [dir: 'js', file: 'preview.js']
+        resource url: [dir: 'js', file: 'keepalive.js']
         resource url: [dir: 'js', file: 'preview-app.js']
         if (!dev) {
             resource url: [dir: 'js', file: 'app-production.js']

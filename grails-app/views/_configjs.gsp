@@ -6,6 +6,7 @@
         deleteResourceUrl: '${createLink(controller:'myDatasets', action: 'deleteResource')}',
         getAllDatasetsUrl: '${createLink(controller:'myDatasets', action: 'allDatasets')}',
         getDatasetsUrl: '${createLink(controller:'myDatasets', action: 'userDatasets')}',
+        keepaliveUrl: '${createLink(controller: 'dataCheck', action: 'ping')}',
         loginUrl: '${grailsApplication.config.casServerLoginUrl}?service=${createLink(uri: '/', absolute: true)}',
         parseColumnsUrl: '${createLink(controller:'dataCheck', action:'parseColumns')}',
         processDataUrl: '${createLink(controller:'dataCheck', action:'processData')}',

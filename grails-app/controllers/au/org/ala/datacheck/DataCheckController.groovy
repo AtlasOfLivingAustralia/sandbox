@@ -271,7 +271,7 @@ class DataCheckController {
       def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, true, keyField, reload)
       ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
       processedRecords.add(pr)
-      pr.validationMessages = messages.toArray()
+      pr.validationMessages = messages?.toArray() ?: new ValidationMessage[0]
     } else {
       rawHeader = currentLine
     }
@@ -283,7 +283,7 @@ class DataCheckController {
       def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, true, keyField, reload)
       ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
       processedRecords.add(pr)
-      pr.validationMessages = messages.toArray()
+      pr.validationMessages = messages?.toArray() ?: new ValidationMessage[0]
       currentLine = csvReader.readNext()
     }
 
@@ -665,5 +665,10 @@ private performPreviewValidation (List<ParsedRecord> readList, def rawHeader, de
   def getSeparator(){
     def uid = params.uid
     File file = fileService.getArchiveCopy(uid)
+  }
+
+  def ping() {
+    cache false
+    response.sendError(201)
   }
 }

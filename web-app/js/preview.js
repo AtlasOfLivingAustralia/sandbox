@@ -137,6 +137,10 @@
 
       self.parseColumns = function() {
         reset();
+        self.reparseColumns();
+      };
+
+      self.reparseColumns = function() {
         if (self.text || self.fileId) {
           self.parsing = true;
           var p = previewService.parseColumns(self.text, self.fileId, self.preview.firstLineIsData);
@@ -272,7 +276,11 @@
 
       self.missingUsefulColumns = function(headersStruct) {
         var headers = columnHeaders(headersStruct);
-        return _.difference(['scientificName', 'decimalLatitude', 'decimalLongitude', 'eventDate'], headers);
+        var missing = _.difference(['decimalLatitude', 'decimalLongitude', 'eventDate'], headers);
+        if (!(_.contains(headers, 'scientificName') || _.contains(headers, 'vernacularName'))) {
+          missing.push("scientificName or vernacularName");
+        }
+        return missing;
       };
 
       self.uploadToSandboxLabel = function() {

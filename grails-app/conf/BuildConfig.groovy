@@ -40,7 +40,7 @@ grails.project.dependency.resolution = {
         runtime ":tika-parser:1.3.0.1"
         runtime ":pretty-time:2.1.3.Final-1.0.1"
         compile ":cache:1.1.8"
-        compile ":collectory-hub:1.0"
+        compile ":collectory-hub:1.1.1"
 
         runtime ':resources:1.2.14'
         if (Environment.current == Environment.PRODUCTION) {
