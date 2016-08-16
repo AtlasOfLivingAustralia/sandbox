@@ -34,6 +34,9 @@ class DarwinCoreService {
     // Reason is described here: http://gpc.github.io/grails-springcache/docs/guide/3.%20Caching%20Service%20Methods.html#3.2%20Calling%20Cached%20Methods%20Internally
     def list =  grailsApplication.mainContext.darwinCoreService.getBiocacheList().grep{it.dwcTerm.startsWith(startsWith)}.collect{it.dwcTerm}
 
+    // make sure no duplicates
+    list.unique()
+
     log.debug("Full DWC Terms List: " + list)
 
     if (list.size() > 10 && limit > 0) {
