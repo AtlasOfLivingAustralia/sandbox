@@ -248,7 +248,7 @@ class DataCheckController {
     Boolean reload
     if (dataResourceUid) {
       Map tempMetaData = collectoryService.getTempResourceMetadata(dataResourceUid)
-      keyField = tempMetaData?.keyFields?: ""
+      keyField = tempMetaData?.keyFields ?: ""
       reload = true
     } else {
       keyField = getKeyFieldFromHeader(headers)
@@ -278,7 +278,7 @@ class DataCheckController {
 
     currentLine = csvReader.readNext()
 
-    while(currentLine != null && counter <noOfRowsToDisplay){
+    while (currentLine != null && counter < noOfRowsToDisplay) {
       counter += 1
       def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, true, keyField, reload)
       ParsedRecord pr = biocacheService.processRecord(headers, currentLine)
@@ -307,7 +307,7 @@ class DataCheckController {
     }
 
     // Check the rest of the rows which are not displayed
-    while(currentLine != null && validationMsg.size()==0){
+    while ( currentLine != null && validationMsg.size() == 0 ) {
       def messages = performPreviewValidation (readList, rawHeader, headers, currentLine, false, keyField, reload)
       messages.each { m ->
         validationMsg.add(message(code: m.code, args: m.args, default: m.code))
@@ -316,7 +316,7 @@ class DataCheckController {
     }
 
     def instance = [processedRecords:processedRecords, validationMessages: validationMsg]
-    respond(instance, view:'processedData',  model: instance)
+    respond(instance, view:'processedData', model: instance)
 
   }
 
@@ -362,7 +362,7 @@ class DataCheckController {
     }
 
     def trimHeaderList = headerList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
-    def dupHeader = trimHeaderList.countBy {it}.findAll{it.value > 1}*.key
+    def dupHeader = trimHeaderList.countBy {it}.findAll{ it.value > 1 }*.key
 
     if (dupHeader.size() > 0) {
       List<String> strArgs = new ArrayList<String>()
@@ -375,8 +375,8 @@ class DataCheckController {
       messages.add(vm)
     } else if (headerList.size() < rawHeaderList.size())  {
       //  sometimes, duplicate headers in raw header can cause processed headers to be removed...therefore we check on raw headers for duplicates
-      def trimRawHeaderList = rawHeaderList.collect {it.toLowerCase().trim().replaceAll("\\s+", " ")}
-      def dupRawHeader = trimRawHeaderList.countBy {it}.findAll{it.value > 1}*.key
+      def trimRawHeaderList = rawHeaderList.collect { it.toLowerCase().trim().replaceAll("\\s+", " ") }
+      def dupRawHeader = trimRawHeaderList.countBy { it }.findAll{ it.value > 1 }*.key
 
       if (dupRawHeader.size() > 0) {
         List<String> strArgs = new ArrayList<String>()
@@ -394,10 +394,7 @@ class DataCheckController {
 
   private validateKeyFieldValues(def processedRecords, def pr, List<ValidationMessage> messages, String keyFieldColumn, boolean reupload) {
 
-    String missingMessageCode = MISSING_KEYFIELDS
-    if (reupload) {
-      missingMessageCode = MISSING_KEYFIELDS_REUPLOAD
-    }
+    String missingMessageCode = reupload ? MISSING_KEYFIELDS : MISSING_KEYFIELDS_REUPLOAD
 
     if (!messages.find {it.code == missingMessageCode}) {
 
@@ -437,14 +434,14 @@ class DataCheckController {
     List<String> headerList = Arrays.asList(headers)
     // If all headers can be filled, check headers that it is not blank
     if (headerList.size() == currentLine.size()) {
-      def testHeaderList = headerList.findAll{(it.trim()=="")}
+      def testHeaderList = headerList.findAll{ it.trim() == "" }
       if (testHeaderList.size() > 0) {
         ValidationMessage vm = new ValidationMessage(COLSIZE_MISMATCH, "")
         messages.add(vm)
       }
     } else {
       List<String> rawHeaderList = Arrays.asList(rawHeader)
-      def testHeaderList = rawHeaderList.findAll{(it.trim()=="")}
+      def testHeaderList = rawHeaderList.findAll{ it.trim() == "" }
       if ((testHeaderList.size() > 0) || (currentLine.size() != rawHeader.size())) {
         testHeaderList.removeAll { (it.trim() == "") }
         if (testHeaderList.size() > 0) {
@@ -628,12 +625,15 @@ private performPreviewValidation (List<ParsedRecord> readList, def rawHeader, de
     File file
     if (uid) {
       file = fileService.getArchiveCopy(uid)
-    } else {
+    } else if (fileId) {
       file = Paths.get(grailsApplication.config.uploadFilePath, fileId, fileId + '.csv.zip').toFile()
+    } else {
+      response.sendError(SC_BAD_REQUEST, "No uid or fileId provided")
+      return
     }
 
     if (!file.exists()) {
-      response.sendError(SC_NOT_FOUND, uid ? "Archive file for $uid not found" : "${fileID}.csv.zip not found")
+      response.sendError(SC_NOT_FOUND, uid ? "Archive file for $uid not found" : "${fileId}.csv.zip not found")
       return
     }
 

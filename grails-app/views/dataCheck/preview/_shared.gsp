@@ -196,16 +196,20 @@
                 <div id="optionsAfterDownload" ng-show="preview.uploadPercent == 100"
                      style="margin-bottom: 0; padding-bottom: 0;">
 
-                    <h2 style="margin-top:25px;">Options for working with your data</h2>
+                    <h2 style="margin-top:25px;">Next steps:</h2>
 
                     <div class="row">
                         <div class="col-sm-12">
+                            <g:if test="${(grailsApplication.config.preview.complete.linkToSpatialPortal ?: false) as Boolean}">
                             <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToSpatialPortal')}?uid={{preview.dataResourceUid}}" id="spatialPortalLink" class="btn btn-default"
                                title="Mapping &amp; Analysis in the Spatial portal">Mapping & Analysis with your data</a>
+                            </g:if>
                             <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToBiocache')}?uid={{preview.dataResourceUid}}" id="hubLink" class="btn btn-default"
                                title="Review data">Review data</a>
+                            <g:if test="${(grailsApplication.config.preview.complete.linkToDownload ?: false) as Boolean}">
                             <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToDownload')}?uid={{preview.dataResourceUid}}" id="downloadLink" class="btn btn-default"
                                title="Life Science Identifier (pop-up)">Download the processed version of your data</a>
+                            </g:if>
                         </div>
                     </div>
                 </div>

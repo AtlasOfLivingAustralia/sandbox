@@ -14,6 +14,7 @@ class BiocacheService {
     static transactional = false
 
     def grailsApplication
+    def grailsLinkGenerator
 
     def authService
 
@@ -170,8 +171,8 @@ class BiocacheService {
     def uploadFile(String fileId, String headers, String datasetName, String separator,
                    String firstLineIsData, String customIndexedFields, String dataResourceUid){
 
-      def urlPath = new ApplicationTagLib().createLink([controller: 'dataCheck', action:'serveFile', params:[fileId:fileId]])
-      def csvUrl = grailsApplication.config.serverName + urlPath
+      def csvUrl = grailsLinkGenerator.link(controller: 'dataCheck', action: 'serveFile', params: [fileId: fileId], absolute: true)
+      log.debug("Using $csvUrl for biocache upload service csvZippedUrl")
 
       List nameValuePairs = [
               new NameValuePair("csvZippedUrl", csvUrl),
