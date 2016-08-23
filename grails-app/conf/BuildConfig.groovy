@@ -1,3 +1,5 @@
+import grails.util.Environment
+
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
@@ -31,7 +33,7 @@ grails.project.dependency.resolution = {
     }
     plugins {
         compile ":cache:1.1.8"
-     //   compile ":cache-ehcache:1.0.0"
+        compile ":cache-headers:1.1.7"
         build ":release:3.0.1"
         build ":tomcat:7.0.70"
         runtime ":ala-bootstrap3:1.6"
@@ -39,14 +41,18 @@ grails.project.dependency.resolution = {
         runtime ":csv:0.3.1"
         runtime ":tika-parser:1.3.0.1"
         runtime ":pretty-time:2.1.3.Final-1.0.1"
-        compile ":cache:1.1.8"
-        compile ":collectory-hub:1.1.1"
+        compile ":collectory-hub:1.1.2-SNAPSHOT"
+        compile ":rest-client-builder:2.1.1"
+
+        // should be secured if used in production.
+        if (Environment.current == Environment.DEVELOPMENT) {
+            runtime ':console:1.5.11'
+        }
 
         runtime ':resources:1.2.14'
         if (Environment.current == Environment.PRODUCTION) {
             runtime ":zipped-resources:1.0.1"
             runtime ":cached-resources:1.1"
-            compile ":cache-headers:1.1.7"
             runtime ":yui-minify-resources:0.1.5"
         }
     }
