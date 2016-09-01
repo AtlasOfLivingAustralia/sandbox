@@ -41,7 +41,7 @@ grails.project.dependency.resolution = {
         runtime ":csv:0.3.1"
         runtime ":tika-parser:1.3.0.1"
         runtime ":pretty-time:2.1.3.Final-1.0.1"
-        runtime ":cors:1.1.8"
+        runtime ":cors:1.3.0"
         compile ":collectory-hub:1.1.2-SNAPSHOT"
 
         // should be secured if used in production.
