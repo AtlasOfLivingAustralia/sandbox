@@ -134,6 +134,7 @@ class BiocacheService {
         new NameValuePair("separator", separator),
         new NameValuePair("firstLineIsData", firstLineIsData),
         new NameValuePair("customIndexedFields", customIndexedFields),
+        new NameValuePair("uiUrl", grailsApplication.config.sandboxHubsWebapp),
         new NameValuePair("alaId", authService.getUserId())
       ]
 
