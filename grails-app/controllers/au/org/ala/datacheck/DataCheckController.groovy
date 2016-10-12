@@ -478,7 +478,7 @@ private performPreviewValidation (List<ParsedRecord> readList, def rawHeader, de
   List<ValidationMessage> messages = new ArrayList<ValidationMessage>()
 
   // Check for Header and data columns mismatch and whether it contains duplicates. Only if there's a raw header is provided
-  if (rawHeader) {
+  if (rawHeader && grailsApplication.config.validation.mandatory) {
     performHeaderRecordValidation(messages, rawHeader, headers, currentLine)
     if (forPreview) {
       performHeaderValidation(messages, rawHeader, headers, keyField, reload)
