@@ -114,15 +114,26 @@
                     <table id="initialParse" class="table table-bordered">
                         <thead>
                         <tr>
-                            <th ng-repeat="header in preview.preview.headers">
+                            <th ng-repeat="header in preview.preview.headers" style="vertical-align:top;">
                                 <input class="columnHeaderInput" type="text" autocomplete="off" name="q"
                                        ng-model="header.header" ng-change="preview.headerChanged(header)"
                                        ng-class="{unrecognizedField: !header.known}"
                                        uib-typeahead="dwc for dwc in preview.autocompleteColumnHeaders($viewValue)"
                                        typeahead-on-select="preview.headerValueSelected(header)"
                                        typeahead-select-on-blur="true" typeahead-select-on-exact="true"
+                                       ng-blur="preview.headerBlur(header)"
                                        ng-disabled="preview.processingData || preview.uploading"
                                 />
+                                <select name="h" ng-model="header.dataType"
+                                        ng-disabled="header.known" ng-change="preview.dataTypeChanged(header)">
+                                    %{--<option value=""/>--}%
+                                    <option value="{{value.suf}}"
+                                            ng-model="header.selectedDataType"
+                                            ng-selected="{{value.id == defaultDataType}}"
+                                            ng-repeat="value in preview.dataTypeOptions">
+                                        {{value.label}}
+                                    </option>
+                                </select>
                             </th>
                         </tr>
                         </thead>
