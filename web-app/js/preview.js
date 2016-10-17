@@ -105,13 +105,12 @@
             ];
 
             self.dataTypeOptions = [
-                {id: "text", label: "Text", suf: "", hint: "Used for text, e.g. 'Sampled at 1m intervals', 'female'"},
-                {id: "int", label: "Integer", suf: "_i", hint: "Used for whole number, e.g. 5 or 21045"},
-                {id: "float", label: "Float", suf: "_f", hint: "Used for decimal numbers, e.g. 4.23 or 21.6"},
-                {id: "date", label: "Date", suf: "_dt", hint: "Used to represent dates, e.g. '2016-10-21', '2016-10-21T12:22:00Z'" }
+                {id: "text", label: "Text", suf: ""},
+                {id: "int", label: "Integer", suf: "_i"},
+                {id: "float", label: "Float", suf: "_f"},
+                {id: "date", label: "Date", suf: "_dt"}
             ];
             $scope.defaultDataType = self.dataTypeOptions[0].id;
-            self.dataTypeRegEx = /(.*)(_[dtif]{1,2})$/; // looks for _i _dt or _f suffix
 
             self.fileId = null;
             self.fileName = null;
@@ -381,7 +380,7 @@
 
             // check if dataType is selected so see if user has removed the suffix - if so, change the dataType back to text
             self.headerBlur = function (header) {
-                var existingSuffix = self.dataTypeRegEx.exec(header.header); // execute regex
+                var existingSuffix = self.sandboxConfig.dataTypeRegEx.exec(header.header); // execute regex
                 var suffix = (existingSuffix && existingSuffix[2]) ? existingSuffix[2] : null;
                 if (suffix) {
                     header.dataType = suffix;
@@ -393,7 +392,7 @@
             // append header name with appropriate suffix when dataType select is changed or visa versa
             self.dataTypeChanged = function (header) {
                 var dataType = header.dataType || '';
-                var existingSuffix = self.dataTypeRegEx.exec(header.header); // execute regex
+                var existingSuffix = self.sandboxConfig.dataTypeRegEx.exec(header.header); // execute regex
                 if (existingSuffix) {
                     header.header = existingSuffix[1] + dataType;
                 } else {
@@ -407,4 +406,14 @@
                 });
             };
         }]);
+
+    preview.directive('bstooltip', function() {
+        'use strict';
+        return {
+            //restrict: 'A',
+            link: function($scope, $element, $attr) {
+                $element.tooltip({html: true});
+            }
+        };
+    });
 })();

@@ -16,6 +16,8 @@
         uploadToSandboxUrl: '${createLink(controller:'dataCheck', action:'upload')}',
         uploadStatusUrl: '${createLink(controller:'dataCheck', action:'uploadStatus')}',
         userId: '${u.userId()}',
-        roles: <u:roles />
+        roles: <u:roles />,
+        dataTypeToolTip: '${raw(grailsApplication.config.dataTypeToolTip)}',
+        dataTypeRegEx: new RegExp('${raw(grailsApplication.config.dataTypeRegEx)}')
     };
 </script>

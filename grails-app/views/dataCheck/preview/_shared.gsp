@@ -1,3 +1,5 @@
+
+
 <div class="btn-toolbar pull-right" role="toolbar" aria-label="Sandbox tools">
     <div class="btn-group" role="group" aria-label="Datasets">
         <g:link class="btn btn-default" controller="tempDataResource" action="myData">My uploaded datasets</g:link>
@@ -124,8 +126,9 @@
                                        ng-blur="preview.headerBlur(header)"
                                        ng-disabled="preview.processingData || preview.uploading"
                                 />
-                                <select name="h" ng-model="header.dataType"
-                                        ng-disabled="header.known" ng-change="preview.dataTypeChanged(header)">
+                                <select name="h" ng-model="header.dataType" data-original-title="{{preview.sandboxConfig.dataTypeToolTip}}"
+                                        data-toggle="tooltip" data-placement="right"
+                                        ng-disabled="header.known" ng-change="preview.dataTypeChanged(header)" bstooltip>
                                     %{--<option value=""/>--}%
                                     <option value="{{value.suf}}"
                                             ng-model="header.selectedDataType"
