@@ -14,10 +14,9 @@ class BiocacheService {
     static transactional = false
 
     def grailsApplication
+    def grailsLinkGenerator
 
     def authService
-
-    def serviceMethod() {}
 
     def areColumnHeaders(String[] columnHeadersUnparsed){
       def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/parser/areDwcTerms")
@@ -125,20 +124,27 @@ class BiocacheService {
      * @return response as string
      */
     def uploadData(String csvData, String headers, String datasetName, String separator,
-                   String firstLineIsData, String customIndexedFields){
+                   String firstLineIsData, String customIndexedFields, String dataResourceUid){
 
       //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
-      NameValuePair[] nameValuePairs = new NameValuePair[7]
-      nameValuePairs[0] = new NameValuePair("csvData", csvData)
-      nameValuePairs[1] = new NameValuePair("headers", headers)
-      nameValuePairs[2] = new NameValuePair("datasetName", datasetName)
-      nameValuePairs[3] = new NameValuePair("separator", separator)
-      nameValuePairs[4] = new NameValuePair("firstLineIsData", firstLineIsData)
-      nameValuePairs[5] = new NameValuePair("customIndexedFields", customIndexedFields)
-      nameValuePairs[6] = new NameValuePair("alaId", authService.getUserId())
+      List nameValuePairs = [
+        new NameValuePair("csvData", csvData),
+        new NameValuePair("headers", headers),
+        new NameValuePair("datasetName", datasetName),
+        new NameValuePair("separator", separator),
+        new NameValuePair("firstLineIsData", firstLineIsData),
+        new NameValuePair("customIndexedFields", customIndexedFields),
+        new NameValuePair("uiUrl", grailsApplication.config.sandboxHubsWebapp),
+        new NameValuePair("alaId", authService.getUserId())
+      ]
+
+      //add the data resource UID if supplied
+      if(dataResourceUid){
+        nameValuePairs << new NameValuePair("dataResourceUid", dataResourceUid)
+      }
 
       def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/post")
-      post.setRequestBody(nameValuePairs)
+      post.setRequestBody(nameValuePairs.toArray(new NameValuePair[0]))
 
       def http = new HttpClient()
       http.executeMethod(post)
@@ -166,8 +172,8 @@ class BiocacheService {
     def uploadFile(String fileId, String headers, String datasetName, String separator,
                    String firstLineIsData, String customIndexedFields, String dataResourceUid){
 
-      def urlPath = new ApplicationTagLib().createLink([controller: 'upload', action:'serveFile', params:[fileId:fileId]])
-      def csvUrl = grailsApplication.config.serverName + urlPath
+      def csvUrl = grailsLinkGenerator.link(controller: 'dataCheck', action: 'serveFile', params: [fileId: fileId], absolute: true)
+      log.debug("Using $csvUrl for biocache upload service csvZippedUrl")
 
       List nameValuePairs = [
               new NameValuePair("csvZippedUrl", csvUrl),

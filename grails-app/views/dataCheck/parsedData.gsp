@@ -1,29 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-
-<style type="text/css">
-.scrollCell {
-    overflow-x: auto;
-    white-space: pre-wrap;
-    white-space: -moz-pre-wrap;
-    white-space: -o-pre-wrap;
-    word-wrap: break-word;
-    max-height: 50px;
-    line-height: 20px;
-}
-
-.scrollCell div {
-    position: relative;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    white-space: -moz-pre-wrap;
-    white-space: -pre-wrap;
-    white-space: -o-pre-wrap;
-    word-wrap: break-word;
-    max-height: 80px;
-    padding: 8px;
-}
-
-</style>
 <script type="text/javascript">
     jQuery("input.columnHeaderInput").autocomplete('${createLink(controller:'dataCheck', action:'autocomplete')}', {
         extraParams: {limit: 100},
@@ -66,7 +41,7 @@
   <h1> </h1>
 <table id="initialParse" class="table table-bordered" >
     <thead>
-
+        <tr>
     <g:if test="${columnHeaderMap}">
       <g:each in="${columnHeaderMap}" var="hdr">
         <th>
@@ -92,6 +67,7 @@
         </th>
       </g:each>
     </g:else>
+        </tr>
     </thead>
     <tbody>
     <g:each in="${dataRows}" var="row">

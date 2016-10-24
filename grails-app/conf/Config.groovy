@@ -54,11 +54,13 @@ apiKey = "xxxxxxxxxxxxx"
 skin.supportEmail = "support@ala.org.au"
 
 clubRole = ""
-
+dataTypeToolTip = "Choose a data type: <b>text</b> (default), <b>integer</b> (whole numbers), <b>float</b> (number with decimal places) or <b>date</b> (ISO or Darwin Core accepted formats)"
+dataTypeRegEx = '(.*)(_i|_d|_dt)$'
 
 //grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
-grails.mime.use.accept.header = false
+grails.mime.use.accept.header = true
+grails.mime.disable.accept.header.userAgents = []
 grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
                       xml: ['text/xml', 'application/xml'],
                       text: 'text/plain',
@@ -77,7 +79,7 @@ grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
 //grails.urlmapping.cache.maxsize = 1000
 
 // The default codec used to encode data with ${}
-grails.views.default.codec = "none" // none, html, base64
+grails.views.default.codec = "html" // none, html, base64
 grails.views.gsp.encoding = "UTF-8"
 grails.converters.encoding = "UTF-8"
 // enable Sitemesh preprocessing of GSP pages
@@ -97,6 +99,13 @@ grails.spring.bean.packages = []
 // request parameters to mask when logging exceptions
 grails.exceptionresolver.params.exclude = ['password']
 
+// What URL patterns should be processed by the resources plugin
+grails.resources.adhoc.patterns = ['/js/*', '/images/*', '/css/*', '/plugins/*', '/vendor/*', '/node_modules/*']
+grails.resources.adhoc.includes = ['/js/**', '/images/**', '/css/**','/plugins/**', '/vendor/**', '/node_modules/**']
+
+// make paginate tag compatible with BS3
+grails.plugins.twitterbootstrap.fixtaglib = true
+
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
@@ -105,13 +114,25 @@ environments {
     }
     development {
         grails.serverURL = "http://localhost:8080/${appName}"
+        grails.resources.debug = true
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
     }
 }
 
-def logging_dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
+grails.cache.config = {
+    cache {
+        name 'sandboxCache'
+        eternal false
+        overflowToDisk true
+        maxElementsInMemory 10000
+        maxElementsOnDisk 10000000
+        timeToLiveSeconds (3600 * 12) //1 day
+    }
+}
+
+def loggingDir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs' : './logs')
 
 // log4j configuration
 log4j = {
@@ -121,7 +142,7 @@ log4j = {
         console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
         environments {
             production {
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: logging_dir + "/sandbox.log", threshold: org.apache.log4j.Level.INFO, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "${loggingDir}/sandbox.log", threshold: org.apache.log4j.Level.INFO, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
                 'null' name: "stacktrace"
             }
             development {

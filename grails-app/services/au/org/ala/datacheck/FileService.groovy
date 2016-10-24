@@ -1,6 +1,9 @@
 package au.org.ala.datacheck
 
 import au.com.bytecode.opencsv.CSVReader
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
+import org.apache.commons.io.input.ReaderInputStream
 import org.apache.tika.metadata.HttpHeaders
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.metadata.TikaMetadataKeys
@@ -10,6 +13,7 @@ import org.apache.tika.parser.ParseContext
 import org.apache.tika.parser.Parser
 import org.xml.sax.helpers.DefaultHandler
 
+import java.nio.file.Paths
 import java.util.jar.JarFile
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
@@ -17,7 +21,9 @@ import java.util.zip.ZipOutputStream
 
 class FileService {
 
-    def serviceMethod() {}
+    public static final String TAB_SEPARATOR = 'TAB'
+    public static final String COMMA_SEPARATOR = 'COMMA'
+    def grailsApplication
 
     def detectFormat(file){
         AutoDetectParser parser = new AutoDetectParser()
@@ -61,23 +67,23 @@ class FileService {
     def zipFile(File file){
         // input file
         FileInputStream input = new FileInputStream(file);
+        File outputFile = new File("${file.absolutePath}.zip")
 
+        zipStreamToFile(outputFile, file.name, input)
+    }
+
+    def zipStreamToFile(File outputZipFile, String inputFileName, InputStream input) {
         // out put file
-        ZipOutputStream output = new ZipOutputStream(new FileOutputStream(file.getAbsolutePath()+ ".zip") )
+        ZipOutputStream output = new ZipOutputStream(new FileOutputStream(outputZipFile) )
 
         // name the file inside the zip  file
-        output.putNextEntry(new ZipEntry(file.getName()))
+        output.putNextEntry(new ZipEntry(inputFileName))
 
-        // buffer size
-        def b = new byte[1024]
-        def count = -1
-
-        while ((count = input.read(b)) > 0) {
-            output.write(b, 0, count);
+        input.withStream {
+            output.withStream {
+                output << input
+            }
         }
-
-        output.close()
-        input.close()
     }
 
     def extractGZip(file){
@@ -106,10 +112,29 @@ class FileService {
         }
     }
 
+    def getFileForFileId(String fileId) {
+        new File(new File(grailsApplication.config.uploadFilePath, fileId), "${fileId}.csv")
+    }
+
+    def getCSVReaderForFile(File file) {
+        new CSVReader(file.newReader('UTF-8'), getSeparator(file).charAt(0))
+    }
+
     def getCSVReaderForText(String raw) {
         def separator = getSeparator(raw)
         def csvReader = new CSVReader(new StringReader(raw), separator.charAt(0))
         csvReader
+    }
+
+    def getSeparator(File file) {
+        int tabs = 0, commas = 0;
+        file.withReader('UTF-8') { fr ->
+            fr.eachLine { line ->
+                tabs += line.count('\t')
+                commas += line.count(',')
+            }
+        }
+        return tabs > commas ? '\t' : commas > 0 ? ',': null
     }
 
     def getSeparator(String raw) {
@@ -121,5 +146,46 @@ class FileService {
             return ','
         else
             null
+    }
+
+    def separatorName(String separator) {
+        separator == '\t' ? TAB_SEPARATOR : COMMA_SEPARATOR
+    }
+
+    def getSeparatorName(String raw) {
+        separatorName(getSeparator(raw))
+    }
+
+    def getSeparatorName(File file) {
+        separatorName(getSeparator(file))
+    }
+
+    def saveArchiveCopy(String uid, Reader input, String headers, boolean firstLineIsData, String separatorName) {
+        final archiveDir = new File(grailsApplication.config.uploadFilePath, 'archive')
+        final archiveFile = new File(archiveDir, "${uid}.csv.zip")
+        FileUtils.forceMkdir(archiveDir)
+
+        if (separatorName == TAB_SEPARATOR) {
+            headers = headers.replaceAll(',','\t')
+        }
+
+        headers += System.lineSeparator()
+
+        if (!firstLineIsData) {
+            try {
+                def firstLine = input.readLine()
+                log.debug("Throwing away $firstLine")
+            } catch (e) {
+                IOUtils.closeQuietly(input)
+                throw e
+            }
+        }
+
+        MultiReader combinedReader = new MultiReader(new StringReader(headers), input)
+        zipStreamToFile(archiveFile, "${uid}.csv", new ReaderInputStream(combinedReader, 'UTF-8'))
+    }
+
+    File getArchiveCopy(String uid) {
+        Paths.get(grailsApplication.config.uploadFilePath, 'archive', "${uid}.csv.zip").toFile()
     }
 }

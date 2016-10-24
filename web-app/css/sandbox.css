@@ -1,1 +1,97 @@
 #progressBar { height:20px; }
+.panel .panel-heading h1, .panel .panel-heading h2 {
+    margin-bottom: 0;
+}
+.scrollCell {
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    max-height: 50px;
+    line-height: 20px;
+}
+
+.scrollCell div {
+    position: relative;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    max-height: 80px;
+    padding: 8px;
+}
+.unrecognizedField {
+    background-color: #fcf8e3;
+}
+#initialParse th input {
+    margin-bottom: 0;
+}
+.fieldNameTD { background-color: #f9f9f9 }
+#processedSampleTable th  { background-color: #f9f9f9 }
+.recordValidationMsg { background-color: #f9f9f9 }
+.recordValidationMsg { text-align: left; ; padding-left:5px;}
+.assertionName { background-color: #f9f9f9 }
+.recordHeader { border: 1px solid black; border-collapse: collapse; background-color: black; color:white; font-weight: bold;}
+.assertionHeader {background-color: black; color:white; text-align: left; ; padding-left:10px;}
+.assertionName { text-align: right; ; padding-right:5px;}
+.sensitiveField {background-color: #f2dede; }
+.changedValue { color:#006400; }
+.dataQualityHdr { padding-right:20px; }
+.fieldNameTD { text-align: right; padding-right:5px;}
+#processedSampleTable td { max-width:410px; }
+#processedSampleTable th { min-width:300px; }
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+/* patch bootstrap colors for drop down active menu items for uib autocomplete */
+.dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover {
+    background-color: #C44D34;
+}
+.dropdown-menu>.active>a>strong, .dropdown-menu>.active>a:focus>strong, .dropdown-menu>.active>a:hover>strong {
+    color: #fff;
+}
+/* override angular-loading-bar colours */
+#loading-bar .bar {
+    background: #F26649 !important;
+}
+#loading-bar .peg {
+    -moz-box-shadow: #f26548 1px 0 6px 1px !important;
+    -ms-box-shadow: #f26548 1px 0 6px 1px !important;
+    -webkit-box-shadow: #f26548 1px 0 6px 1px !important;
+    box-shadow: #f26548 1px 0 6px 1px !important;
+}
+/* animate icon rotation */
+.fa.animate {
+    -moz-transition: all 0.25s ease-in-out;
+    -webkit-transition: all 0.25s ease-in-out;
+    transition: all 0.25s ease-in-out;
+}
+
+/* override primary dropdown selected colour */
+.btn-primary.active, .btn-primary:active, .open>.dropdown-toggle.btn-primary {
+    background-color: #DA644E;
+    border-color: #F26649;
+}
+/* reset progress bar height so text is visible */
+.progress {
+    height: 20px;
+}

@@ -1,3 +1,5 @@
 /target
 /.idea
 *.iml
+.slcache
+web-app/node_modules/
