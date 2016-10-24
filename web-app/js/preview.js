@@ -107,7 +107,7 @@
             self.dataTypeOptions = [
                 {id: "text", label: "Text", suf: ""},
                 {id: "int", label: "Integer", suf: "_i"},
-                {id: "float", label: "Float", suf: "_f"},
+                {id: "float", label: "Float", suf: "_d"},
                 {id: "date", label: "Date", suf: "_dt"}
             ];
             $scope.defaultDataType = self.dataTypeOptions[0].id;
