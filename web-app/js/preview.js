@@ -78,8 +78,8 @@
             };
         }]);
 
-    preview.controller("PreviewCtrl", ['$log', '$scope', '$timeout', '$uibModal', '$window', 'existing', 'previewService', 'sandboxConfig',
-        function ($log, $scope, $timeout, $uibModal, $window, existing, previewService, sandboxConfig) {
+    preview.controller("PreviewCtrl", ['$log', '$scope', '$timeout', '$uibModal', '$window', 'existing', 'file', 'previewService', 'sandboxConfig',
+        function ($log, $scope, $timeout, $uibModal, $window, existing, file, previewService, sandboxConfig) {
             var self = this;
             self.sandboxConfig = sandboxConfig;
 
@@ -112,12 +112,17 @@
             ];
             $scope.defaultDataType = self.dataTypeOptions[0].id;
 
-            self.fileId = null;
-            self.fileName = null;
+            self.lockedFile = file != null && file.id != null;
+            self.originalFile = file ? angular.copy(file) : { id: null, name: null };
+
+            self.fileId = self.originalFile.id;
+            self.fileName = self.originalFile.name;
             self.uploadingCsv = false;
 
+            self.selectedTab = self.lockedFile ? 1 : 0;
+
             self.text = '';
-            self.file = null;
+            self.file = file ? angular.copy(file) : { id: null, name: null };
             self.parsing = false;
             self.preview = {
                 firstLineIsData: null,
@@ -133,6 +138,12 @@
             self.uploading = false;
             self.uploadPercent = 0;
             self.uploadFailed = false;
+
+            if (self.lockedFile) {
+                $scope.$evalAsync(function() {
+                    self.parseColumns();
+                })
+            }
 
             function reset() {
                 self.preview = {

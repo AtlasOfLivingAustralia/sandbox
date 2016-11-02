@@ -9,6 +9,8 @@
     <r:require module="preview" />
     <r:script>
       angular.module('ala.sandbox.preview').value('existing', <dc:json value="${dataResource}"/> );
+      angular.module('ala.sandbox.preview').value('file', <dc:json value="${file}"/> );
+      angular.module('ala.sandbox.preview').value('redirectToSandbox', ${redirectToSandbox});
     </r:script>
 </head>
 <body>

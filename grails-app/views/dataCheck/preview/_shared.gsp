@@ -34,8 +34,8 @@
             of column headers (problems with this often indicate commas and/or line breaks in the fields).</p>
             <p>Additional fields will increase the usability of the data.</p>
         </uib-alert>
-        <uib-tabset>
-            <uib-tab heading="Paste CSV" disable="preview.file && preview.fileId">
+        <uib-tabset active="preview.selectedTab">
+            <uib-tab heading="Paste CSV" disable="(preview.file && preview.fileId) || preview.lockedFile">
                 <p>
                     This tool accepts comma separated values (CSV) and tab separated data.
                 </p>
@@ -72,12 +72,12 @@
                 </p>
 
                 <div class="form">
-                    <label class="btn btn-default btn-file">
-                        {{preview.file.name || 'Select File' }} <input type="file" ngf-select ng-model="preview.file" ng-disabled="preview.parsing" style="display: none;">
+                    <label class="btn btn-default btn-file" ng-class="{'disabled': preview.parsing || preview.lockedFile}">
+                        {{preview.file.name || 'Select File' }} <input type="file" ngf-select ng-model="preview.file" ng-disabled="preview.parsing || preview.lockedFile" style="display: none;">
                     </label>
-                    <button type="button" class="btn btn-success" ng-show="preview.file" ng-disabled="preview.parsing || preview.processingData || preview.uploading"
+                    <button type="button" class="btn btn-success" ng-show="preview.file" ng-disabled="preview.parsing || preview.processingData || preview.uploading || preview.lockedFile"
                             ng-click="preview.uploadCsvFile()" ng-bind="preview.uploadCsvStatusLabel()"></button>
-                    <button type="button" class="btn btn-default" ng-show="preview.file" ng-disabled="preview.parsing || preview.processingData || preview.uploading"
+                    <button type="button" class="btn btn-default" ng-show="preview.file" ng-disabled="preview.parsing || preview.processingData || preview.uploading || preview.lockedFile"
                             ng-click="preview.file = null; preview.fileId = null; preview.parseColumns()">Clear</button>
                 </div>
             </uib-tab>

@@ -38,6 +38,7 @@ grails.project.dependency.resolution = {
         build ":tomcat:7.0.70"
         runtime ":ala-bootstrap3:1.6"
         runtime ":ala-auth:1.3.4"
+        compile ":ala-ws-security:1.4"
         runtime ":csv:0.3.1"
         runtime ":tika-parser:1.3.0.1"
         runtime ":pretty-time:2.1.3.Final-1.0.1"
