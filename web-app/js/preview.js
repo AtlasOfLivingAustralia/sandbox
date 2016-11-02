@@ -78,8 +78,8 @@
             };
         }]);
 
-    preview.controller("PreviewCtrl", ['$log', '$scope', '$timeout', '$uibModal', '$window', 'existing', 'file', 'previewService', 'sandboxConfig',
-        function ($log, $scope, $timeout, $uibModal, $window, existing, file, previewService, sandboxConfig) {
+    preview.controller("PreviewCtrl", ['$log', '$sce', '$scope', '$timeout', '$uibModal', '$window', 'existing', 'file', 'previewService', 'redirectToSandbox', 'sandboxConfig',
+        function ($log, $sce, $scope, $timeout, $uibModal, $window, existing, file, previewService, redirectToSandbox, sandboxConfig) {
             var self = this;
             self.sandboxConfig = sandboxConfig;
 
@@ -138,6 +138,10 @@
             self.uploading = false;
             self.uploadPercent = 0;
             self.uploadFailed = false;
+
+            self.redirectToSandbox = redirectToSandbox;
+
+            self.trustedTooltip = $sce.trustAsHtml(sandboxConfig.dataTypeToolTip);
 
             if (self.lockedFile) {
                 $scope.$evalAsync(function() {

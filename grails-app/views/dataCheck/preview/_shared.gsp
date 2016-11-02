@@ -126,9 +126,8 @@
                                        ng-blur="preview.headerBlur(header)"
                                        ng-disabled="preview.processingData || preview.uploading"
                                 />
-                                <select name="h" ng-model="header.dataType" data-original-title="{{preview.sandboxConfig.dataTypeToolTip}}"
-                                        data-toggle="tooltip" data-placement="right"
-                                        ng-disabled="header.known" ng-change="preview.dataTypeChanged(header)" bstooltip>
+                                <select name="h" ng-model="header.dataType" uib-tooltip-html="preview.trustedTooltip" tooltip-placement="right"
+                                        ng-disabled="header.known" ng-change="preview.dataTypeChanged(header)">
                                     %{--<option value=""/>--}%
                                     <option value="{{value.suf}}"
                                             ng-model="header.selectedDataType"
@@ -213,7 +212,7 @@
                     <h2 style="margin-top:25px;">Next steps:</h2>
 
                     <div class="row">
-                        <div class="col-sm-12">
+                        <div class="col-sm-12" ng-if="!preview.redirectToSandbox">
                             <g:if test="${(grailsApplication.config.preview.complete.linkToSpatialPortal ?: false) as Boolean}">
                             <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToSpatialPortal')}?uid={{preview.dataResourceUid}}" id="spatialPortalLink" class="btn btn-default"
                                title="Mapping &amp; Analysis in the Spatial portal">Mapping & Analysis with your data</a>
@@ -224,6 +223,10 @@
                             <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToDownload')}?uid={{preview.dataResourceUid}}" id="downloadLink" class="btn btn-default"
                                title="Life Science Identifier (pop-up)">Download the processed version of your data</a>
                             </g:if>
+                        </div>
+                        <div class="col-sm-12" ng-if="preview.redirectToSandbox">
+                            <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToSpatialPortal')}?uid={{preview.dataResourceUid}}" id="spatialPortalLink" class="btn btn-default"
+                               title="Continue analysis in the Spatial Portal">Continue analysis in the Spatial Portal</a>
                         </div>
                     </div>
                 </div>
