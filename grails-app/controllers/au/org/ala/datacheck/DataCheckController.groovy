@@ -28,6 +28,7 @@ class DataCheckController {
   def collectoryService
   CollectoryHubRestService collectoryHubRestService
   def uploadService
+  def tagService
 
   // data columns more than the header
   static String COLSIZE_MISMATCH = "colSizeMismatch"
@@ -521,8 +522,25 @@ private performPreviewValidation (List<ParsedRecord> readList, def rawHeader, de
 
   def uploadStatus() {
     log.debug("Request to retrieve upload status")
-    def responseString = biocacheService.uploadStatus(params.uid)
     response.setContentType("application/json")
+
+    def responseString = ''
+    if (params.uid) {
+      responseString = biocacheService.uploadStatus(params.uid)
+
+      //store status by tag
+      if (params.tag && responseString) {
+        //add uid
+        def json = JSON.parse(responseString)
+        json.uid = params.uid
+
+        tagService.put(params.tag, json.toString())
+      }
+    } else if (params.tag) {
+      //retrieve status
+      responseString = tagService.get(params.tag)
+    }
+
     render(responseString)
   }
 

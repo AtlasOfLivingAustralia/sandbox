@@ -41,6 +41,7 @@
                     return $http.post(sandboxConfig.processDataUrl, data, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
                 },
                 uploadToSandbox: function (columnHeaders, firstLineIsData, text, fileId, datasetName, existingUid, customIndexedFields) {
+                    if (!datasetName) datasetName = 'My test dataset';
                     var data = $httpParamSerializer({
                         headers: columnHeaders,
                         firstLineIsData: firstLineIsData,
@@ -52,9 +53,9 @@
                     });
                     return $http.post(sandboxConfig.uploadToSandboxUrl, data, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
                 },
-                pollUploadStatus: function (uid) {
+                pollUploadStatus: function (uid, tag) {
                     return $http.get(sandboxConfig.uploadStatusUrl, {
-                        params: {uid: uid, random: randomString(10)},
+                        params: {uid: uid, tag: tag, random: randomString(10)},
                         ignoreLoadingBar: true
                     });
                 },
@@ -78,8 +79,8 @@
             };
         }]);
 
-    preview.controller("PreviewCtrl", ['$log', '$sce', '$scope', '$timeout', '$uibModal', '$window', 'existing', 'file', 'previewService', 'redirectToSandbox', 'sandboxConfig',
-        function ($log, $sce, $scope, $timeout, $uibModal, $window, existing, file, previewService, redirectToSandbox, sandboxConfig) {
+    preview.controller("PreviewCtrl", ['$log', '$sce', '$scope', '$timeout', '$uibModal', '$window', 'existing', 'file', 'previewService', 'tag', 'redirectToSandbox', 'sandboxConfig',
+        function ($log, $sce, $scope, $timeout, $uibModal, $window, existing, file, previewService, tag, redirectToSandbox, sandboxConfig) {
             var self = this;
             self.sandboxConfig = sandboxConfig;
 
@@ -87,8 +88,8 @@
                 name: null,
                 uid: null
             };
-
-            if (!existing || existing.error) {
+            
+            if (!existing || existing.error || !existing.name) {
                 self.existing = angular.copy(EMPTY_EXISTING);
                 self.datasetName = 'My test dataset';
                 self.dataResourceUid = null;
@@ -139,6 +140,8 @@
             self.uploadPercent = 0;
             self.uploadFailed = false;
 
+            self.tag = tag;
+
             self.redirectToSandbox = redirectToSandbox;
 
             self.trustedTooltip = $sce.trustAsHtml(sandboxConfig.dataTypeToolTip);
@@ -171,6 +174,7 @@
                 var p = previewService.uploadCsvFile(self.file);
                 p.then(function (response) {
                     self.text = ''; // blank out text since we have a file.
+                    self.datasetName = self.file.name
                     angular.extend(self, response.data);
                     self.parseColumns();
                 }, function (error) {
@@ -266,7 +270,7 @@
 
             function updateStatusPolling() {
 
-                var p = previewService.pollUploadStatus(self.dataResourceUid);
+                var p = previewService.pollUploadStatus(self.dataResourceUid, self.tag);
 
                 p.then(function (response) {
                     var data = response.data;
