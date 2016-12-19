@@ -120,13 +120,6 @@ class UploadService {
 
     def http = HttpClients.createDefault()
 
-    def reloadUidCaches() {
-//        def http = new HttpClient()
-        //reference the UID caches
-        def get = new HttpGet(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
-        http.execute(get)
-    }
-
     String downloadUrl(String uid) {
         grailsApplication.config.biocacheServiceUrl + "/occurrences/index/download?reasonTypeId=" + grailsApplication.config.downloadReasonId + "&q=data_resource_uid:" + uid + "&" + grailsApplication.config.biocacheServiceDownloadParams
     }

@@ -504,18 +504,14 @@ private performPreviewValidation (List<ParsedRecord> readList, def rawHeader, de
   }
 
   def redirectToBiocache() {
-    uploadService.reloadUidCaches()
     redirect(url: uploadService.biocacheUrl(params.uid))
   }
 
   def redirectToSpatialPortal() {
-    uploadService.reloadUidCaches()
     redirect(url: uploadService.spatialPortalUrl(params.uid))
   }
 
   def redirectToDownload() {
-    uploadService.reloadUidCaches()
-    //redirect(url:grailsApplication.config.biocacheServiceUrl + "/occurrences/index/download?q=data_resource_uid:" + params.uid + grailsApplication.config.biocacheServiceDownloadParams)
     redirect(url: uploadService.downloadUrl(params.uid))
   }
 
