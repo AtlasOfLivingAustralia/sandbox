@@ -14,7 +14,7 @@ class UploadService {
     final static String CATALOG_NUMBER_COLUMN = "catalogNumber"
 
     def grailsApplication
-
+    def tikaService
     def fileService
 
     /**
