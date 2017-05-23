@@ -1,7 +1,9 @@
 package au.org.ala.datacheck
 
 import au.com.bytecode.opencsv.CSVReader
+import au.com.bytecode.opencsv.CSVWriter
 import au.org.ala.collectory.CollectoryHubRestService
+import au.org.ala.datacheck.UploadService.UploadException
 import grails.converters.JSON
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
@@ -9,6 +11,7 @@ import org.apache.commons.io.FileUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
+import org.springframework.web.multipart.MultipartHttpServletRequest
 
 import java.nio.file.Paths
 
@@ -24,6 +27,8 @@ class DataCheckController {
   def formatService
   def collectoryService
   CollectoryHubRestService collectoryHubRestService
+  def uploadService
+  def tagService
 
   // data columns more than the header
   static String COLSIZE_MISMATCH = "colSizeMismatch"
@@ -32,22 +37,20 @@ class DataCheckController {
   static String MISSING_KEYFIELDS = "newuploadMissingKeyFields"
   static String MISSING_KEYFIELDS_REUPLOAD = "reuploadMissingKeyFields"
 
-  static String OCCURRENCE_ID_COLUMN = "occurrenceID"
-  static String CATALOG_NUMBER_COLUMN = "catalogNumber"
-
   static allowedMethods = [processData: "POST"]
 
   def noOfRowsToDisplay = 5
 
   def index() {
-    def model = [existing: [:], reload: false]
+    def redirectToSandbox = params.containsKey('redirectToSandbox')
+    def model = [dataResource: [:], reload: false, file: [ id: params.fileId, name: params.fileName ], redirectToSandbox: redirectToSandbox ]
     respond model, view: 'index', model: model
   }
 
   def reload() {
     def dataResource = collectoryService.getTempResourceMetadata(params.dataResourceUid)
-
-    respond(dataResource, view:"index", model:[reload:true, dataResource: dataResource ])
+    def model = [reload:true, dataResource: dataResource, file: [ id: '', name: '' ], redirectToSandbox: false]
+    respond(dataResource, view:"index", model: model)
   }
 
   def parseColumns() {
@@ -141,7 +144,7 @@ class DataCheckController {
 
   def uploadFile() {
 
-    def f = request.getFile('myFile')
+    def f = ((MultipartHttpServletRequest)request).getFile('myFile')
     if (f.empty) {
       response.sendError(400, 'file cannot be empty')
       return
@@ -152,78 +155,13 @@ class DataCheckController {
       log.info "Loading data resource ${dataResourceUid}"
     }
 
-    def fileId = UUID.randomUUID().toString()
-    def uploadDir = new File(grailsApplication.config.uploadFilePath, fileId)
-    log.debug "Creating upload directory $uploadDir"
-    FileUtils.forceMkdir(uploadDir)
-
-    log.debug "Transferring file to directory..."
-    def newFile = new File(uploadDir, f.getFileItem().getName())
-    f.transferTo(newFile)
-
-    log.debug "Detecting file formats..."
-    def contentType = fileService.detectFormat(newFile)
-
-    log.debug "Content type.... $contentType"
-    //if its GZIPPED or ZIPPED extract the file
-    if (contentType == "application/zip") {
-      //upzip it
-      def result = fileService.extractZip(newFile)
-      if (result.success) {
-        newFile = result.file
-        contentType = fileService.detectFormat(result.file)
-      } else {
-        response.sendError(400, result.message)
-        return
-      }
-    } else if (contentType == "application/x-gzip") {
-      def result = fileService.extractGZip(newFile)
-      if (result.success) {
-        newFile = result.file
-        contentType = fileService.detectFormat(result.file)
-      } else {
-        response.sendError(400, result.message)
-        return
-      }
+    try {
+      def instance = uploadService.uploadFile(dataResourceUid, f)
+      respond instance
+    } catch (UploadException e) {
+      log.error("Upload exception for uid: $dataResourceUid", e)
+      response.sendError(400, e.message)
     }
-
-    def extractedFile = new File(uploadDir, fileId + '.csv')
-
-    if (contentType.startsWith("text")) {
-      //extract and re-write into common CSV format
-      log.debug("Is a CSV....")
-      FileUtils.copyFile(newFile, extractedFile)
-    } else {
-      //extract the data
-      def csvWriter = new au.com.bytecode.opencsv.CSVWriter(new FileWriter(extractedFile))
-      String extractedString = tikaService.parseFile(newFile)
-      //HTML version of the file
-      Document doc = Jsoup.parse(extractedString)
-      Elements dataTable = doc.select("tr")
-
-      if (dataTable?.size() > 0) {
-        def cellCount = dataTable?.get(0)?.select("td")?.size() ?: 0
-        dataTable.each { tr ->
-          def cells = tr.select("td")
-          def fields = new String[cellCount]
-          if (cells) {
-            cells.eachWithIndex { cell, idx ->
-              if (idx < cellCount) {
-                fields[idx] = cell.text().trim()
-              }
-            }
-          }
-          csvWriter.writeNext(fields)
-        }
-        csvWriter.close()
-      }
-    }
-
-    //create a zipped version for uploading
-    fileService.zipFile(extractedFile)
-
-    def instance = [fileId: fileId, fileName: newFile.name]
-    respond instance
   }
 
   def processData() {
@@ -251,7 +189,7 @@ class DataCheckController {
       keyField = tempMetaData?.keyFields ?: ""
       reload = true
     } else {
-      keyField = getKeyFieldFromHeader(headers)
+      keyField = uploadService.getKeyFieldFromHeader(headers)
       reload = false
     }
 
@@ -555,9 +493,9 @@ private performPreviewValidation (List<ParsedRecord> readList, def rawHeader, de
 
     //update temp data resource with separator and key field value
     Map drt = [ csvSeparator: separatorChar ]
-    String drtId = biocacheResponse.uid?:dataResourceUid
-    if(!dataResourceUid){
-      drt.keyFields = getKeyFieldFromHeader(headers?.split(','))
+    String drtId = biocacheResponse.uid ?: dataResourceUid
+    if (!dataResourceUid) {
+      drt.keyFields = uploadService.getKeyFieldFromHeader(headers?.split(','))
     }
     collectoryHubRestService.saveTempDataResource(drt, drtId)
 
@@ -565,50 +503,40 @@ private performPreviewValidation (List<ParsedRecord> readList, def rawHeader, de
     render(responseString)
   }
 
-  /**
-   * This function chooses a key field. It chooses occurrenceID if present, otherwise catalogNumber.
-   * @param headers
-   * @return
-   */
-  private String getKeyFieldFromHeader(String[] headers){
-    String key = headers?.find { it == OCCURRENCE_ID_COLUMN}
-    if(!key) {
-      key = headers?.find { it == CATALOG_NUMBER_COLUMN}
-    }
-
-    key
-  }
-
   def redirectToBiocache() {
-    def http = new HttpClient()
-    //reference the UID caches
-    def get = new GetMethod(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
-    http.executeMethod(get)
-    redirect(url:grailsApplication.config.sandboxHubsWebapp + "/occurrences/search?q=data_resource_uid:" + params.uid)
+    redirect(url: uploadService.biocacheUrl(params.uid))
   }
 
   def redirectToSpatialPortal() {
-    def http = new HttpClient()
-    //reference the UID caches
-    def get = new GetMethod(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
-    http.executeMethod(get)
-    redirect(url:grailsApplication.config.spatialPortalUrl + "?q=data_resource_uid:" + params.uid + grailsApplication.config.spatialPortalUrlOptions)
+    redirect(url: uploadService.spatialPortalUrl(params.uid))
   }
 
   def redirectToDownload() {
-    def http = new HttpClient()
-    //reference the UID caches
-    def get = new GetMethod(grailsApplication.config.sandboxHubsWebapp + "/occurrences/refreshUidCache")
-    http.executeMethod(get)
-    //redirect(url:grailsApplication.config.biocacheServiceUrl + "/occurrences/index/download?q=data_resource_uid:" + params.uid + grailsApplication.config.biocacheServiceDownloadParams)
-    redirect(url:grailsApplication.config.biocacheServiceUrl + "/occurrences/index/download?reasonTypeId=" + grailsApplication.config.downloadReasonId + "&q=data_resource_uid:" + params.uid + "&" + grailsApplication.config.biocacheServiceDownloadParams)
+    redirect(url: uploadService.downloadUrl(params.uid))
   }
 
 
   def uploadStatus() {
     log.debug("Request to retrieve upload status")
-    def responseString = biocacheService.uploadStatus(params.uid)
     response.setContentType("application/json")
+
+    def responseString = ''
+    if (params.uid) {
+      responseString = biocacheService.uploadStatus(params.uid)
+
+      //store status by tag
+      if (params.tag && responseString) {
+        //add uid
+        def json = JSON.parse(responseString)
+        json.uid = params.uid
+
+        tagService.put(params.tag, json.toString())
+      }
+    } else if (params.tag) {
+      //retrieve status
+      responseString = tagService.get(params.tag)
+    }
+
     render(responseString)
   }
 

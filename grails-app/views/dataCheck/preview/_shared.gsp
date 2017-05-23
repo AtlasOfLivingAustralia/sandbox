@@ -1,6 +1,6 @@
 
 
-<div class="btn-toolbar pull-right" role="toolbar" aria-label="Sandbox tools">
+<div class="btn-toolbar pull-right" role="toolbar" aria-label="Sandbox tools" id="sandboxToolsDiv">
     <div class="btn-group" role="group" aria-label="Datasets">
         <g:link class="btn btn-default" controller="tempDataResource" action="myData">My uploaded datasets</g:link>
         <g:link class="btn btn-default" ng-show="isAdmin()" controller="tempDataResource" action="adminList">All Datasets</g:link>
@@ -34,8 +34,8 @@
             of column headers (problems with this often indicate commas and/or line breaks in the fields).</p>
             <p>Additional fields will increase the usability of the data.</p>
         </uib-alert>
-        <uib-tabset>
-            <uib-tab heading="Paste CSV" disable="preview.file && preview.fileId">
+        <uib-tabset active="preview.selectedTab">
+            <uib-tab heading="Paste CSV" disable="(preview.file && preview.fileId) || preview.lockedFile">
                 <p>
                     This tool accepts comma separated values (CSV) and tab separated data.
                 </p>
@@ -72,12 +72,12 @@
                 </p>
 
                 <div class="form">
-                    <label class="btn btn-default btn-file">
-                        {{preview.file.name || 'Select File' }} <input type="file" ngf-select ng-model="preview.file" ng-disabled="preview.parsing" style="display: none;">
+                    <label class="btn btn-default btn-file" ng-class="{'disabled': preview.parsing || preview.lockedFile}">
+                        {{preview.file.name || 'Select File' }} <input type="file" ngf-select ng-model="preview.file" ng-disabled="preview.parsing || preview.lockedFile" style="display: none;">
                     </label>
-                    <button type="button" class="btn btn-success" ng-show="preview.file" ng-disabled="preview.parsing || preview.processingData || preview.uploading"
+                    <button type="button" class="btn btn-success" ng-show="preview.file && preview.file.name" ng-disabled="preview.parsing || preview.processingData || preview.uploading || preview.lockedFile"
                             ng-click="preview.uploadCsvFile()" ng-bind="preview.uploadCsvStatusLabel()"></button>
-                    <button type="button" class="btn btn-default" ng-show="preview.file" ng-disabled="preview.parsing || preview.processingData || preview.uploading"
+                    <button type="button" class="btn btn-default" ng-show="preview.file && preview.file.name" ng-disabled="preview.parsing || preview.processingData || preview.uploading || preview.lockedFile"
                             ng-click="preview.file = null; preview.fileId = null; preview.parseColumns()">Clear</button>
                 </div>
             </uib-tab>
@@ -126,9 +126,8 @@
                                        ng-blur="preview.headerBlur(header)"
                                        ng-disabled="preview.processingData || preview.uploading"
                                 />
-                                <select name="h" ng-model="header.dataType" data-original-title="{{preview.sandboxConfig.dataTypeToolTip}}"
-                                        data-toggle="tooltip" data-placement="right"
-                                        ng-disabled="header.known" ng-change="preview.dataTypeChanged(header)" bstooltip>
+                                <select name="h" ng-model="header.dataType" uib-tooltip-html="preview.trustedTooltip" tooltip-placement="right"
+                                        ng-disabled="header.known" ng-change="preview.dataTypeChanged(header)">
                                     %{--<option value=""/>--}%
                                     <option value="{{value.suf}}"
                                             ng-model="header.selectedDataType"
@@ -213,7 +212,7 @@
                     <h2 style="margin-top:25px;">Next steps:</h2>
 
                     <div class="row">
-                        <div class="col-sm-12">
+                        <div class="col-sm-12" ng-if="!preview.redirectToSandbox && !preview.tag">
                             <g:if test="${(grailsApplication.config.preview.complete.linkToSpatialPortal ?: false) as Boolean}">
                             <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToSpatialPortal')}?uid={{preview.dataResourceUid}}" id="spatialPortalLink" class="btn btn-default"
                                title="Mapping &amp; Analysis in the Spatial portal">Mapping & Analysis with your data</a>
@@ -224,6 +223,10 @@
                             <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToDownload')}?uid={{preview.dataResourceUid}}" id="downloadLink" class="btn btn-default"
                                title="Life Science Identifier (pop-up)">Download the processed version of your data</a>
                             </g:if>
+                        </div>
+                        <div class="col-sm-12" ng-if="preview.redirectToSandbox && !preview.tag">
+                            <a ng-href="${createLink(controller: 'dataCheck', action: 'redirectToSpatialPortal')}?uid={{preview.dataResourceUid}}" id="spatialPortalLink" class="btn btn-default"
+                               title="Continue analysis in the Spatial Portal">Continue analysis in the Spatial Portal</a>
                         </div>
                     </div>
                 </div>

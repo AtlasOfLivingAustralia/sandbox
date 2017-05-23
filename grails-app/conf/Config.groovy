@@ -106,11 +106,15 @@ grails.resources.adhoc.includes = ['/js/**', '/images/**', '/css/**','/plugins/*
 // make paginate tag compatible with BS3
 grails.plugins.twitterbootstrap.fixtaglib = true
 
+security.apikey.check.serviceUrl='https://auth.ala.org.au/apikey/ws/check?apikey='
+//cors.url.pattern = [ '/api/*' ]
+cors.headers = [ 'Access-Control-Allow-Headers': 'origin, authorization, accept, content-type, x-requested-with, apiKey' ]
+
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
 
-        grails.serverURL = "http://sandbox.ala.org.au/datacheck"
+        grails.serverURL = "http://sandbox.ala.org.au/"
     }
     development {
         grails.serverURL = "http://localhost:8080/${appName}"

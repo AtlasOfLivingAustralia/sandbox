@@ -6,9 +6,16 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="fluidLayout" content="true" />
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    <g:if test="${params.tag}">
+        <link type="text/css" href="${resource(dir: 'css', file: 'embedded.css', absolute: true)}" rel="stylesheet"/>
+    </g:if>
+
     <r:require module="preview" />
     <r:script>
       angular.module('ala.sandbox.preview').value('existing', <dc:json value="${dataResource}"/> );
+      angular.module('ala.sandbox.preview').value('file', <dc:json value="${file}"/> );
+      angular.module('ala.sandbox.preview').value('tag', '${params.tag}');
+      angular.module('ala.sandbox.preview').value('redirectToSandbox', ${redirectToSandbox});
     </r:script>
 </head>
 <body>
