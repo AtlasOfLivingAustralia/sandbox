@@ -1,6 +1,5 @@
 package au.org.ala.datacheck
 
-import au.ala.org.ws.security.RequireApiKey
 import au.org.ala.datacheck.UploadService.UploadException
 import org.springframework.web.multipart.MultipartFile
 
@@ -9,9 +8,7 @@ class ApiController {
     static allowedMethods = [ 'POST': 'uploadFile' ]
 
     def uploadService
-    def grailsLinkGenerator
 
-    @RequireApiKey
     def uploadFile() {
         String dataResourceUid = params.uid
         MultipartFile file = request.getFile('file')

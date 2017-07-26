@@ -1,9 +1,9 @@
 package au.org.ala.datacheck
 
-import org.apache.commons.httpclient.HttpClient
-import org.apache.commons.httpclient.methods.GetMethod
 import grails.converters.JSON
 import grails.plugin.cache.Cacheable
+import org.apache.commons.httpclient.HttpClient
+import org.apache.commons.httpclient.methods.GetMethod
 
 class DarwinCoreService {
 
@@ -15,7 +15,7 @@ class DarwinCoreService {
     def biocacheList = new ArrayList<String>()
     try {
       def http = new HttpClient()
-      def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/index/fields")
+        def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/index/fields")
       http.executeMethod(get)
       String jsonResponse = get.getResponseBodyAsString()
       def biocacheJson = JSON.parse(jsonResponse)

@@ -2,7 +2,6 @@ package au.org.ala.datacheck
 
 import au.com.bytecode.opencsv.CSVWriter
 import org.apache.commons.io.FileUtils
-import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClients
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -121,14 +120,18 @@ class UploadService {
     def http = HttpClients.createDefault()
 
     String downloadUrl(String uid) {
-        grailsApplication.config.biocacheServiceUrl + "/occurrences/index/download?reasonTypeId=" + grailsApplication.config.downloadReasonId + "&q=data_resource_uid:" + uid + "&" + grailsApplication.config.biocacheServiceDownloadParams
+        grailsApplication.config.biocacheService.baseURL + "/occurrences/index/download?reasonTypeId=" + grailsApplication.config.downloadReasonId + "&q=data_resource_uid:" + uid + "&" + grailsApplication.config.biocacheServiceDownloadParams
+    }
+
+    String downloadOfflineUrl(String uid) {
+        grailsApplication.config.biocacheService.baseURL + "/download?downloadType=records&reasonTypeId=${grailsApplication.config.downloadReasonId ?: '10'}&downloadFormat=${grailsApplication.config.downloadFormat ?: 'dwc'}&fileType=${grailsApplication.config.downloadFileType ?: 'csv'}&searchParams=${URLEncoder.encode("?q=data_resource_uid:" + uid, "UTF-8")}&targetUri=${URLEncoder.encode(biocacheUrl(uid), "UTF-8")}"
     }
 
     String spatialPortalUrl(String uid) {
-        grailsApplication.config.spatialPortalUrl + "?q=data_resource_uid:" + uid + grailsApplication.config.spatialPortalUrlOptions
+        grailsApplication.config.spatial.baseURL + "?q=data_resource_uid:" + uid + grailsApplication.config.spatialPortalUrlOptions
     }
 
     String biocacheUrl(String uid) {
-        grailsApplication.config.sandboxHubsWebapp + "/occurrences/search?q=data_resource_uid:" + uid
+        grailsApplication.config.biocache.baseURL + "/occurrences/search?q=data_resource_uid:" + uid
     }
 }

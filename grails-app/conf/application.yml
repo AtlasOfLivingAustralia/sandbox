@@ -1,0 +1,78 @@
+---
+grails:
+    profile: web
+    codegen:
+        defaultPackage: au.org.ala.datacheck
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+    main:
+        banner-mode: "off"
+    groovy:
+        template:
+            check-template-location: false
+
+# Spring Actuator Endpoints are Disabled by Default
+endpoints:
+    enabled: false
+    jmx:
+        enabled: true
+
+---
+grails:
+    mime:
+        use:
+            accept:
+                header: true
+        disable:
+            accept:
+                header:
+                    userAgents: []
+        types:
+            html:
+              - text/html
+              - application/xhtml+xml
+            xml:
+              - text/xml
+              - application/xml
+            text: text/plain
+            js: text/javascript\
+            rss: application/rss+xml
+            atom: application/atom+xml
+            css: text/css
+            csv: text/csv
+            all: '*/*'
+            json:
+              - application/json
+              - text/json
+            form: application/x-www-form-urlencoded
+            multipartForm: multipart/form-data
+            pdf: application/pdf
+            hal:
+              - application/hal+json
+              - application/hal+xml
+    urlmapping:
+        cache:
+            maxsize: 1000
+    controllers:
+        defaultScope: singleton
+    converters:
+        encoding: UTF-8
+    views:
+        default:
+            codec: html
+        gsp:
+            encoding: UTF-8
+            htmlcodec: xml
+            codecs:
+                expression: html
+                scriptlets: html
+                taglib: none
+                staticparts: none
+
+endpoints:
+    jmx:
+        unique-names: true
