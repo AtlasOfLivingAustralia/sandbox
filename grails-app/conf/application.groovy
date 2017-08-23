@@ -63,6 +63,22 @@ clubRole = ""
 dataTypeToolTip = "Choose a data type: <b>text</b> (default), <b>integer</b> (whole numbers), <b>float</b> (number with decimal places) or <b>date</b> (ISO or Darwin Core accepted formats)"
 dataTypeRegEx = '(.*)(_i|_d|_dt)$'
 
+collectory.baseURL = "http://collections.ala.org.au"
+logger.baseURL = "http://logger.ala.org.au/service"
+speciesList.baseURL = "http://lists.ala.org.au"
+
+alertResourceName = "ALA"
+collectory.resources = "http://collections.ala.org.au/public/resources.json"
+
+// Disable UI components
+disableOverviewMap = "true"
+disableAlertLinks = "true"
+disableLoggerLinks = "false"
+
+adminRole = "ROLE_ADMIN"
+
+sandbox.hideCharts = "false"
+
 grails.cache.config = {
 
     defaults {
