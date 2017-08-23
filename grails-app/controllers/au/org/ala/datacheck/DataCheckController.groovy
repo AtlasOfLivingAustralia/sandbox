@@ -14,12 +14,12 @@ class DataCheckController {
     def biocacheService
     def darwinCoreService
     def authService
-    def tikaService
     def fileService
     def formatService
     def collectoryService
     def uploadService
     def tagService
+    def collectoryHubRestService
 
     // data columns more than the header
     static String COLSIZE_MISMATCH = "colSizeMismatch"
