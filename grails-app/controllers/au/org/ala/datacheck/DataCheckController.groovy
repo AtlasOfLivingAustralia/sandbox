@@ -494,7 +494,8 @@ class DataCheckController {
         if (!dataResourceUid) {
             drt.keyFields = uploadService.getKeyFieldFromHeader(headers?.split(','))
         }
-        collectoryHubRestService.saveTempDataResource(drt, drtId)
+        Map saveTempResp = collectoryHubRestService.saveTempDataResource(drt, drtId)
+        log.debug(saveTempResp.toMapString())
 
         response.setContentType("application/json")
         render(responseString)

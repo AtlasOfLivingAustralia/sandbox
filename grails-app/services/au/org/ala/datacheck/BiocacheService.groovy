@@ -7,6 +7,7 @@ import org.apache.commons.httpclient.NameValuePair
 import org.apache.commons.httpclient.methods.DeleteMethod
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.methods.PostMethod
+import org.apache.commons.httpclient.methods.StringRequestEntity
 
 class BiocacheService {
 
@@ -49,9 +50,11 @@ class BiocacheService {
       def json = jsonOutput.toJson(columnHeadersUnparsed)      
       log.debug("###### column headers to map : "  + json)
       //  post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
-      post.setRequestBody(json)
+      //post.setRequestBody(json)
+      post.setRequestEntity( new StringRequestEntity( json ) );
       http.executeMethod(post)
-      def map = JSON.parse(post.getResponseBodyAsString())
+      def resp =  post.getResponseBodyAsString()
+      def map = JSON.parse(resp)
       def orderedMap = new LinkedHashMap<String,String>()
       columnHeadersUnparsed.each { key ->
            orderedMap.put(key, map.get(key))
@@ -149,13 +152,14 @@ class BiocacheService {
       http.executeMethod(post)
 
       //TODO check the response
-      log.debug(post.getResponseBodyAsString())
+      def uploadResp = post.getResponseBodyAsString()
+      log.debug(uploadResp)
 
       //reference the UID caches
-        def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/cache/refresh")
+      def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/cache/refresh")
       http.executeMethod(get)
 
-      post.getResponseBodyAsString()
+      uploadResp
     }
 
     /**
@@ -190,19 +194,20 @@ class BiocacheService {
           nameValuePairs << new NameValuePair("dataResourceUid", dataResourceUid)
       }
 
-        def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/upload/")
+      def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/upload/")
       post.setRequestBody(nameValuePairs.toArray(new NameValuePair[0]))
 
       def http = new HttpClient()
       http.executeMethod(post)
 
-      log.debug(post.getResponseBodyAsString())
+      def uploadResp = post.getResponseBodyAsString()
+      log.debug("Uploading response:" + uploadResp)
 
       //reference the UID caches
-        def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/cache/refresh")
+      def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/cache/refresh")
       http.executeMethod(get)
 
-      post.getResponseBodyAsString()
+      uploadResp
     }
 
     def uploadStatus(String uid){

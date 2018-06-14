@@ -41,8 +41,8 @@ map.bounds = '[-44, 112, -9, 154]'
 
 ala.baseURL = "http://www.ala.org.au"
 bie.baseURL = "http://bie.ala.org.au"
-biocacheService.baseURL = "http://sandbox.ala.org.au/biocache-service"
-biocache.baseURL = "http://sandbox.ala.org.au/ala-hub"
+biocacheService.baseURL = "https://sandbox.ala.org.au/biocache-service"
+biocache.baseURL = "https://sandbox.ala.org.au/ala-hub"
 
 spatial.baseURL = "http://spatial.ala.org.au"
 spatialPortalUrlOptions = "&dynamic=true&ws=http%3A%2F%2Fsandbox.ala.org.au%2Fala-hub&bs=http%3A%2F%2Fsandbox.ala.org.au%2Fbiocache-service"
@@ -68,7 +68,7 @@ logger.baseURL = "http://logger.ala.org.au/service"
 speciesList.baseURL = "http://lists.ala.org.au"
 
 alertResourceName = "ALA"
-collectory.resources = "http://collections.ala.org.au/public/resources.json"
+collectory.resources = "https://collections.ala.org.au/public/resources.json"
 
 // Disable UI components
 disableOverviewMap = "true"
