@@ -10,7 +10,7 @@ buildscript {
     }
 }
 
-version "2.0-SNAPSHOT"
+version "2.0"
 group "au.org.ala"
 
 apply plugin: "org.springframework.boot"
@@ -73,8 +73,8 @@ dependencies {
     //compile "org.grails.plugins:ala-bootstrap3:3.1-SNAPSHOT"
 
     compile "org.grails.plugins:ala-bootstrap3:3.0.3"
-    compile "org.grails.plugins:collectory-hub:2.0-SNAPSHOT"
-    compile "org.grails.plugins:sandbox-hub:1.0-SNAPSHOT"
+    compile "org.grails.plugins:collectory-hub:2.0"
+    compile "org.grails.plugins:sandbox-hub:1.0"
 }
 
 bootRun {

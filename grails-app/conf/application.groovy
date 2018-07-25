@@ -41,7 +41,7 @@ map.bounds = '[-44, 112, -9, 154]'
 
 ala.baseURL = "http://www.ala.org.au"
 bie.baseURL = "http://bie.ala.org.au"
-biocacheService.baseURL = "https://sandbox.ala.org.au/biocache-service"
+biocacheService.baseURL = "https://sandbox.ala.org.au/ws"
 biocache.baseURL = "https://sandbox.ala.org.au/ala-hub"
 
 spatial.baseURL = "http://spatial.ala.org.au"
