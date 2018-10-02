@@ -437,8 +437,8 @@ class DataCheckController {
     def upload() {
 
         def userId = authService.getUserId()
-        if (!userId) {
-            response.sendError(401)
+        if (!userId && !grailsApplication.config.disableCAS?:'false'.toBoolean()) {
+            response.sendError(401, "The user is not logged in")
             response.setHeader("X-Sandbox-Authenticated", "false")
             response.setHeader("X-Sandbox-Authorised", "false")
             return null
@@ -450,7 +450,7 @@ class DataCheckController {
             if (!isInClub) {
                 response.setHeader("X-Sandbox-Authenticated", "true")
                 response.setHeader("X-Sandbox-Authorised", "false")
-                response.sendError(401)
+                response.sendError(401, "The user does not have the required role")
                 return null
             }
         }
