@@ -25,7 +25,7 @@ security {
         // appServerName is automatically set from grails.serverURL
 
         uriFilterPattern = '/alaAdmin.*,/api/.*'
-        uriExclusionFilterPattern = '/assets/.*,/images/.*,/css/.*,/js/.*,/less/.*'
+        uriExclusionFilterPattern = '/assets/.*,/images/.*,/css/.*,/js/.*,/less/.*,/api/.*'
 
         //authenticateOnlyIfLoggedInPattern requires authenticateOnlyIfLoggedInPattern to identify 'logged in' when ignoreCookie='true'
         authenticateOnlyIfLoggedInPattern = '.*'

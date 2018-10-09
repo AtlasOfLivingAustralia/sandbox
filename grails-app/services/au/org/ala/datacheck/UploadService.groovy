@@ -23,7 +23,6 @@ class UploadService {
     final static String CATALOG_NUMBER_COLUMN = "catalogNumber"
 
     def grailsApplication
-    def tikaService
     def fileService
 
     /**
@@ -51,7 +50,6 @@ class UploadService {
             throw new UploadException('file cannot be empty')
         }
 
-//        def dataResourceUid = params.dataResourceUid
         if (dataResourceUid) {
             log.info "Loading data resource ${dataResourceUid}"
         }
@@ -126,8 +124,6 @@ class UploadService {
 
         return [fileId: fileId, fileName: newFile.name]
     }
-
-    def http = HttpClients.createDefault()
 
     String downloadUrl(String uid) {
         grailsApplication.config.biocacheService.baseURL + "/occurrences/index/download?reasonTypeId=" + grailsApplication.config.downloadReasonId + "&q=data_resource_uid:" + uid + "&" + grailsApplication.config.biocacheServiceDownloadParams

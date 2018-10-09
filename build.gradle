@@ -75,6 +75,9 @@ dependencies {
     compile "org.grails.plugins:ala-bootstrap3:3.0.3"
     compile "org.grails.plugins:collectory-hub:2.0"
     compile "org.grails.plugins:sandbox-hub:1.0"
+
+    compile ("org.grails.plugins:ala-ws-security-plugin:2.0")
+    compile ("org.grails.plugins:ala-ws-plugin:2.0")
 }
 
 bootRun {
