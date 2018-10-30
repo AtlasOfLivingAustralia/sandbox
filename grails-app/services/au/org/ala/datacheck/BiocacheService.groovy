@@ -19,7 +19,7 @@ class BiocacheService {
     def authService
 
     def areColumnHeaders(String[] columnHeadersUnparsed){
-        def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/parser/areDwcTerms")
+      def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/parser/areDwcTerms")
       def http = new HttpClient()
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)
@@ -31,7 +31,7 @@ class BiocacheService {
     }
 
     def guessColumnHeaders(String[] columnHeadersUnparsed){
-        def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/parser/matchTerms")
+      def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/parser/matchTerms")
       def http = new HttpClient()
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)
@@ -44,7 +44,7 @@ class BiocacheService {
     }
 
     def mapColumnHeaders(String[] columnHeadersUnparsed){
-        def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/parser/mapTerms")
+      def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/parser/mapTerms")
       def http = new HttpClient()
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)      
@@ -64,7 +64,7 @@ class BiocacheService {
 
     def processRecord(String[] headers, String[] record){
 
-        def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/process/adhoc")
+      def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/process/adhoc")
       def http = new HttpClient()
       //construct the map
       def map = new LinkedHashMap()
