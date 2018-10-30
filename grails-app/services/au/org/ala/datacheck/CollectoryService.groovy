@@ -73,7 +73,7 @@ class CollectoryService {
             def js = new JsonSlurper()
             js.parseText(new URL(url).text)
         } catch (Exception e){
-            log.error(e.getMessage(), e)
+            log.error("Error retrieve metadata from ${url} - " + e.getMessage(), e)
             null
         }
     }
