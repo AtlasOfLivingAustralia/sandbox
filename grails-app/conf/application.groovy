@@ -39,13 +39,13 @@ breadcrumbParent = 'https://www.ala.org.au/explore-by-location/,Explore'
 habitat.layerID = '918'
 map.bounds = '[-44, 112, -9, 154]'
 
-ala.baseURL = "http://www.ala.org.au"
-bie.baseURL = "http://bie.ala.org.au"
+ala.baseURL = "https://www.ala.org.au"
+bie.baseURL = "https://bie.ala.org.au"
 biocacheService.baseURL = "https://sandbox.ala.org.au/ws"
 biocache.baseURL = "https://sandbox.ala.org.au/ala-hub"
 
-spatial.baseURL = "http://spatial.ala.org.au"
-spatialPortalUrlOptions = "&dynamic=true&ws=http%3A%2F%2Fsandbox.ala.org.au%2Fala-hub&bs=http%3A%2F%2Fsandbox.ala.org.au%2Fbiocache-service"
+spatial.baseURL = "https://spatial.ala.org.au"
+spatialPortalUrlOptions = "&dynamic=true&ws=https%3A%2F%2Fsandbox.ala.org.au%2Fala-hub&bs=https%3A%2F%2Fsandbox.ala.org.au%2Fbiocache-service"
 
 download.offline = true
 
@@ -63,9 +63,9 @@ clubRole = ""
 dataTypeToolTip = "Choose a data type: <b>text</b> (default), <b>integer</b> (whole numbers), <b>float</b> (number with decimal places) or <b>date</b> (ISO or Darwin Core accepted formats)"
 dataTypeRegEx = '(.*)(_i|_d|_dt)$'
 
-collectory.baseURL = "http://collections.ala.org.au"
-logger.baseURL = "http://logger.ala.org.au/service"
-speciesList.baseURL = "http://lists.ala.org.au"
+collectory.baseURL = "https://collections.ala.org.au"
+logger.baseURL = "https://logger.ala.org.au/service"
+speciesList.baseURL = "https://lists.ala.org.au"
 
 alertResourceName = "ALA"
 collectory.resources = "https://collections.ala.org.au/public/resources.json"
