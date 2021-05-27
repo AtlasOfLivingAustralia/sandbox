@@ -75,7 +75,7 @@ dependencies {
 
     compile "org.grails.plugins:ala-bootstrap3:3.2.3"
     compile "org.grails.plugins:collectory-hub:2.0.1"
-    compile "org.grails.plugins:sandbox-hub:1.0"
+    compile "org.grails.plugins:sandbox-hub:1.0.1"
     compile group: 'org.grails.plugins', name: 'ala-admin-plugin', version: '2.1'
     compile ("org.grails.plugins:ala-ws-security-plugin:2.0")
     compile ("org.grails.plugins:ala-ws-plugin:2.0")
@@ -89,6 +89,11 @@ bootRun {
 assets {
     minifyJs = true
     minifyCss = true
+    minifyOptions = [
+        languageMode: 'ES6',
+        targetLanguage: 'ES5',
+        optimizationLevel: 'SIMPLE'
+    ]
 }
 
 publishing {
