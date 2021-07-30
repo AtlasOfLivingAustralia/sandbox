@@ -10,7 +10,7 @@ buildscript {
     }
 }
 
-version "2.1.1"
+version "2.1.2"
 group "au.org.ala"
 
 apply plugin: "org.springframework.boot"
@@ -75,7 +75,7 @@ dependencies {
 
     compile "org.grails.plugins:ala-bootstrap3:3.2.3"
     compile "org.grails.plugins:collectory-hub:2.0.1"
-    compile "org.grails.plugins:sandbox-hub:1.0.2"
+    compile "org.grails.plugins:sandbox-hub:1.0.3"
     compile group: 'org.grails.plugins', name: 'ala-admin-plugin', version: '2.1'
     compile ("org.grails.plugins:ala-ws-security-plugin:2.0")
     compile ("org.grails.plugins:ala-ws-plugin:2.0")
