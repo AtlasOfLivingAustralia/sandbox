@@ -1,4 +1,4 @@
-### sandbox   [![Build Status](https://travis-ci.org/AtlasOfLivingAustralia/sandbox.svg?branch=master)](https://travis-ci.org/AtlasOfLivingAustralia/sandbox)
+### sandbox   [![Build Status](https://travis-ci.com/AtlasOfLivingAustralia/sandbox.svg?branch=master)](https://travis-ci.com/AtlasOfLivingAustralia/sandbox)
 
 Front end application that allow test data to be loaded into the biocache backend. Provides some interpretation and mapping to darwin core terms.
 
