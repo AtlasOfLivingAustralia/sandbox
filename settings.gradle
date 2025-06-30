@@ -1,0 +1,8 @@
+rootProject.name='sandbox'
+
+//include 'collectory-hub'
+//project(':collectory-hub').projectDir = new File('/data/src/collectory-hub')
+//
+//include 'sandbox-hub'
+//project(':sandbox-hub').projectDir = new File('/data/src/sandbox-hub')
+

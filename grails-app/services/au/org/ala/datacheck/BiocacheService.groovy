@@ -1,13 +1,13 @@
 package au.org.ala.datacheck
 
-import org.apache.commons.httpclient.methods.DeleteMethod
-import org.apache.commons.httpclient.methods.PostMethod
-import org.apache.commons.httpclient.HttpClient
 import grails.converters.JSON
-import org.apache.commons.httpclient.NameValuePair
-import org.apache.commons.httpclient.methods.GetMethod
 import groovy.json.JsonOutput
-import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
+import org.apache.commons.httpclient.HttpClient
+import org.apache.commons.httpclient.NameValuePair
+import org.apache.commons.httpclient.methods.DeleteMethod
+import org.apache.commons.httpclient.methods.GetMethod
+import org.apache.commons.httpclient.methods.PostMethod
+import org.apache.commons.httpclient.methods.StringRequestEntity
 
 class BiocacheService {
 
@@ -19,7 +19,7 @@ class BiocacheService {
     def authService
 
     def areColumnHeaders(String[] columnHeadersUnparsed){
-      def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/parser/areDwcTerms")
+      def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/parser/areDwcTerms")
       def http = new HttpClient()
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)
@@ -31,7 +31,7 @@ class BiocacheService {
     }
 
     def guessColumnHeaders(String[] columnHeadersUnparsed){
-      def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/parser/matchTerms")
+      def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/parser/matchTerms")
       def http = new HttpClient()
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)
@@ -44,15 +44,17 @@ class BiocacheService {
     }
 
     def mapColumnHeaders(String[] columnHeadersUnparsed){
-      def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/parser/mapTerms")
+      def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/parser/mapTerms")
       def http = new HttpClient()
       JsonOutput jsonOutput = new JsonOutput()
       def json = jsonOutput.toJson(columnHeadersUnparsed)      
       log.debug("###### column headers to map : "  + json)
       //  post.addRequestHeader("Content-Type", "application/json; charset=UTF-8")
-      post.setRequestBody(json)
+      //post.setRequestBody(json)
+      post.setRequestEntity( new StringRequestEntity( json ) );
       http.executeMethod(post)
-      def map = JSON.parse(post.getResponseBodyAsString())
+      def resp =  post.getResponseBodyAsString()
+      def map = JSON.parse(resp)
       def orderedMap = new LinkedHashMap<String,String>()
       columnHeadersUnparsed.each { key ->
            orderedMap.put(key, map.get(key))
@@ -62,7 +64,7 @@ class BiocacheService {
 
     def processRecord(String[] headers, String[] record){
 
-      def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/process/adhoc")
+      def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/process/adhoc")
       def http = new HttpClient()
       //construct the map
       def map = new LinkedHashMap()
@@ -128,14 +130,14 @@ class BiocacheService {
 
       //post.setRequestBody(([csvData:csvData, headers:headers]) as JSON)
       List nameValuePairs = [
-        new NameValuePair("csvData", csvData),
-        new NameValuePair("headers", headers),
-        new NameValuePair("datasetName", datasetName),
-        new NameValuePair("separator", separator),
-        new NameValuePair("firstLineIsData", firstLineIsData),
-        new NameValuePair("customIndexedFields", customIndexedFields),
-        new NameValuePair("uiUrl", grailsApplication.config.sandboxHubsWebapp),
-        new NameValuePair("alaId", authService.getUserId())
+              new NameValuePair("csvData", csvData),
+              new NameValuePair("headers", headers),
+              new NameValuePair("datasetName", datasetName),
+              new NameValuePair("separator", separator),
+              new NameValuePair("firstLineIsData", firstLineIsData),
+              new NameValuePair("customIndexedFields", customIndexedFields),
+              new NameValuePair("uiUrl", grailsApplication.config.biocache.baseURL),
+              new NameValuePair("alaId", authService.getUserId())
       ]
 
       //add the data resource UID if supplied
@@ -143,20 +145,21 @@ class BiocacheService {
         nameValuePairs << new NameValuePair("dataResourceUid", dataResourceUid)
       }
 
-      def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/post")
+        def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/upload/post")
       post.setRequestBody(nameValuePairs.toArray(new NameValuePair[0]))
 
       def http = new HttpClient()
       http.executeMethod(post)
 
       //TODO check the response
-      log.debug(post.getResponseBodyAsString())
+      def uploadResp = post.getResponseBodyAsString()
+      log.debug(uploadResp)
 
       //reference the UID caches
-      def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/cache/refresh")
+      def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/cache/refresh")
       http.executeMethod(get)
 
-      post.getResponseBodyAsString()
+      uploadResp
     }
 
     /**
@@ -182,7 +185,7 @@ class BiocacheService {
               new NameValuePair("separator", separator),
               new NameValuePair("firstLineIsData", firstLineIsData),
               new NameValuePair("customIndexedFields", customIndexedFields),
-              new NameValuePair("uiUrl", grailsApplication.config.sandboxHubsWebapp),
+              new NameValuePair("uiUrl", grailsApplication.config.biocache.baseURL),
               new NameValuePair("alaId", authService.getUserId())
       ]
 
@@ -191,45 +194,46 @@ class BiocacheService {
           nameValuePairs << new NameValuePair("dataResourceUid", dataResourceUid)
       }
 
-      def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/")
+      def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/upload/")
       post.setRequestBody(nameValuePairs.toArray(new NameValuePair[0]))
 
       def http = new HttpClient()
       http.executeMethod(post)
 
-      log.debug(post.getResponseBodyAsString())
+      def uploadResp = post.getResponseBodyAsString()
+      log.debug("Uploading response:" + uploadResp)
 
       //reference the UID caches
-      def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/cache/refresh")
+      def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/cache/refresh")
       http.executeMethod(get)
 
-      post.getResponseBodyAsString()
+      uploadResp
     }
 
     def uploadStatus(String uid){
       def http = new HttpClient()
-      def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/upload/status/${uid}")
+        def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/upload/status/${uid}")
       http.executeMethod(get)
       get.getResponseBodyAsString()
     }
 
     Boolean deleteResource(String uid){
         def http = new HttpClient()
-        def delete = new DeleteMethod(grailsApplication.config.biocacheServiceUrl + "/upload/${uid}?apiKey=" + grailsApplication.config.apiKey)
+        def delete = new DeleteMethod(grailsApplication.config.biocacheService.baseURL + "/upload/${uid}?apiKey=" + grailsApplication.config.apiKey)
         def responseCode = http.executeMethod(delete)
         responseCode == 200
     }
 
     def getCustomIndexes(String uid){
         def http = new HttpClient()
-        def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/upload/customIndexes/${uid}.json")
+        def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/upload/customIndexes/${uid}.json")
         http.executeMethod(get)
         JSON.parse(get.getResponseBodyAsString())
     }
 
     def saveChartOptions(String uid, options){
         def http = new HttpClient()
-        def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/charts/${uid}")
+        def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/upload/charts/${uid}")
         post.setRequestBody((options as JSON).toString())
         int status = http.executeMethod(post)
         status
@@ -237,14 +241,14 @@ class BiocacheService {
 
     def getChartOptions(String uid){
         def http = new HttpClient()
-        def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/upload/charts/${uid}")
+        def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/upload/charts/${uid}")
         http.executeMethod(get)
         JSON.parse(get.getResponseBodyAsString())
     }
 
     def saveLayerOptions(String uid, options){
         def http = new HttpClient()
-        def post = new PostMethod(grailsApplication.config.biocacheServiceUrl + "/upload/layers/${uid}")
+        def post = new PostMethod(grailsApplication.config.biocacheService.baseURL + "/upload/layers/${uid}")
         post.setRequestBody((options as JSON).toString())
         int status = http.executeMethod(post)
         status
@@ -252,7 +256,7 @@ class BiocacheService {
 
     def getLayerOptions(String uid){
         def http = new HttpClient()
-        def get = new GetMethod(grailsApplication.config.biocacheServiceUrl + "/upload/layers/${uid}")
+        def get = new GetMethod(grailsApplication.config.biocacheService.baseURL + "/upload/layers/${uid}")
         http.executeMethod(get)
         JSON.parse(get.getResponseBodyAsString())
     }

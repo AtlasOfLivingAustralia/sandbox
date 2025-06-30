@@ -1,9 +1,0 @@
-body { padding-top:0px; }
-.navbar { display: none; }
-.cancel { display: none; }
-footer { display: none; }
-#sandboxToolsDiv { display: none; }
-#sandboxToolsDiv + h1 { display: none; }
-#sandboxToolsDiv + h1 + p { display: none; }
-#main, .col-sm-12, .col-md-12 { padding: 0px; }
-

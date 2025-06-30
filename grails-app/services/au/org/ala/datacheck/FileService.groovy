@@ -91,7 +91,6 @@ class FileService {
             def basename = file.getName().substring(0, file.getName().lastIndexOf("."))
             def todir = file.getParentFile()
             def istream = new GZIPInputStream(new FileInputStream(file))
-            println("Extracting " + file + " to " + todir)
             def outputFile = new File(todir, basename)
             def ostream = new FileOutputStream(outputFile)
             copyStream(istream, ostream)
